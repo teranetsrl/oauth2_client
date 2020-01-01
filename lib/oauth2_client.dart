@@ -1,54 +1,35 @@
 import 'dart:convert';
 import 'package:flutter_web_auth/flutter_web_auth.dart';
 import 'package:http/http.dart' as http;
+import 'package:oauth2_client/invalidgrantexception.dart';
+import 'package:oauth2_client/oauth2_token.dart';
 import 'package:random_string/random_string.dart';
+import 'package:meta/meta.dart';
 
 class OAuth2Client {
 
-  String scheme;
-  String host;
-  int port;
-  String path;
+  String baseUrl;
   String redirectUri;
-  String clientId;
-  String clientSecret;
-  String tokenEndpoint;
-  String authorizeEndpoint;
   String callbackUrlScheme;
 
-	OAuth2Client(String host, String path, {
-    String clientId,
-    String redirectUri,
-    String clientSecret,
-    String scheme = 'https',
-    int port = 443,
-    String authorizeEndpoint = 'authorize',
-    String tokenEndpoint = 'token',
-    String callbackUrlScheme = ''}) {
+  String tokenEndpoint;
+  String refreshEndpoint;
+  String authorizeEndpoint;
 
-    this.host = host;
-    this.path = path;
-    this.clientId = clientId;
-    this.clientSecret = clientSecret;
-    this.redirectUri = redirectUri;
-    this.scheme = scheme;
-    this.port = port;
-    this.tokenEndpoint = tokenEndpoint;
-    this.callbackUrlScheme = callbackUrlScheme;
-  }
+	OAuth2Client(this.baseUrl, {
+    this.authorizeEndpoint = 'authorize',
+    this.tokenEndpoint = 'token',
+    this.refreshEndpoint = 'refresh',
+    this.redirectUri,
+    this.callbackUrlScheme});
 
-  Future<Map<String, dynamic>> getTokenWithAuthCode(List<String> scopes) async {
+  Future<OAuth2Token> getTokenWithAuthCodeFlow({@required String clientId, @required String clientSecret, @required List<String> scopes}) async {
 
-    String code = await _getAuthorizationCode(scopes);
+    String code = await _getAuthorizationCode(clientId: clientId, scopes: scopes);
 
-    Uri uri = Uri(
-      scheme: scheme,
-      host: host,
-      port: port,
-      path: path + '/' + tokenEndpoint
-    );
+    final String url = _getEndpointUrl(tokenEndpoint);
 
-    http.Response response = await http.post(uri.toString(), body: {
+    http.Response response = await http.post(url, body: {
       'grant_type': 'authorization_code',
       'code': code,
       'redirect_uri': redirectUri,
@@ -56,71 +37,120 @@ class OAuth2Client {
       'client_secret': clientSecret,
     });
 
-    var json = jsonDecode(response.body);
+    Map tokenInfo = _parseResponse(response);
 
-    assert(json is Map);
+    return OAuth2Token.fromMap(tokenInfo);
+  }
 
-    // DateTime now = DateTime.now();
-    // int expDate = now.add(Duration(seconds: json['expires_in'])).millisecondsSinceEpoch;
-/*
-    return {
-      'access_token': json['access_token'],
-      'token_type': json['token_type'],
-      'expires_in': json['expires_in'],
-      'refresh_token': json['refresh_token'],
-      'scope': json['scope']
-    };
-*/
+  Future<OAuth2Token> getTokenWithClientCredentialsFlow({@required String clientId, @required String clientSecret, List<String> scopes}) async {
 
-    return json;
+    final String url = _getEndpointUrl(tokenEndpoint);
+
+    http.Response response = await http.post(url, body: {
+      'grant_type': 'client_credentials',
+      'client_id': clientId,
+      'client_secret': clientSecret,
+      'scope': scopes.join(' ')
+    });
+
+    Map tokenInfo = _parseResponse(response);
+
+    return OAuth2Token.fromMap(tokenInfo);
 
   }
 
-  Future<String> _getAuthorizationCode(List<String> scopes) async {
+  Future<OAuth2Token> refreshToken(String refreshToken) async {
 
-    if(clientId.isEmpty)
-      throw FormatException('No client_id supplied');
+    final String url = _getEndpointUrl(refreshEndpoint);
+
+    http.Response response = await http.post(url, body: {
+      'grant_type': 'refresh_token',
+      'refresh_token': refreshToken
+    });
+
+    Map tokenInfo = _parseResponse(response);
+
+    return OAuth2Token.fromMap(tokenInfo);
+
+  }
+
+  Future<String> _getAuthorizationCode({@required String clientId, @required List<String> scopes}) async {
 
     if(redirectUri.isEmpty)
-      throw FormatException('No redirect_uri supplied');
+      throw Exception('No "redirectUri" supplied');
 
     final String state = randomAlphaNumeric(25);
 
-    Uri uri = Uri(
-      scheme: scheme,
-      host: host,
-      port: port,
-      path: path + '/' + authorizeEndpoint,
-      queryParameters: {
-        'response_type': 'code',
-        'client_id': clientId,
-        'redirect_uri': redirectUri,
-        'scope': scopes.join(' '),
-        'state': state
-      }
-    );
+    final String url = _getEndpointUrl(authorizeEndpoint, params: {
+      'response_type': 'code',
+      'client_id': clientId,
+      'redirect_uri': redirectUri,
+      'scope': scopes.join(' '),
+      'state': state
+    });
 
     // Present the dialog to the user
     final result = await FlutterWebAuth.authenticate(
-      url: uri.toString(),
+      url: url,
       callbackUrlScheme: callbackUrlScheme,
     );
 
     Map<String, List<String>> queryParams = Uri.parse(result).queryParametersAll;
 
+    if(queryParams.containsKey('error') && queryParams['error'].isNotEmpty) {
+      throw Exception(queryParams['error'][0] + (queryParams['error_description'].isNotEmpty ? ': ' + queryParams['error_description'][0] : ''));
+    }
+
     if(!queryParams.containsKey('code') || queryParams['code'].isEmpty) {
-      throw FormatException('Expected code parameter not found in response');
+      throw Exception('Expected "code" parameter not found in response');
     }
 
     if(!queryParams.containsKey('state') || queryParams['state'].isEmpty) {
-      throw FormatException('Expected state parameter not found in response');
+      throw Exception('Expected "state" parameter not found in response');
     }
 
     if(queryParams['state'][0] != state) {
-      throw FormatException('state parameter in response doesn\'t correspond to the expected value');
+      throw Exception('"state" parameter in response doesn\'t correspond to the expected value');
     }
 
     return queryParams['code'][0];
+  }
+
+  String _getEndpointUrl(String path, {Map<String, dynamic> params}) {
+    String url = baseUrl + '/' + path;
+
+    if(params != null) {
+      List<String> qsList = [];
+      params.forEach((k, v) {
+        qsList.add(k + '=' + v);
+      });
+      if(qsList.isNotEmpty) {
+        url = Uri.encodeFull(url + '?' + qsList.join('&'));
+      }
+    }
+
+    return url;
+
+  }
+
+  Map<String, dynamic> _parseResponse(http.Response response) {
+
+    Map respData = jsonDecode(response.body);
+
+    //@see https://tools.ietf.org/html/rfc6749#section-5.2
+    if(response.statusCode == 400) {
+
+      final String error = respData['error'];
+
+      if(error == 'invalid_grant') {
+        throw InvalidGrantException();
+      }
+      else {
+        throw Exception(error + (respData['error_description'].isNotEmpty ? ': ' + respData['error_description'] : ''));
+      }
+    }
+
+    return respData;
   }
 
 }

@@ -10,9 +10,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  meta: ^1.1.8
   http: '>=0.11.3+12'
   flutter_web_auth: ^0.1.2
   random_string: ^1.1.0
+  flutter_secure_storage: ^3.3.1+1
 
 dev_dependencies:
   flutter_test:

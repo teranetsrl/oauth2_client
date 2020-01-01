@@ -1,0 +1,2 @@
+class InvalidGrantException implements Exception {
+}
