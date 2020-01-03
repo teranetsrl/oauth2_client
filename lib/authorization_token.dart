@@ -1,4 +1,4 @@
-class OAuth2Token {
+class AuthorizationToken {
 
 	String accessToken;
   String tokenType;
@@ -6,9 +6,9 @@ class OAuth2Token {
   List<String> scope;
   DateTime expirationDate;
 
-	OAuth2Token();
+	AuthorizationToken();
 
-  OAuth2Token.fromMap(Map<String, dynamic> map) {
+  AuthorizationToken.fromMap(Map<String, dynamic> map) {
     accessToken = map['access_token'];
     tokenType = map['token_type'];
     refreshToken = map['refresh_token'];
@@ -43,5 +43,9 @@ class OAuth2Token {
   bool refreshNeeded({secondsToExpiration: 30}) {
     DateTime now = DateTime.now();
     return expirationDate.difference(now).inSeconds < secondsToExpiration;
+  }
+
+  bool isBearer() {
+    return tokenType.toLowerCase() == 'bearer';
   }
 }

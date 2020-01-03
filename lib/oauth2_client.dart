@@ -1,50 +1,91 @@
 import 'dart:convert';
 import 'package:flutter_web_auth/flutter_web_auth.dart';
 import 'package:http/http.dart' as http;
-import 'package:oauth2_client/invalidgrantexception.dart';
-import 'package:oauth2_client/oauth2_token.dart';
+import 'package:oauth2_client/exceptions.dart';
+import 'package:oauth2_client/authorization_token.dart';
 import 'package:random_string/random_string.dart';
 import 'package:meta/meta.dart';
+import 'package:crypto/crypto.dart';
 
+/// Base class that implements OAuth2 authorization flows.
+///
+/// It currently supports the following grants:
+/// * Authorization Code
+/// * Client Credentials
+///
+/// For the Authorization Code grant, PKCE is used by default. If you need to disable it, pass the 'enablePKCE' param to false.
+///
+/// You can use directly this class, but normally you want to extend it and implement your own client.
+/// When instantiating the client, pass your custom uri scheme in the [customUriScheme] field.
+/// Normally you would use something like <customUriScheme>:/oauth for the [redirectUri] field.
+/// For Android only you must add an intent filter in your AndroidManifest.xml file to enable the custom uri handling.
+/// <activity android:name="com.linusu.flutter_web_auth.CallbackActivity" >
+///   <intent-filter android:label="flutter_web_auth">
+///     <action android:name="android.intent.action.VIEW" />
+///     <category android:name="android.intent.category.DEFAULT" />
+///     <category android:name="android.intent.category.BROWSABLE" />
+///     <data android:scheme="com.teranet.app" />
+///   </intent-filter>
+/// </activity>
 class OAuth2Client {
 
-  String baseUrl;
   String redirectUri;
-  String callbackUrlScheme;
+  String customUriScheme;
 
-  String tokenEndpoint;
-  String refreshEndpoint;
-  String authorizeEndpoint;
+  String tokenUrl;
+  String refreshUrl;
+  String authorizeUrl;
 
-	OAuth2Client(this.baseUrl, {
-    this.authorizeEndpoint = 'authorize',
-    this.tokenEndpoint = 'token',
-    this.refreshEndpoint = 'refresh',
-    this.redirectUri,
-    this.callbackUrlScheme});
+	OAuth2Client({
+    @required this.authorizeUrl,
+    @required this.tokenUrl,
+    this.refreshUrl,
+    @required this.redirectUri,
+    @required this.customUriScheme});
 
-  Future<OAuth2Token> getTokenWithAuthCodeFlow({@required String clientId, @required String clientSecret, @required List<String> scopes}) async {
+  /// Requests an Access Token to the OAuth2 endpoint using the Authorization Code Flow.
+  Future<AuthorizationToken> getTokenWithAuthCodeFlow({@required String clientId, @required List<String> scopes, String clientSecret, bool enablePKCE = true}) async {
 
-    String code = await _getAuthorizationCode(clientId: clientId, scopes: scopes);
+    String codeChallenge;
+    String codeVerifier;
 
-    final String url = _getEndpointUrl(tokenEndpoint);
+    if(enablePKCE) {
+      codeVerifier = randomAlphaNumeric(80);
+      List<int> bytes = utf8.encode(codeVerifier);
 
-    http.Response response = await http.post(url, body: {
+      Digest digest = sha256.convert(bytes);
+
+      codeChallenge = base64UrlEncode(digest.bytes);
+    }
+
+    String code = await _getAuthorizationCode(clientId: clientId, scopes: scopes, codeChallenge: codeChallenge);
+
+    final String url = _getEndpointUrl(tokenUrl);
+
+    Map<String, String> body = {
       'grant_type': 'authorization_code',
       'code': code,
       'redirect_uri': redirectUri,
       'client_id': clientId,
-      'client_secret': clientSecret,
-    });
+    };
+
+    if(clientSecret != null)
+      body['client_secret'] = clientSecret;
+
+    if(codeVerifier != null)
+      body['code_verifier'] = codeVerifier;
+
+    http.Response response = await http.post(url, body: body);
 
     Map tokenInfo = _parseResponse(response);
 
-    return OAuth2Token.fromMap(tokenInfo);
+    return AuthorizationToken.fromMap(tokenInfo);
   }
 
-  Future<OAuth2Token> getTokenWithClientCredentialsFlow({@required String clientId, @required String clientSecret, List<String> scopes}) async {
+  /// Requests an Access Token to the OAuth2 endpoint using the Client Credentials flow.
+  Future<AuthorizationToken> getTokenWithClientCredentialsFlow({@required String clientId, @required String clientSecret, List<String> scopes}) async {
 
-    final String url = _getEndpointUrl(tokenEndpoint);
+    final String url = _getEndpointUrl(tokenUrl);
 
     http.Response response = await http.post(url, body: {
       'grant_type': 'client_credentials',
@@ -55,13 +96,14 @@ class OAuth2Client {
 
     Map tokenInfo = _parseResponse(response);
 
-    return OAuth2Token.fromMap(tokenInfo);
+    return AuthorizationToken.fromMap(tokenInfo);
 
   }
 
-  Future<OAuth2Token> refreshToken(String refreshToken) async {
+  /// Refreshes an Access Token issuing a refresh_token grant to the OAuth2 server.
+  Future<AuthorizationToken> refreshToken(String refreshToken) async {
 
-    final String url = _getEndpointUrl(refreshEndpoint);
+    final String url = _getEndpointUrl(refreshUrl);
 
     http.Response response = await http.post(url, body: {
       'grant_type': 'refresh_token',
@@ -70,29 +112,40 @@ class OAuth2Client {
 
     Map tokenInfo = _parseResponse(response);
 
-    return OAuth2Token.fromMap(tokenInfo);
+    return AuthorizationToken.fromMap(tokenInfo);
 
   }
+/*
+  Future<IDToken> getIDTokenWithAuthCodeFlow({@required String clientId, @required List<String> scopes, String clientSecret, bool enablePKCE = true}) async {
 
-  Future<String> _getAuthorizationCode({@required String clientId, @required List<String> scopes}) async {
+  }
+*/
+  Future<String> _getAuthorizationCode({@required String clientId, @required List<String> scopes, String codeChallenge}) async {
 
     if(redirectUri.isEmpty)
       throw Exception('No "redirectUri" supplied');
 
     final String state = randomAlphaNumeric(25);
 
-    final String url = _getEndpointUrl(authorizeEndpoint, params: {
+    Map<String, String> params = {
       'response_type': 'code',
       'client_id': clientId,
       'redirect_uri': redirectUri,
       'scope': scopes.join(' '),
       'state': state
-    });
+    };
+
+    if(codeChallenge != null) {
+      params['code_challenge'] = codeChallenge;
+      params['code_challenge_method'] = 'S256';
+    }
+
+    final String url = _getEndpointUrl(authorizeUrl, params: params);
 
     // Present the dialog to the user
     final result = await FlutterWebAuth.authenticate(
       url: url,
-      callbackUrlScheme: callbackUrlScheme,
+      callbackUrlScheme: customUriScheme
     );
 
     Map<String, List<String>> queryParams = Uri.parse(result).queryParametersAll;
@@ -116,8 +169,7 @@ class OAuth2Client {
     return queryParams['code'][0];
   }
 
-  String _getEndpointUrl(String path, {Map<String, dynamic> params}) {
-    String url = baseUrl + '/' + path;
+  String _getEndpointUrl(String url, {Map<String, dynamic> params}) {
 
     if(params != null) {
       List<String> qsList = [];
@@ -137,17 +189,24 @@ class OAuth2Client {
 
     Map respData = jsonDecode(response.body);
 
-    //@see https://tools.ietf.org/html/rfc6749#section-5.2
-    if(response.statusCode == 400) {
+    if(response.statusCode != 200) {
 
       final String error = respData['error'];
 
-      if(error == 'invalid_grant') {
-        throw InvalidGrantException();
+      //@see https://tools.ietf.org/html/rfc6750#section-3.1
+      if(response.statusCode == 401 && response.headers.containsKey('WWW-Authenticate')) {
+        if(error == 'invalid_token') {
+          throw InvalidTokenException();
+        }
       }
-      else {
-        throw Exception(error + (respData['error_description'].isNotEmpty ? ': ' + respData['error_description'] : ''));
+      else if(response.statusCode == 400) {
+        //@see https://tools.ietf.org/html/rfc6749#section-5.2
+        // if(error == 'invalid_grant') {
+          throw InvalidGrantException();
+        // }
       }
+
+      throw Exception(error + (respData['error_description'].isNotEmpty ? ': ' + respData['error_description'] : ''));
     }
 
     return respData;
