@@ -21,6 +21,8 @@ Then instantiate and setup the helper:
 
 ```dart
 import 'package:oauth2_client/oauth2_helper.dart';
+//We are going to use the google client for this example...
+import 'package:oauth2_client/google_oauth2_client.dart';
 
 //Instantiate an OAuth2Client...
 //For the Google client, the first parameter is the redirect uri, the second is the custom url scheme
@@ -49,15 +51,42 @@ The helper will:
  - **check** if a **token** already exists in the **secure storage**
  - if it doesn't exist:
  	- **request the token** using the flow and the parameters specified in the *setAuthorizationParams* call. For example, for the Authorization Code flow this involves opening a web browser for the authorization code and then requesting the actual authorization token. The token is then **stored in secure storage**.
- - if the token already exists, but is expired, a new one is **automatically generated** using the **refresh_token** flow. The token is then stored in secure storage.
+ - if the token already exists, but is **expired**, a new one is **automatically generated** using the **refresh_token** flow. The token is then stored in secure storage.
  - **Perform** the actual http **request** with the authorization **token included**.
 
 # Usage without the helper class #
 You can use the library without the helper class, using one of the base client classes.
 
-This way tokens won't be stored, and won't be authomatically refreshed. Furthermore, you will have to add the authorization token to http requests by yourself.
+This way tokens won't be automatically stored, and won't be automatically refreshed. Furthermore, you will have to add the authorization token to http requests by yourself.
 
 ## Using Google client ##
+```dart
+import 'package:oauth2_client/google_oauth2_client.dart';
+import 'package:oauth2_client/authorization_token.dart';
+
+...
+
+//Instantiate the client as before...
+GoogleOAuth2Client client = GoogleOAuth2Client('com.teranet.app:/oauth2redirect', 'com.teranet.app');
+
+//Request a token using the Authorization Code flow...
+AuthorizationToken token = client.getTokenWithAuthCodeFlow(
+	clientId: 'your_client_id',
+	scopes: ['scope1', 'scope2', ...]
+);
+
+//Request a token using the Client Credentials flow...
+AuthorizationToken token = client.getTokenWithClientCredentialsFlow(
+	clientId: 'XXX', //Your client id
+	clientSecret: 'XXX', //Your client secret
+	scopes: ['scope1', 'scope2', ...] //Optional
+);
+
+//Or, if you already have a token, check if it is expired and in case refresh it...
+if(token.isExpired()) {
+	token = client.refreshToken(token.refreshToken);
+}
+```
 
 ## Using base client class ##
 
