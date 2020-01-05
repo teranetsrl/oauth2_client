@@ -3,7 +3,6 @@ import 'package:flutter_web_auth/flutter_web_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:oauth2_client/exceptions.dart';
 import 'package:oauth2_client/access_token.dart';
-import 'package:oauth2_client/id_token.dart';
 import 'package:random_string/random_string.dart';
 import 'package:meta/meta.dart';
 import 'package:crypto/crypto.dart';
