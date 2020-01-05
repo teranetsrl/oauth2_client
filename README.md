@@ -13,7 +13,7 @@ First you need to add the library to your *pubspec.yaml* file:
 
 ```dart
 dependencies:
-	oauth2_client: ^0.1.0
+	oauth2_client: ^1.0.0
 ```
 
 Then instantiate and setup the helper:

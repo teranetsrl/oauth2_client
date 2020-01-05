@@ -1,8 +1,8 @@
 name: oauth2_client
-description: A new Flutter package project.
-version: 0.0.1
-author:
-homepage:
+description: Simple Flutter library for interacting with OAuth2 servers.
+version: 1.0.0
+author: TeraNet srl<info@teranet.it>
+homepage: https://github.com/teranetsrl/oauth2_client
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
@@ -20,9 +20,6 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter.
 flutter:
