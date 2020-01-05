@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'package:flutter_web_auth/flutter_web_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:oauth2_client/exceptions.dart';
-import 'package:oauth2_client/authorization_token.dart';
+import 'package:oauth2_client/access_token.dart';
+import 'package:oauth2_client/id_token.dart';
 import 'package:random_string/random_string.dart';
 import 'package:meta/meta.dart';
 import 'package:crypto/crypto.dart';
@@ -44,7 +45,7 @@ class OAuth2Client {
     @required this.customUriScheme});
 
   /// Requests an Access Token to the OAuth2 endpoint using the Authorization Code Flow.
-  Future<AuthorizationToken> getTokenWithAuthCodeFlow({@required String clientId, @required List<String> scopes, String clientSecret, bool enablePKCE = true}) async {
+  Future<AccessToken> getTokenWithAuthCodeFlow({@required String clientId, @required List<String> scopes, String clientSecret, bool enablePKCE = true}) async {
 
     String codeChallenge;
     String codeVerifier;
@@ -56,6 +57,10 @@ class OAuth2Client {
       Digest digest = sha256.convert(bytes);
 
       codeChallenge = base64UrlEncode(digest.bytes);
+
+      if(codeChallenge.endsWith('=')) {
+        codeChallenge = codeChallenge.substring(0, codeChallenge.length - 1);
+      }
     }
 
     String code = await _getAuthorizationCode(clientId: clientId, scopes: scopes, codeChallenge: codeChallenge);
@@ -79,11 +84,11 @@ class OAuth2Client {
 
     Map tokenInfo = _parseResponse(response);
 
-    return AuthorizationToken.fromMap(tokenInfo);
+    return AccessToken.fromMap(tokenInfo);
   }
 
   /// Requests an Access Token to the OAuth2 endpoint using the Client Credentials flow.
-  Future<AuthorizationToken> getTokenWithClientCredentialsFlow({@required String clientId, @required String clientSecret, List<String> scopes}) async {
+  Future<AccessToken> getTokenWithClientCredentialsFlow({@required String clientId, @required String clientSecret, List<String> scopes}) async {
 
     final String url = _getEndpointUrl(tokenUrl);
 
@@ -96,12 +101,12 @@ class OAuth2Client {
 
     Map tokenInfo = _parseResponse(response);
 
-    return AuthorizationToken.fromMap(tokenInfo);
+    return AccessToken.fromMap(tokenInfo);
 
   }
 
   /// Refreshes an Access Token issuing a refresh_token grant to the OAuth2 server.
-  Future<AuthorizationToken> refreshToken(String refreshToken) async {
+  Future<AccessToken> refreshToken(String refreshToken) async {
 
     final String url = _getEndpointUrl(refreshUrl);
 
@@ -112,14 +117,10 @@ class OAuth2Client {
 
     Map tokenInfo = _parseResponse(response);
 
-    return AuthorizationToken.fromMap(tokenInfo);
+    return AccessToken.fromMap(tokenInfo);
 
   }
-/*
-  Future<IDToken> getIDTokenWithAuthCodeFlow({@required String clientId, @required List<String> scopes, String clientSecret, bool enablePKCE = true}) async {
 
-  }
-*/
   Future<String> _getAuthorizationCode({@required String clientId, @required List<String> scopes, String codeChallenge}) async {
 
     if(redirectUri.isEmpty)

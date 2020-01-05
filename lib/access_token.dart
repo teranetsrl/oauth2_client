@@ -1,4 +1,4 @@
-class AuthorizationToken {
+class AccessToken {
 
 	String accessToken;
   String tokenType;
@@ -6,9 +6,9 @@ class AuthorizationToken {
   List<String> scope;
   DateTime expirationDate;
 
-	AuthorizationToken();
+	AccessToken();
 
-  AuthorizationToken.fromMap(Map<String, dynamic> map) {
+  AccessToken.fromMap(Map<String, dynamic> map) {
     accessToken = map['access_token'];
     tokenType = map['token_type'];
     refreshToken = map['refresh_token'];

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:oauth2_client/exceptions.dart';
 import 'package:oauth2_client/oauth2_client.dart';
-import 'package:oauth2_client/authorization_token.dart';
+import 'package:oauth2_client/access_token.dart';
 import 'package:http/http.dart' as http;
 import 'package:meta/meta.dart';
 
@@ -44,18 +44,18 @@ class OAuth2Helper {
   /// Returns a previously required token, if any, or requires a new one.
   ///
   /// If a token already exists but is expired, a new token is generated through the refresh_token grant.
-  Future<AuthorizationToken> getToken() async {
+  Future<AccessToken> getToken() async {
 
     _validateAuthorizationParams();
 
-    AuthorizationToken token;
+    AccessToken token;
 
     final String key = _getStorageKey(scopes);
 
     String serToken = await storage.read(key: key);
 
     if(serToken != null) {
-      token = AuthorizationToken.fromMap(jsonDecode(serToken));
+      token = AccessToken.fromMap(jsonDecode(serToken));
       if(token.refreshNeeded()) {
         //The access token is expired
         token = await refreshToken(token.refreshToken);
@@ -89,9 +89,9 @@ class OAuth2Helper {
   }
 
   /// Performs a refresh_token request using the [refreshToken].
-  Future<AuthorizationToken> refreshToken(String refreshToken) async {
+  Future<AccessToken> refreshToken(String refreshToken) async {
 
-    AuthorizationToken token;
+    AccessToken token;
 
     final String key = _getStorageKey(scopes);
 
@@ -117,7 +117,7 @@ class OAuth2Helper {
   /// If no token already exists, or if it is exipired, a new one is requested.
   Future<http.Response> post(String url, {Map<String, dynamic> params}) async {
 
-    AuthorizationToken tkn = await getToken();
+    AccessToken tkn = await getToken();
 
     http.Response resp = await http.post(url, body: params, headers: {
       'Authorization': 'Bearer ' + tkn.accessToken
@@ -145,7 +145,7 @@ class OAuth2Helper {
   /// If no token already exists, or if it is exipired, a new one is requested.
   Future<http.Response> get(String url) async {
 
-    AuthorizationToken tkn = await getToken();
+    AccessToken tkn = await getToken();
 
     http.Response resp = await http.get(url, headers: {
       'Authorization': 'Bearer ' + tkn.accessToken
