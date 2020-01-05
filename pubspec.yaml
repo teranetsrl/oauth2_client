@@ -12,7 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   meta: ^1.1.8
-  http: '>=0.11.3+12'
+  http: ^0.11.3+12
   flutter_web_auth: ^0.1.2
   random_string: ^1.1.0
   crypto: ^2.1.3
