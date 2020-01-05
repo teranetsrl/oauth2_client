@@ -94,7 +94,7 @@ The library implements clients for the following services/organizations:
 
  - Google
  - Facebook
- - Linkedin
+ - LinkedIn
 
 ## Google client ##
 
@@ -135,7 +135,7 @@ OAuth2Client fbClient = FacebookOAuth2Client(
 
 Then you can instantiate an helper class or directly use the client methods to acquire access tokens.
 
-## Linkedin client ##
+## LinkedIn client ##
 
 In order to use this client you need to first configure OAuth2 credentials. See https://docs.microsoft.com/it-it/linkedin/shared/authentication/authorization-code-flow.
 
@@ -144,7 +144,7 @@ Then in your code:
 ```dart
 import 'package:oauth2_client/linkedin_oauth2_client.dart';
 
-OAuth2Client liClient = LinkedinOAuth2Client(
+OAuth2Client liClient = LinkedInOAuth2Client(
 	redirectUri: 'com.teranet.app:/oauth2redirect',
 	customUriScheme: 'com.teranet.app'
 );
