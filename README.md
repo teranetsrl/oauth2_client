@@ -3,11 +3,23 @@ Simple Flutter library for interacting with OAuth2 servers.
 
 Currently only **Authorization Code** and **Client Credentials** flows are implemented.
 
-# Usage with the helper class #
-The simplest way to use the library is through the *OAuth2Helper* class.
-This class transparently handles tokens request/refreshing, as well as storing and caching them.
+# Installation #
 
-Besides, it implements commodity methods to transparently perform http requests adding the generated access tokens.
+If your application uses the Authorization Code flow, on Android you first need to modify the *AndroidManifest.xml* file adding the intent filter needed to open the browser window for the authorization workflow.
+The library relies on the flutter_web_auth package to allow the Authorization Code flow
+
+AndroidManifest.xml
+
+```xml
+<activity android:name="com.linusu.flutter_web_auth.CallbackActivity" >
+	<intent-filter android:label="flutter_web_auth">
+		<action android:name="android.intent.action.VIEW" />
+		<category android:name="android.intent.category.DEFAULT" />
+		<category android:name="android.intent.category.BROWSABLE" />
+		<data android:scheme="com.teranet.app" />
+	</intent-filter>
+</activity>
+```
 
 First you need to add the library to your *pubspec.yaml* file:
 
@@ -15,6 +27,14 @@ First you need to add the library to your *pubspec.yaml* file:
 dependencies:
 	oauth2_client: ^1.0.0
 ```
+
+# Usage with the helper class #
+The simplest way to use the library is through the *OAuth2Helper* class.
+This class transparently handles tokens request/refreshing, as well as storing and caching them.
+
+Besides, it implements commodity methods to transparently perform http requests adding the generated access tokens.
+
+
 
 Then instantiate and setup the helper:
 
