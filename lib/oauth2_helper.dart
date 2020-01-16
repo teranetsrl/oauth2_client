@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:oauth2_client/exceptions.dart';
+import 'package:oauth2_client/access_token_response.dart';
+import 'package:oauth2_client/oauth2_exception.dart';
 import 'package:oauth2_client/oauth2_client.dart';
-import 'package:oauth2_client/access_token.dart';
 import 'package:http/http.dart' as http;
 import 'package:meta/meta.dart';
 
@@ -44,72 +44,77 @@ class OAuth2Helper {
   /// Returns a previously required token, if any, or requires a new one.
   ///
   /// If a token already exists but is expired, a new token is generated through the refresh_token grant.
-  Future<AccessToken> getToken() async {
+  Future<AccessTokenResponse> getToken() async {
 
     _validateAuthorizationParams();
 
-    AccessToken token;
+    AccessTokenResponse tknResp;
 
     final String key = _getStorageKey(scopes);
 
     String serToken = await storage.read(key: key);
 
     if(serToken != null) {
-      token = AccessToken.fromMap(jsonDecode(serToken));
-      if(token.refreshNeeded()) {
+      tknResp = AccessTokenResponse.fromMap(jsonDecode(serToken));
+      if(tknResp.refreshNeeded()) {
         //The access token is expired
-        token = await refreshToken(token.refreshToken);
+        tknResp = await refreshToken(tknResp.refreshToken);
       }
     }
     else {
       if(grantType == AUTHORIZATION_CODE) {
-        token = await client.getTokenWithAuthCodeFlow(
+        tknResp = await client.getTokenWithAuthCodeFlow(
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes
         );
       }
       else if(grantType == CLIENT_CREDENTIALS) {
-        token = await client.getTokenWithClientCredentialsFlow(
+        tknResp = await client.getTokenWithClientCredentialsFlow(
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes
         );
       }
 
-      if(token != null)
-        storage.write(key: key, value: jsonEncode(token.toMap()));
+      if(tknResp != null)
+        storage.write(key: key, value: jsonEncode(tknResp.toMap()));
     }
 
-    if(token != null && !token.isBearer()) {
+    if(tknResp != null && !tknResp.isBearer()) {
       throw Exception('Only Bearer tokens are currently supported');
     }
 
-    return token;
+    return tknResp;
   }
 
   /// Performs a refresh_token request using the [refreshToken].
-  Future<AccessToken> refreshToken(String refreshToken) async {
+  Future<AccessTokenResponse> refreshToken(String refreshToken) async {
 
-    AccessToken token;
+    AccessTokenResponse tknResp;
 
     final String key = _getStorageKey(scopes);
 
-    try {
-      token = await client.refreshToken(refreshToken);
-      storage.write(key: key, value: jsonEncode(token.toMap()));
-    } catch(err) {
-      //The refresh token is expired too
-      if(err is InvalidGrantException) {
+    // try {
+    tknResp = await client.refreshToken(refreshToken);
+
+    if(tknResp.isValid()) {
+      storage.write(key: key, value: jsonEncode(tknResp.toMap()));
+    }
+    else {
+
+      if(tknResp.error == 'invalid_grant') {
+        //The refresh token is expired too
         storage.delete(key: key);
-        token = await getToken();
+        tknResp = await getToken();
       }
       else {
-        rethrow;
+        throw OAuth2Exception(tknResp.error, errorDescription: tknResp.errorDescription);
+        // rethrow;
       }
     }
 
-    return token;
+    return tknResp;
   }
 
   /// Performs a post request to the specified [url], adding the authorization token.
@@ -117,26 +122,33 @@ class OAuth2Helper {
   /// If no token already exists, or if it is exipired, a new one is requested.
   Future<http.Response> post(String url, {Map<String, dynamic> params}) async {
 
-    AccessToken tkn = await getToken();
+    http.Response resp;
 
-    http.Response resp = await http.post(url, body: params, headers: {
-      'Authorization': 'Bearer ' + tkn.accessToken
-    });
+    AccessTokenResponse tknResp = await getToken();
 
-    if(resp.statusCode == 401) {
-      Map<String, dynamic> respData = jsonDecode(resp.body);
-      if(respData.containsKey('error')) {
-        if(respData['error'] == 'invalid_token') {
+    try {
 
-          tkn = await refreshToken(tkn.refreshToken);
+      resp = await http.post(url, body: params, headers: {
+        'Authorization': 'Bearer ' + tknResp.accessToken
+      });
 
-          resp = await http.post(url, body: params, headers: {
-            'Authorization': 'Bearer ' + tkn.accessToken
-          });
+      if(resp.statusCode == 401) {
+        Map<String, dynamic> respData = jsonDecode(resp.body);
+        if(respData.containsKey('error')) {
+          if(respData['error'] == 'invalid_token') {
+
+            tknResp = await refreshToken(tknResp.refreshToken);
+
+            resp = await http.post(url, body: params, headers: {
+              'Authorization': 'Bearer ' + tknResp.accessToken
+            });
+          }
         }
       }
-    }
 
+    } catch(e) {
+      rethrow;
+    }
     return resp;
   }
 
@@ -145,19 +157,19 @@ class OAuth2Helper {
   /// If no token already exists, or if it is exipired, a new one is requested.
   Future<http.Response> get(String url) async {
 
-    AccessToken tkn = await getToken();
+    AccessTokenResponse tknResp = await getToken();
 
     http.Response resp = await http.get(url, headers: {
-      'Authorization': 'Bearer ' + tkn.accessToken
+      'Authorization': 'Bearer ' + tknResp.accessToken
     });
 
     if(resp.statusCode == 401) {
       Map<String, dynamic> respData = jsonDecode(resp.body);
       if(respData.containsKey('error')) {
         if(respData['error'] == 'invalid_token') {
-          tkn = await refreshToken(tkn.refreshToken);
+          tknResp = await refreshToken(tknResp.refreshToken);
           resp = await http.get(url, headers: {
-            'Authorization': 'Bearer ' + tkn.accessToken
+            'Authorization': 'Bearer ' + tknResp.accessToken
           });
         }
       }

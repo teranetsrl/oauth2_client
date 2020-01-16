@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter_web_auth/flutter_web_auth.dart';
 import 'package:http/http.dart' as http;
-import 'package:oauth2_client/exceptions.dart';
-import 'package:oauth2_client/access_token.dart';
+import 'package:oauth2_client/access_token_response.dart';
+import 'package:oauth2_client/authorization_response.dart';
 import 'package:random_string/random_string.dart';
 import 'package:meta/meta.dart';
 import 'package:crypto/crypto.dart';
@@ -44,7 +44,9 @@ class OAuth2Client {
     @required this.customUriScheme});
 
   /// Requests an Access Token to the OAuth2 endpoint using the Authorization Code Flow.
-  Future<AccessToken> getTokenWithAuthCodeFlow({@required String clientId, @required List<String> scopes, String clientSecret, bool enablePKCE = true}) async {
+  Future<AccessTokenResponse> getTokenWithAuthCodeFlow({@required String clientId, @required List<String> scopes, String clientSecret, bool enablePKCE = true}) async {
+
+    AccessTokenResponse tknResp;
 
     String codeChallenge;
     String codeVerifier;
@@ -62,32 +64,40 @@ class OAuth2Client {
       }
     }
 
-    String code = await _getAuthorizationCode(clientId: clientId, scopes: scopes, codeChallenge: codeChallenge);
+    AuthorizationResponse authResp = await _getAuthorizationCode(clientId: clientId, scopes: scopes, codeChallenge: codeChallenge);
 
-    final String url = _getEndpointUrl(tokenUrl);
+    if(authResp.isAccessGranted()) {
 
-    Map<String, String> body = {
-      'grant_type': 'authorization_code',
-      'code': code,
-      'redirect_uri': redirectUri,
-      'client_id': clientId,
-    };
+      final String url = _getEndpointUrl(tokenUrl);
 
-    if(clientSecret != null)
-      body['client_secret'] = clientSecret;
+      Map<String, String> body = {
+        'grant_type': 'authorization_code',
+        'code': authResp.code,
+        'redirect_uri': redirectUri,
+        'client_id': clientId,
+      };
 
-    if(codeVerifier != null)
-      body['code_verifier'] = codeVerifier;
+      if(clientSecret != null)
+        body['client_secret'] = clientSecret;
 
-    http.Response response = await http.post(url, body: body);
+      if(codeVerifier != null)
+        body['code_verifier'] = codeVerifier;
 
-    Map tokenInfo = _parseResponse(response);
+      http.Response response = await http.post(url, body: body);
 
-    return AccessToken.fromMap(tokenInfo);
+      tknResp = AccessTokenResponse.fromHttpResponse(response);
+/*
+      Map tokenInfo = _parseResponse(response);
+
+      tknResp = AccessTokenResponse.fromMap(tokenInfo);
+*/
+    }
+
+    return tknResp;
   }
 
   /// Requests an Access Token to the OAuth2 endpoint using the Client Credentials flow.
-  Future<AccessToken> getTokenWithClientCredentialsFlow({@required String clientId, @required String clientSecret, List<String> scopes}) async {
+  Future<AccessTokenResponse> getTokenWithClientCredentialsFlow({@required String clientId, @required String clientSecret, List<String> scopes}) async {
 
     final String url = _getEndpointUrl(tokenUrl);
 
@@ -98,14 +108,16 @@ class OAuth2Client {
       'scope': scopes.join(' ')
     });
 
+    return AccessTokenResponse.fromHttpResponse(response);
+/*
     Map tokenInfo = _parseResponse(response);
 
-    return AccessToken.fromMap(tokenInfo);
-
+    return AccessTokenResponse.fromMap(tokenInfo);
+*/
   }
 
   /// Refreshes an Access Token issuing a refresh_token grant to the OAuth2 server.
-  Future<AccessToken> refreshToken(String refreshToken) async {
+  Future<AccessTokenResponse> refreshToken(String refreshToken) async {
 
     final String url = _getEndpointUrl(refreshUrl);
 
@@ -114,13 +126,15 @@ class OAuth2Client {
       'refresh_token': refreshToken
     });
 
+    return AccessTokenResponse.fromHttpResponse(response);
+/*
     Map tokenInfo = _parseResponse(response);
 
     return AccessToken.fromMap(tokenInfo);
-
+*/
   }
 
-  Future<String> _getAuthorizationCode({@required String clientId, @required List<String> scopes, String codeChallenge}) async {
+  Future<AuthorizationResponse> _getAuthorizationCode({@required String clientId, @required List<String> scopes, String codeChallenge}) async {
 
     if(redirectUri.isEmpty)
       throw Exception('No "redirectUri" supplied');
@@ -148,6 +162,11 @@ class OAuth2Client {
       callbackUrlScheme: customUriScheme
     );
 
+    AuthorizationResponse authResp = AuthorizationResponse.fromRedirectUri(result, state);
+
+    return authResp;
+
+/*
     Map<String, List<String>> queryParams = Uri.parse(result).queryParametersAll;
 
     if(queryParams.containsKey('error') && queryParams['error'].isNotEmpty) {
@@ -167,6 +186,7 @@ class OAuth2Client {
     }
 
     return queryParams['code'][0];
+*/
   }
 
   String _getEndpointUrl(String url, {Map<String, dynamic> params}) {
@@ -184,7 +204,7 @@ class OAuth2Client {
     return url;
 
   }
-
+/*
   Map<String, dynamic> _parseResponse(http.Response response) {
 
     Map respData = jsonDecode(response.body);
@@ -211,5 +231,5 @@ class OAuth2Client {
 
     return respData;
   }
-
+*/
 }
