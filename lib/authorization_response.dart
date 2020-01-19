@@ -40,7 +40,7 @@ class AuthorizationResponse {
   }
 
   bool isAccessGranted() {
-    return error.isEmpty;
+    return error != null ? error.isEmpty : true;
   }
 
 }

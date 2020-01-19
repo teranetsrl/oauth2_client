@@ -1,11 +1,9 @@
-import 'dart:convert';
-import 'package:flutter_web_auth/flutter_web_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:oauth2_client/access_token_response.dart';
 import 'package:oauth2_client/authorization_response.dart';
-import 'package:random_string/random_string.dart';
+import 'package:oauth2_client/src/oauth2_client_impl.dart';
 import 'package:meta/meta.dart';
-import 'package:crypto/crypto.dart';
+import 'package:oauth2_client/src/web_auth.dart';
 
 /// Base class that implements OAuth2 authorization flows.
 ///
@@ -29,207 +27,106 @@ import 'package:crypto/crypto.dart';
 /// </activity>
 class OAuth2Client {
 
-  String redirectUri;
-  String customUriScheme;
-
-  String tokenUrl;
-  String refreshUrl;
-  String authorizeUrl;
+  OAuth2ClientImpl clientImpl;
+  WebAuth webAuthClient;
 
 	OAuth2Client({
-    @required this.authorizeUrl,
-    @required this.tokenUrl,
-    this.refreshUrl,
-    @required this.redirectUri,
-    @required this.customUriScheme});
+    @required authorizeUrl,
+    @required tokenUrl,
+    refreshUrl,
+    @required redirectUri,
+    @required customUriScheme}) {
+
+    clientImpl = OAuth2ClientImpl(
+      authorizeUrl: authorizeUrl,
+      tokenUrl: tokenUrl,
+      refreshUrl: refreshUrl,
+      redirectUri: redirectUri,
+      customUriScheme: customUriScheme
+    );
+
+    webAuthClient = WebAuth();
+
+  }
 
   /// Requests an Access Token to the OAuth2 endpoint using the Authorization Code Flow.
-  Future<AccessTokenResponse> getTokenWithAuthCodeFlow({@required String clientId, @required List<String> scopes, String clientSecret, bool enablePKCE = true}) async {
+  Future<AccessTokenResponse> getTokenWithAuthCodeFlow({
+    @required String clientId,
+    @required List<String> scopes,
+    String clientSecret,
+    bool enablePKCE = true
+  }) async {
 
-    AccessTokenResponse tknResp;
+    return await clientImpl.getTokenWithAuthCodeFlow(
+      httpClient: http.Client,
+      webAuthClient: webAuthClient,
+      clientId: clientId,
+      scopes: scopes,
+      clientSecret: clientSecret,
+      enablePKCE: enablePKCE
+    );
 
-    String codeChallenge;
-    String codeVerifier;
+  }
 
-    if(enablePKCE) {
-      codeVerifier = randomAlphaNumeric(80);
-      List<int> bytes = utf8.encode(codeVerifier);
+  /// Requests an Authorization Code to be used in the Authorization Code grant.
+  Future<AuthorizationResponse> requestAuthorization({
+    @required String clientId,
+    List<String> scopes,
+    String codeChallenge,
+    String state
+  }) async {
 
-      Digest digest = sha256.convert(bytes);
+    return await clientImpl.requestAuthorization(
+      webAuthClient: webAuthClient,
+      clientId: clientId,
+      scopes: scopes,
+      codeChallenge: codeChallenge,
+      state: state
+    );
 
-      codeChallenge = base64UrlEncode(digest.bytes);
+  }
 
-      if(codeChallenge.endsWith('=')) {
-        codeChallenge = codeChallenge.substring(0, codeChallenge.length - 1);
-      }
-    }
+  /// Requests and Access Token using the provided Authorization [code].
+  Future<AccessTokenResponse> requestAccessToken({
+    @required String code,
+    @required String clientId,
+    String clientSecret,
+    String codeVerifier
+  }) async {
 
-    AuthorizationResponse authResp = await _getAuthorizationCode(clientId: clientId, scopes: scopes, codeChallenge: codeChallenge);
+    return await clientImpl.requestAccessToken(
+      httpClient: http.Client,
+      code: code,
+      clientId: clientId,
+      clientSecret: clientSecret,
+      codeVerifier: codeVerifier
+    );
 
-    if(authResp.isAccessGranted()) {
-
-      final String url = _getEndpointUrl(tokenUrl);
-
-      Map<String, String> body = {
-        'grant_type': 'authorization_code',
-        'code': authResp.code,
-        'redirect_uri': redirectUri,
-        'client_id': clientId,
-      };
-
-      if(clientSecret != null)
-        body['client_secret'] = clientSecret;
-
-      if(codeVerifier != null)
-        body['code_verifier'] = codeVerifier;
-
-      http.Response response = await http.post(url, body: body);
-
-      tknResp = AccessTokenResponse.fromHttpResponse(response);
-/*
-      Map tokenInfo = _parseResponse(response);
-
-      tknResp = AccessTokenResponse.fromMap(tokenInfo);
-*/
-    }
-
-    return tknResp;
   }
 
   /// Requests an Access Token to the OAuth2 endpoint using the Client Credentials flow.
-  Future<AccessTokenResponse> getTokenWithClientCredentialsFlow({@required String clientId, @required String clientSecret, List<String> scopes}) async {
-
-    final String url = _getEndpointUrl(tokenUrl);
-
-    http.Response response = await http.post(url, body: {
-      'grant_type': 'client_credentials',
-      'client_id': clientId,
-      'client_secret': clientSecret,
-      'scope': scopes.join(' ')
-    });
-
-    return AccessTokenResponse.fromHttpResponse(response);
-/*
-    Map tokenInfo = _parseResponse(response);
-
-    return AccessTokenResponse.fromMap(tokenInfo);
-*/
+  Future<AccessTokenResponse> getTokenWithClientCredentialsFlow({
+    @required String clientId,
+    @required String clientSecret,
+    List<String> scopes
+  }) async {
+    return await clientImpl.getTokenWithClientCredentialsFlow(
+      httpClient: http.Client,
+      clientId: clientId,
+      clientSecret: clientSecret,
+      scopes: scopes
+    );
   }
 
   /// Refreshes an Access Token issuing a refresh_token grant to the OAuth2 server.
   Future<AccessTokenResponse> refreshToken(String refreshToken) async {
 
-    final String url = _getEndpointUrl(refreshUrl);
-
-    http.Response response = await http.post(url, body: {
-      'grant_type': 'refresh_token',
-      'refresh_token': refreshToken
-    });
-
-    return AccessTokenResponse.fromHttpResponse(response);
-/*
-    Map tokenInfo = _parseResponse(response);
-
-    return AccessToken.fromMap(tokenInfo);
-*/
-  }
-
-  Future<AuthorizationResponse> _getAuthorizationCode({@required String clientId, @required List<String> scopes, String codeChallenge}) async {
-
-    if(redirectUri.isEmpty)
-      throw Exception('No "redirectUri" supplied');
-
-    final String state = randomAlphaNumeric(25);
-
-    Map<String, String> params = {
-      'response_type': 'code',
-      'client_id': clientId,
-      'redirect_uri': redirectUri,
-      'scope': scopes.join(' '),
-      'state': state
-    };
-
-    if(codeChallenge != null) {
-      params['code_challenge'] = codeChallenge;
-      params['code_challenge_method'] = 'S256';
-    }
-
-    final String url = _getEndpointUrl(authorizeUrl, params: params);
-
-    // Present the dialog to the user
-    final result = await FlutterWebAuth.authenticate(
-      url: url,
-      callbackUrlScheme: customUriScheme
+    return await clientImpl.refreshToken(
+      httpClient: http.Client,
+      refreshToken: refreshToken
     );
-
-    AuthorizationResponse authResp = AuthorizationResponse.fromRedirectUri(result, state);
-
-    return authResp;
-
-/*
-    Map<String, List<String>> queryParams = Uri.parse(result).queryParametersAll;
-
-    if(queryParams.containsKey('error') && queryParams['error'].isNotEmpty) {
-      throw Exception(queryParams['error'][0] + (queryParams['error_description'].isNotEmpty ? ': ' + queryParams['error_description'][0] : ''));
-    }
-
-    if(!queryParams.containsKey('code') || queryParams['code'].isEmpty) {
-      throw Exception('Expected "code" parameter not found in response');
-    }
-
-    if(!queryParams.containsKey('state') || queryParams['state'].isEmpty) {
-      throw Exception('Expected "state" parameter not found in response');
-    }
-
-    if(queryParams['state'][0] != state) {
-      throw Exception('"state" parameter in response doesn\'t correspond to the expected value');
-    }
-
-    return queryParams['code'][0];
-*/
   }
 
-  String _getEndpointUrl(String url, {Map<String, dynamic> params}) {
+  get customUriScheme => clientImpl.customUriScheme;
 
-    if(params != null) {
-      List<String> qsList = [];
-      params.forEach((k, v) {
-        qsList.add(k + '=' + v);
-      });
-      if(qsList.isNotEmpty) {
-        url = Uri.encodeFull(url + '?' + qsList.join('&'));
-      }
-    }
-
-    return url;
-
-  }
-/*
-  Map<String, dynamic> _parseResponse(http.Response response) {
-
-    Map respData = jsonDecode(response.body);
-
-    if(response.statusCode != 200) {
-
-      final String error = respData['error'];
-
-      //@see https://tools.ietf.org/html/rfc6750#section-3.1
-      if(response.statusCode == 401 && response.headers.containsKey('WWW-Authenticate')) {
-        if(error == 'invalid_token') {
-          throw InvalidTokenException();
-        }
-      }
-      else if(response.statusCode == 400) {
-        //@see https://tools.ietf.org/html/rfc6749#section-5.2
-        // if(error == 'invalid_grant') {
-          throw InvalidGrantException();
-        // }
-      }
-
-      throw Exception(error + (respData['error_description'].isNotEmpty ? ': ' + respData['error_description'] : ''));
-    }
-
-    return respData;
-  }
-*/
 }
