@@ -10,14 +10,14 @@ class AuthorizationResponse {
 
 	AuthorizationResponse();
 
-  AuthorizationResponse.fromRedirectUri(String redirectUri, String state) {
+  AuthorizationResponse.fromRedirectUri(String redirectUri, String checkState) {
 
-    Map<String, List<String>> queryParams = Uri.parse(redirectUri).queryParametersAll;
+    Map<String, String> queryParams = Uri.parse(redirectUri).queryParameters;
 
     if(queryParams.containsKey('error') && queryParams['error'].isNotEmpty) {
-      // throw Exception(queryParams['error'][0] + (queryParams['error_description'].isNotEmpty ? ': ' + queryParams['error_description'][0] : ''));
-      error = queryParams['error'][0];
-      errorDescription = (queryParams['error_description'].isNotEmpty ? ': ' + queryParams['error_description'][0] : '');
+      error = queryParams['error'];
+      if(queryParams.containsKey('error_description'))
+        errorDescription = (queryParams['error_description'].isNotEmpty ? ': ' + queryParams['error_description'] : '');
     }
     else {
 
@@ -29,12 +29,12 @@ class AuthorizationResponse {
         throw Exception('Expected "state" parameter not found in response');
       }
 
-      if(queryParams['state'][0] != state) {
+      if(queryParams['state'] != checkState) {
         throw Exception('"state" parameter in response doesn\'t correspond to the expected value');
       }
 
-      code = queryParams['code'][0];
-      state = queryParams['state'][0];
+      code = queryParams['code'];
+      state = queryParams['state'];
     }
 
   }

@@ -45,8 +45,9 @@ class OAuth2ClientImpl {
 
     AuthorizationResponse authResp = await requestAuthorization(webAuthClient: webAuthClient, clientId: clientId, scopes: scopes, codeChallenge: codeChallenge);
 
-    if(authResp.isAccessGranted())
+    if(authResp.isAccessGranted()) {
       tknResp = await requestAccessToken(httpClient: httpClient, code: authResp.code, clientId: clientId, clientSecret: clientSecret, codeVerifier: codeVerifier);
+    }
 
     return tknResp;
   }
@@ -59,9 +60,6 @@ class OAuth2ClientImpl {
     String codeChallenge,
     String state
   }) async {
-
-    if(redirectUri.isEmpty)
-      throw Exception('No "redirectUri" supplied');
 
     if(state == null)
       state = randomAlphaNumeric(25);
@@ -113,7 +111,7 @@ class OAuth2ClientImpl {
       'grant_type': 'client_credentials',
       'client_id': clientId,
       'client_secret': clientSecret,
-      'scope': scopes.join(' ')
+      'scope': scopes.join('+')
     });
 
     return AccessTokenResponse.fromHttpResponse(response);
@@ -123,7 +121,7 @@ class OAuth2ClientImpl {
   /// Refreshes an Access Token issuing a refresh_token grant to the OAuth2 server.
   Future<AccessTokenResponse> refreshToken({@required httpClient, @required String refreshToken}) async {
 
-    http.Response response = await httpClient.post(refreshUrl, body: {
+    http.Response response = await httpClient.post(getRefreshUrl(), body: {
       'grant_type': 'refresh_token',
       'refresh_token': refreshToken
     });
@@ -150,7 +148,7 @@ class OAuth2ClientImpl {
       params['redirect_uri'] = redirectUri;
 
     if(scopes != null && scopes.isNotEmpty)
-      params['scope'] = scopes.join(' ');
+      params['scope'] = scopes.join('+');
 
     if(state != null && state.isNotEmpty)
       params['state'] = state;
@@ -174,7 +172,7 @@ class OAuth2ClientImpl {
 
     Map<String, String> params = {
       'grant_type': 'authorization_code',
-      'code': code,
+      'code': code
     };
 
     if(redirectUri != null && redirectUri.isNotEmpty)
@@ -190,6 +188,10 @@ class OAuth2ClientImpl {
       params['code_verifier'] = codeVerifier;
 
     return params;
+  }
+
+  String getRefreshUrl() {
+    return refreshUrl ?? tokenUrl;
   }
 
 }

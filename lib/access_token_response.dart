@@ -17,12 +17,15 @@ class AccessTokenResponse {
   String error;
   String errorDescription;
   String errorUri;
+  int httpStatusCode;
 
 	AccessTokenResponse();
 
   AccessTokenResponse.fromMap(Map<String, dynamic> map) {
 
-    if(!map.containsKey('error')) {
+    httpStatusCode = map['http_status_code'];
+
+    if(!map.containsKey('error') || map['error'] == null) {
       accessToken = map['access_token'];
       tokenType = map['token_type'];
       refreshToken = map['refresh_token'];
@@ -48,7 +51,20 @@ class AccessTokenResponse {
   }
 
   factory AccessTokenResponse.fromHttpResponse(http.Response response) {
-    return AccessTokenResponse.fromMap(jsonDecode(response.body));
+
+    AccessTokenResponse resp;
+
+    if(response.statusCode != 404) {
+      resp = AccessTokenResponse.fromMap(jsonDecode(response.body));
+    }
+    else {
+      resp = AccessTokenResponse();
+    }
+
+    resp.httpStatusCode = response.statusCode;
+
+
+    return resp;
 /*
     if(response.statusCode != 200) {
 
@@ -83,6 +99,7 @@ class AccessTokenResponse {
     DateTime now = DateTime.now();
 
     return {
+      'http_status_code': httpStatusCode,
       'access_token': accessToken,
       'token_type': tokenType,
       'refresh_token': refreshToken,
@@ -110,6 +127,16 @@ class AccessTokenResponse {
   }
 
   bool isValid() {
-    return error.isEmpty;
+    return httpStatusCode == 200 && (error == null || error.isEmpty);
+  }
+
+  @override
+  String toString() {
+    if(httpStatusCode == 200) {
+      return 'Access Token: ' + accessToken;
+    }
+    else {
+      return 'HTTP ' + httpStatusCode.toString() + ' - ' + (error ?? '') + ' ' + (errorDescription ?? '');
+    }
   }
 }

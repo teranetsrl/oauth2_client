@@ -10,7 +10,7 @@ import 'package:oauth2_client/src/oauth2_utils.dart';
 import 'package:oauth2_client/src/web_auth.dart';
 
 class WebAuthMockClient extends Mock implements WebAuth {}
-class HttpMockClient extends Mock implements http.Client {}
+class HttpClientMock extends Mock implements http.Client {}
 
 void main() {
 
@@ -22,9 +22,18 @@ void main() {
   final String authCode = '12345';
   final String redirectUri = 'myurlscheme:/oauth2';
   final String clientId = 'myclientid';
+  final String clientSecret = 'test_secret';
 
   final String authorizeUrl = 'http://my.test.app/authorize';
   final String tokenUrl = 'http://my.test.app/token';
+
+  final String state = 'test_state';
+  final List<String> scopes = ['scope1', 'scope2'];
+
+  final String refreshToken = 'test_refresh_token';
+  final String accessToken = 'test_access_token';
+
+  final String authorizationCode = 'test_code';
 
   group('Authorization Code Grant.', () {
 
@@ -41,8 +50,8 @@ void main() {
         'response_type': 'code',
         'client_id': clientId,
         'redirect_uri': redirectUri,
-        'scope': 'scope1',
-        'state': '12345',
+        'scope': scopes,
+        'state': state,
         'code_challenge': codeChallenge,
         'code_challenge_method': 'S256'
       };
@@ -50,14 +59,14 @@ void main() {
       when(webAuthClient.authenticate(
         url: OAuth2Utils.addParamsToUrl(authorizeUrl, authParams),
         callbackUrlScheme: customUriScheme
-      )).thenAnswer((_) async => authParams['redirect_uri'] + '?code=' + authCode + '&state=' + authParams['state']);
+      )).thenAnswer((_) async => redirectUri + '?code=' + authCode + '&state=' + state);
 
       final AuthorizationResponse authResponse = await oauth2Client.requestAuthorization(
         webAuthClient: webAuthClient,
-        clientId: authParams['client_id'],
-        scopes: [authParams['scope']],
-        codeChallenge: authParams['code_challenge'],
-        state: authParams['state']
+        clientId: clientId,
+        scopes: scopes,
+        codeChallenge: codeChallenge,
+        state: state
       );
 
       expect(authResponse.code, authCode);
@@ -65,7 +74,7 @@ void main() {
 
     test('Fetch Access Token', () async {
 
-      final httpClient = HttpMockClient();
+      final httpClient = HttpClientMock();
 
       final String accessToken = '12345';
       final String refreshToken = '54321';
@@ -91,6 +100,240 @@ void main() {
       );
 
       expect(tknResponse.accessToken, accessToken);
+
+    });
+
+    test('Error fetching Access Token', () async {
+
+      final httpClient = HttpClientMock();
+
+      Map tokenParams = {
+        'grant_type': 'authorization_code',
+        'code': authCode,
+        'redirect_uri': redirectUri,
+        'client_id': clientId,
+        'code_verifier': codeVerifier,
+        // 'client_secret': clientSecret
+      };
+
+      when(httpClient.post(tokenUrl, body: tokenParams))
+        .thenAnswer((_) async => http.Response('', 404));
+
+      final AccessTokenResponse tknResponse = await oauth2Client.requestAccessToken(
+        httpClient: httpClient,
+        code: authCode,
+        clientId: clientId,
+        // clientSecret: clientSecret,
+        codeVerifier: codeVerifier
+      );
+
+      expect(tknResponse.isValid(), false);
+
+    });
+
+    test('Refresh token', () async {
+
+      final httpClient = HttpClientMock();
+
+      when(httpClient.post(tokenUrl, body: {
+      'grant_type': 'refresh_token',
+      'refresh_token': refreshToken
+      })).thenAnswer((_) async => http.Response('{"access_token": "' + accessToken + '", "token_type": "Bearer", "refresh_token": "' + refreshToken + '", "expires_in": 3600}', 200));
+
+      AccessTokenResponse resp = await oauth2Client.refreshToken(httpClient: httpClient, refreshToken: refreshToken);
+
+      expect(resp.isValid(), true);
+      expect(resp.accessToken, accessToken);
+
+    });
+
+    test('Error in refreshing token', () async {
+
+      final httpClient = HttpClientMock();
+
+      when(httpClient.post(tokenUrl, body: {
+      'grant_type': 'refresh_token',
+      'refresh_token': refreshToken
+      })).thenAnswer((_) async => http.Response('', 404));
+
+      AccessTokenResponse resp = await oauth2Client.refreshToken(httpClient: httpClient, refreshToken: refreshToken);
+
+      expect(resp.isValid(), false);
+
+    });
+
+    test('Authorization url params (1/5)', () {
+
+      final String authorizeUrl = oauth2Client.getAuthorizeUrl(
+        clientId: clientId
+      );
+
+      Map<String, String> urlParams = Uri.parse(authorizeUrl).queryParameters;
+
+      expect(urlParams, allOf(
+        containsPair('response_type', 'code'),
+        containsPair('client_id', clientId)
+      ));
+    });
+
+    test('Authorization url params (2/5)', () {
+      final String authorizeUrl = oauth2Client.getAuthorizeUrl(
+        clientId: clientId,
+        redirectUri: redirectUri
+      );
+
+      Map<String, String> urlParams = Uri.parse(authorizeUrl).queryParameters;
+
+      expect(urlParams, allOf(
+        containsPair('response_type', 'code'),
+        containsPair('client_id', clientId),
+        containsPair('redirect_uri', redirectUri)
+      ));
+
+    });
+
+    test('Authorization url params (3/5)', () {
+
+      final String authorizeUrl = oauth2Client.getAuthorizeUrl(
+        clientId: clientId,
+        redirectUri: redirectUri,
+        scopes: scopes,
+      );
+
+      Map<String, String> urlParams = Uri.parse(authorizeUrl).queryParameters;
+
+      expect(urlParams, allOf(
+        containsPair('response_type', 'code'),
+        containsPair('client_id', clientId),
+        containsPair('redirect_uri', redirectUri),
+        containsPair('scope', scopes.join(' ')),
+      ));
+    });
+
+    test('Authorization url params (4/5)', () {
+
+      final String authorizeUrl = oauth2Client.getAuthorizeUrl(
+        clientId: clientId,
+        redirectUri: redirectUri,
+        scopes: scopes,
+        state: state
+      );
+
+      Map<String, String> urlParams = Uri.parse(authorizeUrl).queryParameters;
+
+      expect(urlParams, allOf(
+        containsPair('response_type', 'code'),
+        containsPair('client_id', clientId),
+        containsPair('redirect_uri', redirectUri),
+        containsPair('scope', scopes.join(' ')),
+        containsPair('state', state),
+      ));
+    });
+
+    test('Authorization url params (5/5)', () {
+
+      final String authorizeUrl = oauth2Client.getAuthorizeUrl(
+        clientId: clientId,
+        redirectUri: redirectUri,
+        scopes: scopes,
+        state: state,
+        codeChallenge: codeChallenge
+      );
+
+      Map<String, String> urlParams = Uri.parse(authorizeUrl).queryParameters;
+
+      expect(urlParams, allOf(
+        containsPair('response_type', 'code'),
+        containsPair('client_id', clientId),
+        containsPair('redirect_uri', redirectUri),
+        containsPair('scope', scopes.join(' ')),
+        containsPair('state', state),
+        containsPair('code_challenge', codeChallenge),
+        containsPair('code_challenge_method', 'S256'),
+      ));
+
+    });
+
+    test('Token url params (1/5)', () {
+
+      final Map<String, String> params = oauth2Client.getTokenUrlParams(
+        code: authorizationCode
+      );
+
+      expect(params, allOf(
+        containsPair('grant_type', 'authorization_code'),
+        containsPair('code', authorizationCode)
+      ));
+    });
+
+    test('Token url params (2/5)', () {
+
+      final Map<String, String> params = oauth2Client.getTokenUrlParams(
+        code: authorizationCode,
+        redirectUri: redirectUri
+      );
+
+      expect(params, allOf(
+        containsPair('grant_type', 'authorization_code'),
+        containsPair('code', authorizationCode),
+        containsPair('redirect_uri', redirectUri)
+      ));
+    });
+
+    test('Token url params (3/5)', () {
+      final Map<String, String> params = oauth2Client.getTokenUrlParams(
+        code: authorizationCode,
+        redirectUri: redirectUri,
+        clientId: clientId
+      );
+
+      expect(params, allOf(
+        containsPair('grant_type', 'authorization_code'),
+        containsPair('code', authorizationCode),
+        containsPair('redirect_uri', redirectUri),
+        containsPair('client_id', clientId)
+      ));
+
+    });
+
+    test('Token url params (4/5)', () {
+
+      final Map<String, String> params = oauth2Client.getTokenUrlParams(
+        code: authorizationCode,
+        redirectUri: redirectUri,
+        clientId: clientId,
+        clientSecret: clientSecret
+      );
+
+      expect(params, allOf(
+        containsPair('grant_type', 'authorization_code'),
+        containsPair('code', authorizationCode),
+        containsPair('redirect_uri', redirectUri),
+        containsPair('client_id', clientId),
+        containsPair('client_secret', clientSecret),
+      ));
+
+    });
+
+    test('Token url params (5/5)', () {
+      final String verifier = 'test_verifier';
+
+      final Map<String, String> params = oauth2Client.getTokenUrlParams(
+        code: authorizationCode,
+        redirectUri: redirectUri,
+        clientId: clientId,
+        clientSecret: clientSecret,
+        codeVerifier: verifier
+      );
+
+      expect(params, allOf(
+        containsPair('grant_type', 'authorization_code'),
+        containsPair('code', authorizationCode),
+        containsPair('redirect_uri', redirectUri),
+        containsPair('client_id', clientId),
+        containsPair('client_secret', clientSecret),
+        containsPair('code_verifier', verifier),
+      ));
 
     });
 

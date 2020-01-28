@@ -119,14 +119,14 @@ class OAuth2Client {
   }
 
   /// Refreshes an Access Token issuing a refresh_token grant to the OAuth2 server.
-  Future<AccessTokenResponse> refreshToken(String refreshToken) async {
+  Future<AccessTokenResponse> refreshToken(String refreshToken, {httpClient = http.Client}) async {
 
     return await clientImpl.refreshToken(
-      httpClient: http.Client,
+      httpClient: httpClient,
       refreshToken: refreshToken
     );
   }
 
-  get customUriScheme => clientImpl.customUriScheme;
+  get tokenUrl => clientImpl.tokenUrl;
 
 }

@@ -23,10 +23,17 @@ class OAuth2Utils {
 
   static String params2qs(Map params) {
 
-    List<String> qsList = [];
+    final List<String> qsList = [];
 
     params.forEach((k, v) {
-      qsList.add(k + '=' + v);
+      String val;
+      if(v is List) {
+        val = v.join('+');
+      }
+      else {
+        val = v;
+      }
+      qsList.add(k + '=' + val);
     });
 
     return qsList.join('&');

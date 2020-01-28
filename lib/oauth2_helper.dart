@@ -1,11 +1,11 @@
 import 'dart:convert';
 
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:oauth2_client/access_token_response.dart';
 import 'package:oauth2_client/oauth2_exception.dart';
 import 'package:oauth2_client/oauth2_client.dart';
 import 'package:http/http.dart' as http;
 import 'package:meta/meta.dart';
+import 'package:oauth2_client/src/token_storage.dart';
 
 /// Helper class for simplifying OAuth2 authorization process.
 ///
@@ -20,14 +20,17 @@ class OAuth2Helper {
   static const CLIENT_CREDENTIALS = 2;
 
   final OAuth2Client client;
-  final FlutterSecureStorage storage = new FlutterSecureStorage();
+  TokenStorage tokenStorage;
 
   int grantType;
   String clientId;
   String clientSecret;
   List<String> scopes;
 
-  OAuth2Helper(this.client);
+  OAuth2Helper(this.client, {this.tokenStorage}) {
+    if(tokenStorage == null)
+      tokenStorage = TokenStorage(client.tokenUrl);
+  }
 
   /// Sets the proper parameters for requesting an authorization token.
   ///
@@ -48,14 +51,9 @@ class OAuth2Helper {
 
     _validateAuthorizationParams();
 
-    AccessTokenResponse tknResp;
+    AccessTokenResponse tknResp = await tokenStorage.getToken(scopes);
 
-    final String key = _getStorageKey(scopes);
-
-    String serToken = await storage.read(key: key);
-
-    if(serToken != null) {
-      tknResp = AccessTokenResponse.fromMap(jsonDecode(serToken));
+    if(tknResp != null) {
       if(tknResp.refreshNeeded()) {
         //The access token is expired
         tknResp = await refreshToken(tknResp.refreshToken);
@@ -77,8 +75,8 @@ class OAuth2Helper {
         );
       }
 
-      if(tknResp != null)
-        storage.write(key: key, value: jsonEncode(tknResp.toMap()));
+      if(tknResp != null && tknResp.isValid())
+        tokenStorage.addToken(tknResp);
     }
 
     if(tknResp != null && !tknResp.isBearer()) {
@@ -93,24 +91,20 @@ class OAuth2Helper {
 
     AccessTokenResponse tknResp;
 
-    final String key = _getStorageKey(scopes);
-
-    // try {
     tknResp = await client.refreshToken(refreshToken);
 
-    if(tknResp.isValid()) {
-      storage.write(key: key, value: jsonEncode(tknResp.toMap()));
+    if(tknResp != null && tknResp.isValid()) {
+      tokenStorage.addToken(tknResp);
     }
     else {
 
       if(tknResp.error == 'invalid_grant') {
         //The refresh token is expired too
-        storage.delete(key: key);
+        tokenStorage.deleteToken(scopes);
         tknResp = await getToken();
       }
       else {
         throw OAuth2Exception(tknResp.error, errorDescription: tknResp.errorDescription);
-        // rethrow;
       }
     }
 
@@ -120,7 +114,7 @@ class OAuth2Helper {
   /// Performs a post request to the specified [url], adding the authorization token.
   ///
   /// If no token already exists, or if it is exipired, a new one is requested.
-  Future<http.Response> post(String url, {Map<String, dynamic> params}) async {
+  Future<http.Response> post(String url, {Map<String, dynamic> params, httpClient = http.Client}) async {
 
     http.Response resp;
 
@@ -128,18 +122,19 @@ class OAuth2Helper {
 
     try {
 
-      resp = await http.post(url, body: params, headers: {
+      resp = await httpClient.post(url, body: params, headers: {
         'Authorization': 'Bearer ' + tknResp.accessToken
       });
 
       if(resp.statusCode == 401) {
+
         Map<String, dynamic> respData = jsonDecode(resp.body);
         if(respData.containsKey('error')) {
           if(respData['error'] == 'invalid_token') {
 
             tknResp = await refreshToken(tknResp.refreshToken);
 
-            resp = await http.post(url, body: params, headers: {
+            resp = await httpClient.post(url, body: params, headers: {
               'Authorization': 'Bearer ' + tknResp.accessToken
             });
           }
@@ -155,11 +150,11 @@ class OAuth2Helper {
   /// Performs a get request to the specified [url], adding the authorization token.
   ///
   /// If no token already exists, or if it is exipired, a new one is requested.
-  Future<http.Response> get(String url) async {
+  Future<http.Response> get(String url, {httpClient: http.Client}) async {
 
     AccessTokenResponse tknResp = await getToken();
 
-    http.Response resp = await http.get(url, headers: {
+    http.Response resp = await httpClient.get(url, headers: {
       'Authorization': 'Bearer ' + tknResp.accessToken
     });
 
@@ -176,10 +171,6 @@ class OAuth2Helper {
     }
 
     return resp;
-  }
-
-  String _getStorageKey(List<String> scopes) {
-    return client.customUriScheme + '.' + scopes.join('_') + '.tkn';
   }
 
   _validateAuthorizationParams() {
