@@ -9,9 +9,9 @@ import 'package:oauth2_client/src/token_storage.dart';
 
 /// Helper class for simplifying OAuth2 authorization process.
 ///
-/// Tokens are stored in a secure storage
-/// Automatic token refreshing
-/// Automatic injection of the Access Token in requests through the various post/get/... methods
+/// Tokens are stored in a secure storage.
+/// The helper performs automatic token refreshing upon access token expiration.
+/// Moreover it provides methods to perform http post/get calls with automatic Access Token injection in the requests header
 ///
 ///
 class OAuth2Helper {
@@ -114,14 +114,16 @@ class OAuth2Helper {
   /// Performs a post request to the specified [url], adding the authorization token.
   ///
   /// If no token already exists, or if it is exipired, a new one is requested.
-  Future<http.Response> post(String url, {Map<String, dynamic> params, httpClient = http.Client}) async {
+  Future<http.Response> post(String url, {Map<String, dynamic> params, httpClient}) async {
+
+    if(httpClient == null)
+      httpClient = http.Client();
 
     http.Response resp;
 
     AccessTokenResponse tknResp = await getToken();
 
     try {
-
       resp = await httpClient.post(url, body: params, headers: {
         'Authorization': 'Bearer ' + tknResp.accessToken
       });
@@ -150,7 +152,10 @@ class OAuth2Helper {
   /// Performs a get request to the specified [url], adding the authorization token.
   ///
   /// If no token already exists, or if it is exipired, a new one is requested.
-  Future<http.Response> get(String url, {httpClient: http.Client}) async {
+  Future<http.Response> get(String url, {httpClient}) async {
+
+    if(httpClient == null)
+      httpClient = http.Client();
 
     AccessTokenResponse tknResp = await getToken();
 

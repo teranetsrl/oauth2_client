@@ -20,7 +20,7 @@ class TokenStorage {
 
     final String serTokens = await storage.read(key);
     final String scopeKey = getScopeKey(scopes);
-// print(serTokens);
+
     if(serTokens != null) {
       final Map<String, dynamic> tokens = jsonDecode(serTokens);
 

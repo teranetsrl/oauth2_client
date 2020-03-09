@@ -1,12 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:oauth2_client/access_token_response.dart';
-import 'package:oauth2_client/authorization_response.dart';
 import 'package:oauth2_client/oauth2_client.dart';
 import 'package:oauth2_client/oauth2_helper.dart';
-import 'package:oauth2_client/src/oauth2_utils.dart';
 import 'package:oauth2_client/src/secure_storage.dart';
 import 'package:oauth2_client/src/token_storage.dart';
 import 'package:oauth2_client/src/volatile_storage.dart';
@@ -172,7 +168,7 @@ void main() {
       expect(tknResp.isValid(), true);
       expect(tknResp.accessToken, accessToken);
 
-      http.Response resp = await hlp.post('https://my.test.url', httpClient: httpClient);
+      await hlp.post('https://my.test.url', httpClient: httpClient);
       tknResp = await hlp.getToken();
 
       expect(tknResp.isValid(), true);
@@ -290,7 +286,7 @@ group('Client Credentials Grant.', () {
       expect(tknResp.isValid(), true);
       expect(tknResp.accessToken, accessToken);
 
-      http.Response resp = await hlp.post('https://my.test.url', httpClient: httpClient);
+      await hlp.post('https://my.test.url', httpClient: httpClient);
       tknResp = await hlp.getToken();
 
       expect(tknResp.isValid(), true);

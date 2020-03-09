@@ -1,11 +1,9 @@
-// import 'dart:async';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mockito/mockito.dart';
 import 'package:oauth2_client/access_token_response.dart';
 import 'package:oauth2_client/authorization_response.dart';
-import 'package:oauth2_client/src/oauth2_client_impl.dart';
+import 'package:oauth2_client/oauth2_client.dart';
 import 'package:oauth2_client/src/oauth2_utils.dart';
 import 'package:oauth2_client/src/web_auth.dart';
 
@@ -37,7 +35,7 @@ void main() {
 
   group('Authorization Code Grant.', () {
 
-    final oauth2Client = OAuth2ClientImpl(
+    final oauth2Client = OAuth2Client(
       authorizeUrl: authorizeUrl,
       tokenUrl: tokenUrl,
       redirectUri: redirectUri,
@@ -131,6 +129,53 @@ void main() {
 
     });
 
+    test('Token request with authorization code flow', () async {
+
+      Map authParams = {
+        'response_type': 'code',
+        'client_id': clientId,
+        'redirect_uri': redirectUri,
+        'scope': scopes,
+        'state': state,
+        'code_challenge': codeChallenge,
+        'code_challenge_method': 'S256'
+      };
+
+      final httpClient = HttpClientMock();
+
+      final String accessToken = '12345';
+      final String refreshToken = '54321';
+
+      Map tokenParams = {
+        'grant_type': 'authorization_code',
+        'code': authCode,
+        'redirect_uri': redirectUri,
+        'client_id': clientId,
+        'code_verifier': codeVerifier,
+        // 'client_secret': clientSecret
+      };
+
+      when(httpClient.post(tokenUrl, body: tokenParams))
+        .thenAnswer((_) async => http.Response('{"access_token": "' + accessToken + '", "token_type": "Bearer", "refresh_token": "' + refreshToken + '", "expires_in": 3600}', 200));
+
+      when(webAuthClient.authenticate(
+        url: OAuth2Utils.addParamsToUrl(authorizeUrl, authParams),
+        callbackUrlScheme: customUriScheme
+      )).thenAnswer((_) async => redirectUri + '?code=' + authCode + '&state=' + state);
+
+      final AccessTokenResponse tknResponse = await oauth2Client.getTokenWithAuthCodeFlow(
+        webAuthClient: webAuthClient,
+        httpClient: httpClient,
+        clientId: clientId,
+        scopes: scopes,
+        state: state,
+        codeVerifier: codeVerifier
+      );
+
+      expect(tknResponse.accessToken, accessToken);
+
+    });
+
     test('Refresh token', () async {
 
       final httpClient = HttpClientMock();
@@ -140,7 +185,7 @@ void main() {
       'refresh_token': refreshToken
       })).thenAnswer((_) async => http.Response('{"access_token": "' + accessToken + '", "token_type": "Bearer", "refresh_token": "' + refreshToken + '", "expires_in": 3600}', 200));
 
-      AccessTokenResponse resp = await oauth2Client.refreshToken(httpClient: httpClient, refreshToken: refreshToken);
+      AccessTokenResponse resp = await oauth2Client.refreshToken(refreshToken, httpClient: httpClient);
 
       expect(resp.isValid(), true);
       expect(resp.accessToken, accessToken);
@@ -156,7 +201,7 @@ void main() {
       'refresh_token': refreshToken
       })).thenAnswer((_) async => http.Response('', 404));
 
-      AccessTokenResponse resp = await oauth2Client.refreshToken(httpClient: httpClient, refreshToken: refreshToken);
+      AccessTokenResponse resp = await oauth2Client.refreshToken(refreshToken, httpClient: httpClient);
 
       expect(resp.isValid(), false);
 
@@ -338,5 +383,71 @@ void main() {
     });
 
   });
+
+group('Client Credentials Grant.', () {
+
+    final oauth2Client = OAuth2Client(
+      authorizeUrl: authorizeUrl,
+      tokenUrl: tokenUrl,
+      redirectUri: redirectUri,
+      customUriScheme: customUriScheme
+    );
+
+    test('Get new token', () async {
+
+      final httpClient = HttpClientMock();
+
+      final String accessToken = '12345';
+      final String refreshToken = '54321';
+
+      Map authParams = {
+        'grant_type': 'client_credentials',
+        'client_id': clientId,
+        'client_secret': clientSecret,
+        // 'scope': scopes
+      };
+
+      when(httpClient.post(tokenUrl, body: authParams))
+        .thenAnswer((_) async => http.Response('{"access_token": "' + accessToken + '", "token_type": "Bearer", "refresh_token": "' + refreshToken + '", "expires_in": 3600}', 200));
+
+      final AccessTokenResponse tknResponse = await oauth2Client.getTokenWithClientCredentialsFlow(
+        clientId: clientId,
+        clientSecret: clientSecret,
+        // List<String> scopes,
+        httpClient: httpClient
+      );
+
+      expect(tknResponse.accessToken, accessToken);
+
+    });
+
+    test('Error in getting new token', () async {
+
+      final httpClient = HttpClientMock();
+
+      final String accessToken = '12345';
+      final String refreshToken = '54321';
+
+      Map authParams = {
+        'grant_type': 'client_credentials',
+        'client_id': clientId,
+        'client_secret': clientSecret,
+        // 'scope': scopes
+      };
+
+      when(httpClient.post(tokenUrl, body: authParams))
+        .thenAnswer((_) async => http.Response('', 404));
+
+      final AccessTokenResponse tknResponse = await oauth2Client.getTokenWithClientCredentialsFlow(
+        clientId: clientId,
+        clientSecret: clientSecret,
+        // List<String> scopes,
+        httpClient: httpClient
+      );
+
+      expect(tknResponse.isValid(), false);
+
+    });
+});
 
 }
