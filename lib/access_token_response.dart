@@ -30,8 +30,15 @@ class AccessTokenResponse {
       tokenType = map['token_type'];
       refreshToken = map['refresh_token'];
 
-      List scopesJson = map['scope'];
-      scope = scopesJson != null ? List.from(scopesJson) : null;
+      if(map.containsKey('scope')) {
+        if(map['scope'] is List) {
+          List scopesJson = map['scope'];
+          scope = scopesJson != null ? List.from(scopesJson) : null;
+        }
+        else {
+          scope = [map['scope']];
+        }
+      }
 
       expiresIn = map['expires_in'];
 

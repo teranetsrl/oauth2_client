@@ -1,12 +1,12 @@
 # oauth2_client
-Simple Flutter library for interacting with OAuth2 servers.
+Simple Flutter library for interacting with OAuth2 servers. It provides convenience classes for interacting with the "usual suspects" (Google, Facebook, LinkedIn), but it's particularly suited for implementing clients for custom OAuth2 servers.
 
 Currently only **Authorization Code** and **Client Credentials** flows are implemented.
 
 # Installation #
 
 If your application uses the Authorization Code flow, on Android you first need to modify the *AndroidManifest.xml* file adding the intent filter needed to open the browser window for the authorization workflow.
-The library relies on the flutter_web_auth package to allow the Authorization Code flow
+The library relies on the flutter_web_auth package to allow the Authorization Code flow.
 
 AndroidManifest.xml
 
@@ -30,43 +30,42 @@ dependencies:
 
 # Usage with the helper class #
 The simplest way to use the library is through the *OAuth2Helper* class.
-This class transparently handles tokens request/refreshing, as well as storing and caching them.
+This class transparently handles tokens request/refresh, as well as storing and caching them.
 
-Besides, it implements commodity methods to transparently perform http requests adding the generated access tokens.
+Besides, it implements convenience  methods to transparently perform http requests adding the generated access tokens.
 
-
-
-Then instantiate and setup the helper:
+First, instantiate and setup the helper:
 
 
 ```dart
 import 'package:oauth2_client/oauth2_helper.dart';
 //We are going to use the google client for this example...
 import 'package:oauth2_client/google_oauth2_client.dart';
+import 'package:http/http.dart' as http;
 
 //Instantiate an OAuth2Client...
 GoogleOAuth2Client client = GoogleOAuth2Client(
-	redirectUri: 'com.teranet.app:/oauth2redirect',
-	customUriScheme: 'com.teranet.app'
+	customUriScheme: 'com.teranet.app' //Must correspond to the AndroidManifest's "android:scheme" attribute
+	redirectUri: 'com.teranet.app:/oauth2redirect', //Can be any URI, but the scheme part must correspond to the customeUriScheme
 );
 
-//Then, instantiate the helper passing the client
+//Then, instantiate the helper passing the previously instantiated client
 OAuth2Helper oauth2Helper = OAuth2Helper(client);
 
 //Set up the authorization params...
 oauth2Helper.setAuthorizationParams(
 	grantType: OAuth2Helper.AUTHORIZATION_CODE,
 	clientId: 'your_client_id',
-	scopes: ['https://www.googleapis.com/auth/documents.readonly']
+	scopes: ['https://www.googleapis.com/auth/drive.readonly']
 );
 
 ```
-In the example we used the Google client, but you can use any other provided client or implement your own.
+In the example we used the Google client, but you can use any other provided client or implement your own (see below).
 
 Now you can use the helper class to perform HTTP requests to the server.
 
 ```dart
-Response resp = helper.post('TODO');
+http.Response resp = helper.get('https://www.googleapis.com/drive/v3/files');
 ```
 
 The helper will:
@@ -79,7 +78,7 @@ The helper will:
 # Usage without the helper class #
 You can use the library without the helper class, using one of the base client classes.
 
-This way tokens won't be automatically stored, and won't be automatically refreshed. Furthermore, you will have to add the access token to http requests by yourself.
+This way tokens won't be automatically stored, nor will be automatically refreshed. Furthermore, you will have to add the access token to http requests by yourself.
 
 ```dart
 //Import the client you need (see later for available clients)...

@@ -61,11 +61,13 @@ class OAuth2Helper {
     }
     else {
       if(grantType == AUTHORIZATION_CODE) {
+
         tknResp = await client.getTokenWithAuthCodeFlow(
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes
         );
+
       }
       else if(grantType == CLIENT_CREDENTIALS) {
         tknResp = await client.getTokenWithClientCredentialsFlow(
@@ -157,22 +159,31 @@ class OAuth2Helper {
     if(httpClient == null)
       httpClient = http.Client();
 
+    http.Response resp;
+
     AccessTokenResponse tknResp = await getToken();
 
-    http.Response resp = await httpClient.get(url, headers: {
-      'Authorization': 'Bearer ' + tknResp.accessToken
-    });
+    try {
 
-    if(resp.statusCode == 401) {
-      Map<String, dynamic> respData = jsonDecode(resp.body);
-      if(respData.containsKey('error')) {
-        if(respData['error'] == 'invalid_token') {
-          tknResp = await refreshToken(tknResp.refreshToken);
-          resp = await http.get(url, headers: {
-            'Authorization': 'Bearer ' + tknResp.accessToken
-          });
+      resp = await httpClient.get(url, headers: {
+        'Authorization': 'Bearer ' + tknResp.accessToken
+      });
+
+      if(resp.statusCode == 401) {
+        Map<String, dynamic> respData = jsonDecode(resp.body);
+        if(respData.containsKey('error')) {
+          if(respData['error'] == 'invalid_token') {
+
+            tknResp = await refreshToken(tknResp.refreshToken);
+
+            resp = await httpClient.get(url, headers: {
+              'Authorization': 'Bearer ' + tknResp.accessToken
+            });
+          }
         }
       }
+    } catch(e) {
+      rethrow;
     }
 
     return resp;
