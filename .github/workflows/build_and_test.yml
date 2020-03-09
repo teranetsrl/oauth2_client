@@ -33,4 +33,4 @@ jobs:
     - run: flutter pub get
       
     # Build :D 
-    #- run: flutter build aot
+    - run: flutter test
