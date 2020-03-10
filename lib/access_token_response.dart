@@ -5,8 +5,7 @@ import 'package:http/http.dart' as http;
 /// Represents the response to an Access Token Request.
 /// see https://tools.ietf.org/html/rfc6749#section-5.2
 class AccessTokenResponse {
-
-	String accessToken;
+  String accessToken;
   String tokenType;
   int expiresIn;
   String refreshToken;
@@ -19,57 +18,53 @@ class AccessTokenResponse {
   String errorUri;
   int httpStatusCode;
 
-	AccessTokenResponse();
+  AccessTokenResponse();
 
   AccessTokenResponse.fromMap(Map<String, dynamic> map) {
-
     httpStatusCode = map['http_status_code'];
 
-    if(!map.containsKey('error') || map['error'] == null) {
+    if (!map.containsKey('error') || map['error'] == null) {
       accessToken = map['access_token'];
       tokenType = map['token_type'];
       refreshToken = map['refresh_token'];
 
-      if(map.containsKey('scope')) {
-        if(map['scope'] is List) {
+      if (map.containsKey('scope')) {
+        if (map['scope'] is List) {
           List scopesJson = map['scope'];
           scope = scopesJson != null ? List.from(scopesJson) : null;
-        }
-        else {
+        } else {
           scope = [map['scope']];
         }
       }
 
       expiresIn = map['expires_in'];
 
-      if(map.containsKey('expiration_date')) {
-        expirationDate = DateTime.fromMillisecondsSinceEpoch(map['expiration_date']);
-      }
-      else {
+      if (map.containsKey('expiration_date')) {
+        expirationDate =
+            DateTime.fromMillisecondsSinceEpoch(map['expiration_date']);
+      } else {
         DateTime now = DateTime.now();
         expirationDate = now.add(Duration(seconds: expiresIn));
       }
-    }
-    else {
+    } else {
       error = map['error'];
-      errorDescription = map.containsKey('error_description') ? map['error_description'] : null;
+      errorDescription = map.containsKey('error_description')
+          ? map['error_description']
+          : null;
       errorUri = map.containsKey('errorUri') ? map['errorUri'] : null;
     }
   }
 
   factory AccessTokenResponse.fromHttpResponse(http.Response response) {
-
     AccessTokenResponse resp;
 
-    if(response.statusCode != 404) {
+    if (response.statusCode != 404) {
       resp = AccessTokenResponse.fromMap(jsonDecode(response.body));
-    }
-    else {
+    } else {
       resp = AccessTokenResponse();
     }
 
     resp.httpStatusCode = response.statusCode;
-
 
     return resp;
 /*
@@ -102,7 +97,6 @@ class AccessTokenResponse {
   }
 
   Map<String, dynamic> toMap() {
-
     DateTime now = DateTime.now();
 
     return {
@@ -139,11 +133,15 @@ class AccessTokenResponse {
 
   @override
   String toString() {
-    if(httpStatusCode == 200) {
+    if (httpStatusCode == 200) {
       return 'Access Token: ' + accessToken;
-    }
-    else {
-      return 'HTTP ' + httpStatusCode.toString() + ' - ' + (error ?? '') + ' ' + (errorDescription ?? '');
+    } else {
+      return 'HTTP ' +
+          httpStatusCode.toString() +
+          ' - ' +
+          (error ?? '') +
+          ' ' +
+          (errorDescription ?? '');
     }
   }
 }
