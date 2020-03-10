@@ -425,9 +425,6 @@ group('Client Credentials Grant.', () {
 
       final httpClient = HttpClientMock();
 
-      final String accessToken = '12345';
-      final String refreshToken = '54321';
-
       Map authParams = {
         'grant_type': 'client_credentials',
         'client_id': clientId,
