@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/teranetsrl/oauth2_client/branch/master/graph/badge.svg)](https://codecov.io/gh/teranetsrl/oauth2_client)
+
 # oauth2_client
 Simple Flutter library for interacting with OAuth2 servers. It provides convenience classes for interacting with the "usual suspects" (Google, Facebook, LinkedIn), but it's particularly suited for implementing clients for custom OAuth2 servers.
 
