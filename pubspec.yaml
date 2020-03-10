@@ -1,8 +1,8 @@
 name: oauth2_client
-description: Simple Flutter library for interacting with OAuth2 servers.
+description: Simple Flutter library for interacting with OAuth2 servers. It provides convenience classes for interacting with the "usual suspects" (Google, Facebook, LinkedIn), but it's particularly suited for implementing clients for custom OAuth2 servers.
 version: 1.0.0
-author: TeraNet srl<info@teranet.it>
-# homepage:
+# author: TeraNet srl<info@teranet.it>
+homepage: https://github.com/teranetsrl/oauth2_client
 repository: https://github.com/teranetsrl/oauth2_client
 
 environment:
@@ -12,9 +12,9 @@ dependencies:
   flutter:
     sdk: flutter
   meta: ^1.1.8
-  http: ^0.11.3+12
+  http: ^0.12.0
   flutter_web_auth: ^0.1.2
-  random_string: ^1.1.0
+  random_string: ^2.0.1
   crypto: ^2.1.3
   flutter_secure_storage: ^3.3.1+1
 
