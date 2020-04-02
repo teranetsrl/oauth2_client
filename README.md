@@ -1,7 +1,7 @@
 [![codecov](https://codecov.io/gh/teranetsrl/oauth2_client/branch/master/graph/badge.svg)](https://codecov.io/gh/teranetsrl/oauth2_client)
 
 # oauth2_client
-Simple Flutter library for interacting with OAuth2 servers. It provides convenience classes for interacting with the "usual suspects" (Google, Facebook, LinkedIn), but it's particularly suited for implementing clients for custom OAuth2 servers.
+Simple Flutter library for interacting with OAuth2 servers. It provides convenience classes for interacting with the "usual suspects" (Google, Facebook, LinkedIn, GitHub), but it's particularly suited for implementing clients for custom OAuth2 servers.
 
 Currently only **Authorization Code** and **Client Credentials** flows are implemented.
 
@@ -116,6 +116,7 @@ The library implements clients for the following services/organizations:
  - Google
  - Facebook
  - LinkedIn
+ - GitHub
 
 ## Google client ##
 
@@ -167,6 +168,23 @@ import 'package:oauth2_client/linkedin_oauth2_client.dart';
 
 OAuth2Client liClient = LinkedInOAuth2Client(
 	redirectUri: 'com.teranet.app:/oauth2redirect',
+	customUriScheme: 'com.teranet.app'
+);
+```
+
+Then you can instantiate an helper class or directly use the client methods to acquire access tokens.
+
+## GitHub client ##
+
+In order to use this client you need to first create a new OAuth2 App in the GittHub Developer Settings (https://github.com/settings/developers)
+
+Then in your code:
+
+```dart
+import 'package:oauth2_client/github_oauth2_client.dart';
+
+OAuth2Client fbClient = GitHubOAuth2Client(
+	redirectUri: 'com.teranet.app://oauth2redirect',
 	customUriScheme: 'com.teranet.app'
 );
 ```
