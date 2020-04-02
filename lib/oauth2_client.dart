@@ -33,6 +33,7 @@ class OAuth2Client {
   String tokenUrl;
   String refreshUrl;
   String authorizeUrl;
+  Map<String, String> _accessTokenRequestHeaders;
 
   WebAuth webAuthClient;
 
@@ -148,7 +149,7 @@ class OAuth2Client {
         clientSecret: clientSecret,
         codeVerifier: codeVerifier);
 
-    http.Response response = await httpClient.post(tokenUrl, body: body);
+    http.Response response = await httpClient.post(tokenUrl, body: body, headers: _accessTokenRequestHeaders);
     return AccessTokenResponse.fromHttpResponse(response);
   }
 
@@ -218,5 +219,9 @@ class OAuth2Client {
       params['code_verifier'] = codeVerifier;
 
     return params;
+  }
+
+  set accessTokenRequestHeaders(Map<String, String> headers) {
+    _accessTokenRequestHeaders = headers;
   }
 }
