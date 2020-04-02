@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:oauth2_client/access_token_response.dart';
@@ -142,7 +144,7 @@ void main() {
 
     });
 
-    test('Authorization Request with server side token expiration', () async {
+    test('Post authorization Request with server side token expiration', () async {
 
       final TokenStorage tokenStorage = TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
 
@@ -200,6 +202,39 @@ void main() {
 
       expect(tknResp.isValid(), true);
       expect(tknResp.accessToken, accessToken);
+
+    });
+
+    test('Get request with refresh token expiration', () async {
+      final TokenStorage tokenStorage = TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
+
+      _mockGetTokenWithAuthCodeFlow(oauth2Client);
+      _mockRefreshToken(oauth2Client);
+
+      OAuth2Helper hlp = OAuth2Helper(oauth2Client, tokenStorage: tokenStorage);
+
+      when(httpClient.get('https://my.test.url', headers: {
+        'Authorization': 'Bearer ' + accessToken
+      })).thenAnswer((_) async => http.Response('{"error": "invalid_token"}', 401));
+
+
+      hlp.setAuthorizationParams(
+        grantType: OAuth2Helper.AUTHORIZATION_CODE,
+        clientId: clientId,
+        clientSecret: clientSecret,
+        scopes: scopes
+      );
+
+      AccessTokenResponse tknResp = await hlp.getToken();
+
+      expect(tknResp.isValid(), true);
+      expect(tknResp.accessToken, accessToken);
+
+      await hlp.get('https://my.test.url', httpClient: httpClient);
+      tknResp = await hlp.getToken();
+
+      expect(tknResp.isValid(), true);
+      expect(tknResp.accessToken, renewedAccessToken);
 
     });
 
