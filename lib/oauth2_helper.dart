@@ -24,7 +24,12 @@ class OAuth2Helper {
   String clientSecret;
   List<String> scopes;
 
-  OAuth2Helper(this.client, {this.tokenStorage}) {
+  OAuth2Helper(this.client,
+      {this.grantType = AUTHORIZATION_CODE,
+      this.clientId,
+      this.clientSecret,
+      this.scopes,
+      this.tokenStorage}) {
     if (tokenStorage == null) tokenStorage = TokenStorage(client.tokenUrl);
   }
 
@@ -126,21 +131,18 @@ class OAuth2Helper {
           headers: {'Authorization': 'Bearer ' + tknResp.accessToken});
 
       if (resp.statusCode == 401) {
-
-        if(tknResp.hasRefreshToken()) {
-            tknResp = await refreshToken(tknResp.refreshToken);
+        if (tknResp.hasRefreshToken()) {
+          tknResp = await refreshToken(tknResp.refreshToken);
         } else {
-            tknResp = await fetchToken();
+          tknResp = await fetchToken();
         }
 
-        if(tknResp != null) {
-            resp = await httpClient.post(url,
-                body: params,
-                headers: {'Authorization': 'Bearer ' + tknResp.accessToken});
+        if (tknResp != null) {
+          resp = await httpClient.post(url,
+              body: params,
+              headers: {'Authorization': 'Bearer ' + tknResp.accessToken});
         }
-
       }
-
     } catch (e) {
       rethrow;
     }
@@ -151,7 +153,6 @@ class OAuth2Helper {
   ///
   /// If no token already exists, or if it is exipired, a new one is requested.
   Future<http.Response> get(String url, {httpClient}) async {
-
     if (httpClient == null) httpClient = http.Client();
 
     http.Response resp;
@@ -160,22 +161,19 @@ class OAuth2Helper {
 
     try {
       resp = await httpClient.get(url,
-          headers: {'Authorization': 'Bearer ' + tknResp.accessToken}
-      );
+          headers: {'Authorization': 'Bearer ' + tknResp.accessToken});
 
       if (resp.statusCode == 401) {
-
-        if(tknResp.hasRefreshToken()) {
-            tknResp = await refreshToken(tknResp.refreshToken);
+        if (tknResp.hasRefreshToken()) {
+          tknResp = await refreshToken(tknResp.refreshToken);
         } else {
-            tknResp = await fetchToken();
+          tknResp = await fetchToken();
         }
 
-        if(tknResp != null) {
+        if (tknResp != null) {
           resp = await httpClient.get(url,
               headers: {'Authorization': 'Bearer ' + tknResp.accessToken});
         }
-
       }
     } catch (e) {
       rethrow;
