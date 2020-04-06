@@ -1,3 +1,7 @@
+## [1.1.1] - 2020/04/06
+
+* Simplified helper set up
+
 ## [1.1.0] - 2020/04/02
 
 * Implemented GitHub client. Added the possibility to specify custom headers to the Access Token request. Partial OAuth2Helper refactorization.

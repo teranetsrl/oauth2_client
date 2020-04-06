@@ -52,14 +52,10 @@ GoogleOAuth2Client client = GoogleOAuth2Client(
 );
 
 //Then, instantiate the helper passing the previously instantiated client
-OAuth2Helper oauth2Helper = OAuth2Helper(client);
-
-//Set up the authorization params...
-oauth2Helper.setAuthorizationParams(
+OAuth2Helper oauth2Helper = OAuth2Helper(client,
 	grantType: OAuth2Helper.AUTHORIZATION_CODE,
 	clientId: 'your_client_id',
-	scopes: ['https://www.googleapis.com/auth/drive.readonly']
-);
+	scopes: ['https://www.googleapis.com/auth/drive.readonly']);
 
 ```
 In the example we used the Google client, but you can use any other provided client or implement your own (see below).
