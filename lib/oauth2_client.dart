@@ -149,7 +149,8 @@ class OAuth2Client {
         clientSecret: clientSecret,
         codeVerifier: codeVerifier);
 
-    http.Response response = await httpClient.post(tokenUrl, body: body, headers: _accessTokenRequestHeaders);
+    http.Response response = await httpClient.post(tokenUrl,
+        body: body, headers: _accessTokenRequestHeaders);
     return AccessTokenResponse.fromHttpResponse(response);
   }
 

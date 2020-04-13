@@ -13,10 +13,6 @@ class GitHubOAuth2Client extends OAuth2Client {
             tokenUrl: 'https://github.com/login/oauth/access_token',
             redirectUri: redirectUri,
             customUriScheme: customUriScheme) {
-
-      this.accessTokenRequestHeaders = {
-        'Accept': 'application/json'
-      };
-
+    this.accessTokenRequestHeaders = {'Accept': 'application/json'};
   }
 }

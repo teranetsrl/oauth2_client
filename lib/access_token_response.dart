@@ -26,8 +26,7 @@ class AccessTokenResponse {
     if (!map.containsKey('error') || map['error'] == null) {
       accessToken = map['access_token'];
       tokenType = map['token_type'];
-      if(map.containsKey('refresh_token'))
-        refreshToken = map['refresh_token'];
+      if (map.containsKey('refresh_token')) refreshToken = map['refresh_token'];
 
       if (map.containsKey('scope')) {
         if (map['scope'] is List) {
@@ -38,16 +37,16 @@ class AccessTokenResponse {
         }
       }
 
-      if(map.containsKey('expires_in'))
-        expiresIn = map['expires_in'];
+      if (map.containsKey('expires_in')) expiresIn = map['expires_in'];
 
       expirationDate = null;
 
-      if (map.containsKey('expiration_date') && map['expiration_date'] != null) {
+      if (map.containsKey('expiration_date') &&
+          map['expiration_date'] != null) {
         expirationDate =
             DateTime.fromMillisecondsSinceEpoch(map['expiration_date']);
       } else {
-        if(expiresIn != null) {
+        if (expiresIn != null) {
           DateTime now = DateTime.now();
           expirationDate = now.add(Duration(seconds: expiresIn));
         }
@@ -84,8 +83,11 @@ class AccessTokenResponse {
       'token_type': tokenType,
       'refresh_token': refreshToken,
       'scope': scope,
-      'expires_in': expirationDate != null ? expirationDate.difference(now).inSeconds : null,
-      'expiration_date': expirationDate != null ? expirationDate.millisecondsSinceEpoch : null,
+      'expires_in': expirationDate != null
+          ? expirationDate.difference(now).inSeconds
+          : null,
+      'expiration_date':
+          expirationDate != null ? expirationDate.millisecondsSinceEpoch : null,
       'error': error,
       'errorDescriprion': errorDescription,
       'errorUri': errorUri
@@ -96,7 +98,7 @@ class AccessTokenResponse {
   bool isExpired() {
     bool expired = false;
 
-    if(expirationDate != null) {
+    if (expirationDate != null) {
       DateTime now = DateTime.now();
       expired = expirationDate.difference(now).inSeconds < 0;
     }
@@ -106,16 +108,15 @@ class AccessTokenResponse {
 
   ///Checks if the access token must be refreeshed
   bool refreshNeeded({secondsToExpiration: 30}) {
-
     bool needsRefresh = false;
 
-    if(expirationDate != null) {
+    if (expirationDate != null) {
       DateTime now = DateTime.now();
-      needsRefresh = expirationDate.difference(now).inSeconds < secondsToExpiration;
+      needsRefresh =
+          expirationDate.difference(now).inSeconds < secondsToExpiration;
     }
 
     return needsRefresh;
-
   }
 
   ///Checks if the refresh token has been returned by the server
