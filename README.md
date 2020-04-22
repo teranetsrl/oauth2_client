@@ -5,9 +5,19 @@ Simple Flutter library for interacting with OAuth2 servers. It provides convenie
 
 Currently only **Authorization Code** and **Client Credentials** flows are implemented.
 
-# Installation #
+# Prerequisites #
 
-If your application uses the Authorization Code flow, on Android you first need to modify the *AndroidManifest.xml* file adding the intent filter needed to open the browser window for the authorization workflow.
+## Android ##
+
+If Android is one of your targets, you must first set the *minSdkVersion* in the *build.gradle* file:
+```
+defaultConfig {
+   ...
+   minSdkVersion 18
+   ...
+```
+
+Again on Android, if your application uses the Authorization Code flow, you first need to modify the *AndroidManifest.xml* file adding the intent filter needed to open the browser window for the authorization workflow.
 The library relies on the flutter_web_auth package to allow the Authorization Code flow.
 
 AndroidManifest.xml
@@ -23,11 +33,19 @@ AndroidManifest.xml
 </activity>
 ```
 
-First you need to add the library to your *pubspec.yaml* file:
+## iOS ##
+On iOS you need to set the *platform* in the *ios/Podfile* file:
+```
+platform :ios, '11.0'
+```
+
+# Installation #
+
+Add the library to your *pubspec.yaml* file:
 
 ```dart
 dependencies:
-	oauth2_client: ^1.0.0
+	oauth2_client: ^1.2.0
 ```
 
 # Usage with the helper class #
