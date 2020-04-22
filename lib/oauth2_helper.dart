@@ -118,17 +118,21 @@ class OAuth2Helper {
   ///
   /// If no token already exists, or if it is exipired, a new one is requested.
   Future<http.Response> post(String url,
-      {Map<String, dynamic> params, httpClient}) async {
+      {Map<String, String> headers, dynamic body, httpClient}) async {
     if (httpClient == null) httpClient = http.Client();
+
+    if(headers == null)
+      headers = {};
 
     http.Response resp;
 
     AccessTokenResponse tknResp = await getToken();
 
     try {
+      headers['Authorization'] = 'Bearer ' + tknResp.accessToken;
       resp = await httpClient.post(url,
-          body: params,
-          headers: {'Authorization': 'Bearer ' + tknResp.accessToken});
+          body: body,
+          headers: headers);
 
       if (resp.statusCode == 401) {
         if (tknResp.hasRefreshToken()) {
@@ -138,9 +142,10 @@ class OAuth2Helper {
         }
 
         if (tknResp != null) {
+          headers['Authorization'] = 'Bearer ' + tknResp.accessToken;
           resp = await httpClient.post(url,
-              body: params,
-              headers: {'Authorization': 'Bearer ' + tknResp.accessToken});
+              body: body,
+              headers: headers);
         }
       }
     } catch (e) {
@@ -152,16 +157,19 @@ class OAuth2Helper {
   /// Performs a get request to the specified [url], adding the authorization token.
   ///
   /// If no token already exists, or if it is exipired, a new one is requested.
-  Future<http.Response> get(String url, {httpClient}) async {
+  Future<http.Response> get(String url, {Map<String, String> headers, httpClient}) async {
     if (httpClient == null) httpClient = http.Client();
+
+    if(headers == null)
+      headers = {};
 
     http.Response resp;
 
     AccessTokenResponse tknResp = await getToken();
 
     try {
-      resp = await httpClient.get(url,
-          headers: {'Authorization': 'Bearer ' + tknResp.accessToken});
+      headers['Authorization'] = 'Bearer ' + tknResp.accessToken;
+      resp = await httpClient.get(url, headers: headers);
 
       if (resp.statusCode == 401) {
         if (tknResp.hasRefreshToken()) {
@@ -171,8 +179,8 @@ class OAuth2Helper {
         }
 
         if (tknResp != null) {
-          resp = await httpClient.get(url,
-              headers: {'Authorization': 'Bearer ' + tknResp.accessToken});
+          headers['Authorization'] = 'Bearer ' + tknResp.accessToken;
+          resp = await httpClient.get(url, headers: headers);
         }
       }
     } catch (e) {
