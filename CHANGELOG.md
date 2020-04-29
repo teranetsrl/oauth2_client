@@ -1,3 +1,6 @@
+## [1.2.1] - 2020/04/29
+* Bugfixes
+
 ## [1.2.0] - 2020/04/22
 * Added the _headers_ parameter to the _oauth2_helper_'s _get_ and _post_ methods.
 
