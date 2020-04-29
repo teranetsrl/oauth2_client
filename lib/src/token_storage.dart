@@ -31,7 +31,7 @@ class TokenStorage {
 
   Future<void> addToken(AccessTokenResponse tknResp) async {
     Map<String, Map> tokens = await insertToken(tknResp);
-    storage.write(key, jsonEncode(tokens));
+    await storage.write(key, jsonEncode(tokens));
   }
 
   Future<Map<String, Map>> insertToken(AccessTokenResponse tknResp) async {
@@ -58,7 +58,7 @@ class TokenStorage {
 
       if (tokens.containsKey(scopeKey)) {
         tokens.remove(scopeKey);
-        storage.write(key, jsonEncode(tokens));
+        await storage.write(key, jsonEncode(tokens));
       }
     }
 

@@ -87,7 +87,7 @@ class OAuth2Helper {
           clientId: clientId, clientSecret: clientSecret, scopes: scopes);
     }
 
-    if (tknResp != null && tknResp.isValid()) tokenStorage.addToken(tknResp);
+    if (tknResp != null && tknResp.isValid()) await tokenStorage.addToken(tknResp);
 
     return tknResp;
   }
@@ -99,11 +99,11 @@ class OAuth2Helper {
     tknResp = await client.refreshToken(refreshToken);
 
     if (tknResp != null && tknResp.isValid()) {
-      tokenStorage.addToken(tknResp);
+      await tokenStorage.addToken(tknResp);
     } else {
       if (tknResp.error == 'invalid_grant') {
         //The refresh token is expired too
-        tokenStorage.deleteToken(scopes);
+        await tokenStorage.deleteToken(scopes);
         tknResp = await getToken();
       } else {
         throw OAuth2Exception(tknResp.error,
