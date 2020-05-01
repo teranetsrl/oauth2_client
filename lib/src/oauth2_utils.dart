@@ -30,6 +30,7 @@ class OAuth2Utils {
       } else {
         val = v;
       }
+      // qsList.add(k + '=' + Uri.encodeComponent(val));
       qsList.add(k + '=' + val);
     });
 

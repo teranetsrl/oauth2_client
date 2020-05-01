@@ -87,7 +87,8 @@ class OAuth2Helper {
           clientId: clientId, clientSecret: clientSecret, scopes: scopes);
     }
 
-    if (tknResp != null && tknResp.isValid()) await tokenStorage.addToken(tknResp);
+    if (tknResp != null && tknResp.isValid())
+      await tokenStorage.addToken(tknResp);
 
     return tknResp;
   }
@@ -121,8 +122,7 @@ class OAuth2Helper {
       {Map<String, String> headers, dynamic body, httpClient}) async {
     if (httpClient == null) httpClient = http.Client();
 
-    if(headers == null)
-      headers = {};
+    if (headers == null) headers = {};
 
     http.Response resp;
 
@@ -130,9 +130,7 @@ class OAuth2Helper {
 
     try {
       headers['Authorization'] = 'Bearer ' + tknResp.accessToken;
-      resp = await httpClient.post(url,
-          body: body,
-          headers: headers);
+      resp = await httpClient.post(url, body: body, headers: headers);
 
       if (resp.statusCode == 401) {
         if (tknResp.hasRefreshToken()) {
@@ -143,9 +141,7 @@ class OAuth2Helper {
 
         if (tknResp != null) {
           headers['Authorization'] = 'Bearer ' + tknResp.accessToken;
-          resp = await httpClient.post(url,
-              body: body,
-              headers: headers);
+          resp = await httpClient.post(url, body: body, headers: headers);
         }
       }
     } catch (e) {
@@ -157,11 +153,11 @@ class OAuth2Helper {
   /// Performs a get request to the specified [url], adding the authorization token.
   ///
   /// If no token already exists, or if it is exipired, a new one is requested.
-  Future<http.Response> get(String url, {Map<String, String> headers, httpClient}) async {
+  Future<http.Response> get(String url,
+      {Map<String, String> headers, httpClient}) async {
     if (httpClient == null) httpClient = http.Client();
 
-    if(headers == null)
-      headers = {};
+    if (headers == null) headers = {};
 
     http.Response resp;
 
