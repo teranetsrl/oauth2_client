@@ -9,10 +9,14 @@ import 'package:meta/meta.dart';
 /// (for example 'com.example.app', but you can use whatever uri scheme you want).
 ///
 class GoogleOAuth2Client extends OAuth2Client {
-  GoogleOAuth2Client({@required String redirectUri, @required String customUriScheme}): super(
-    authorizeUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
-    tokenUrl: 'https://www.googleapis.com/oauth2/v4/token',
-    redirectUri: redirectUri,
-    customUriScheme: customUriScheme
-  );
+  GoogleOAuth2Client(
+      {@required String redirectUri, @required String customUriScheme})
+      : super(
+            authorizeUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+            tokenUrl: 'https://oauth2.googleapis.com/token',
+            revokeUrl: 'https://oauth2.googleapis.com/revoke',
+            // tokenUrl: 'https://www.googleapis.com/oauth2/v4/token',
+
+            redirectUri: redirectUri,
+            customUriScheme: customUriScheme);
 }

@@ -1,12 +1,12 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:oauth2_client/oauth2_response.dart';
 
 /// Represents the response to an Access Token Request.
 /// see https://tools.ietf.org/html/rfc6749#section-5.2
-class AccessTokenResponse {
-
-	String accessToken;
+class AccessTokenResponse extends OAuth2Response {
+  String accessToken;
   String tokenType;
   int expiresIn;
   String refreshToken;
@@ -14,18 +14,11 @@ class AccessTokenResponse {
 
   DateTime expirationDate;
 
-  String error;
-  String errorDescription;
-  String errorUri;
-  int httpStatusCode;
+  AccessTokenResponse();
 
-	AccessTokenResponse();
+  AccessTokenResponse.fromMap(Map<String, dynamic> map): super.fromMap(map) {
 
-  AccessTokenResponse.fromMap(Map<String, dynamic> map) {
-
-    httpStatusCode = map['http_status_code'];
-
-    if(!map.containsKey('error') || map['error'] == null) {
+    if(isValid()) {
       accessToken = map['access_token'];
       tokenType = map['token_type'];
       refreshToken = map['refresh_token'];
@@ -43,11 +36,7 @@ class AccessTokenResponse {
         expirationDate = now.add(Duration(seconds: expiresIn));
       }
     }
-    else {
-      error = map['error'];
-      errorDescription = map.containsKey('error_description') ? map['error_description'] : null;
-      errorUri = map.containsKey('errorUri') ? map['errorUri'] : null;
-    }
+
   }
 
   factory AccessTokenResponse.fromHttpResponse(http.Response response) {
@@ -124,10 +113,6 @@ class AccessTokenResponse {
 
   bool isBearer() {
     return tokenType.toLowerCase() == 'bearer';
-  }
-
-  bool isValid() {
-    return httpStatusCode == 200 && (error == null || error.isEmpty);
   }
 
   @override
