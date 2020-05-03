@@ -26,9 +26,9 @@ class OAuth2Utils {
     params.forEach((k, v) {
       String val;
       if (v is List) {
-        val = v.join('+');
+        val = v.map((p) => p.trim()).join('+');
       } else {
-        val = v;
+        val = v.trim();
       }
       // qsList.add(k + '=' + Uri.encodeComponent(val));
       qsList.add(k + '=' + val);

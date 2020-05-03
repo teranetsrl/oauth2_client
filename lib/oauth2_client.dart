@@ -100,7 +100,7 @@ class OAuth2Client {
       'client_secret': clientSecret
     };
 
-    if (scopes != null) params['scope'] = scopes.join('+');
+    if (scopes != null) params['scope'] = scopes.map((s) => s.trim()).join('+');
 
     http.Response response = await httpClient.post(tokenUrl, body: params);
 
@@ -172,7 +172,7 @@ class OAuth2Client {
       List<String> scopes,
       String state,
       String codeChallenge}) {
-    final Map<String, String> params = {
+    final Map<String, dynamic> params = {
       'response_type': 'code',
       'client_id': clientId
     };
@@ -180,7 +180,7 @@ class OAuth2Client {
     if (redirectUri != null && redirectUri.isNotEmpty)
       params['redirect_uri'] = redirectUri;
 
-    if (scopes != null && scopes.isNotEmpty) params['scope'] = scopes.join('+');
+    if (scopes != null && scopes.isNotEmpty) params['scope'] = scopes;
 
     if (state != null && state.isNotEmpty) params['state'] = state;
 
