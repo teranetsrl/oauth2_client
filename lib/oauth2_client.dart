@@ -35,6 +35,7 @@ class OAuth2Client {
   String refreshUrl;
   String revokeUrl;
   String authorizeUrl;
+  Map<String, String> _accessTokenRequestHeaders;
 
   WebAuth webAuthClient;
 
@@ -102,7 +103,7 @@ class OAuth2Client {
       'client_secret': clientSecret
     };
 
-    if (scopes != null) params['scope'] = scopes.join('+');
+    if (scopes != null) params['scope'] = scopes.map((s) => s.trim()).join('+');
 
     http.Response response = await httpClient.post(tokenUrl, body: params);
 
@@ -151,7 +152,8 @@ class OAuth2Client {
         clientSecret: clientSecret,
         codeVerifier: codeVerifier);
 
-    http.Response response = await httpClient.post(tokenUrl, body: body);
+    http.Response response = await httpClient.post(tokenUrl,
+        body: body, headers: _accessTokenRequestHeaders);
     return AccessTokenResponse.fromHttpResponse(response);
   }
 
@@ -200,7 +202,7 @@ class OAuth2Client {
       List<String> scopes,
       String state,
       String codeChallenge}) {
-    final Map<String, String> params = {
+    final Map<String, dynamic> params = {
       'response_type': 'code',
       'client_id': clientId
     };
@@ -208,7 +210,7 @@ class OAuth2Client {
     if (redirectUri != null && redirectUri.isNotEmpty)
       params['redirect_uri'] = redirectUri;
 
-    if (scopes != null && scopes.isNotEmpty) params['scope'] = scopes.join('+');
+    if (scopes != null && scopes.isNotEmpty) params['scope'] = scopes;
 
     if (state != null && state.isNotEmpty) params['state'] = state;
 
@@ -274,4 +276,9 @@ class OAuth2Client {
   String _getRefreshUrl() {
     return refreshUrl ?? tokenUrl;
   }
+
+  set accessTokenRequestHeaders(Map<String, String> headers) {
+    _accessTokenRequestHeaders = headers;
+  }
+
 }

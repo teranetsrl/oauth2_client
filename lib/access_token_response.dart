@@ -5,6 +5,7 @@ import 'package:oauth2_client/oauth2_response.dart';
 
 /// Represents the response to an Access Token Request.
 /// see https://tools.ietf.org/html/rfc6749#section-5.2
+
 class AccessTokenResponse extends OAuth2Response {
   String accessToken;
   String tokenType;
@@ -21,70 +22,50 @@ class AccessTokenResponse extends OAuth2Response {
     if(isValid()) {
       accessToken = map['access_token'];
       tokenType = map['token_type'];
-      refreshToken = map['refresh_token'];
+      if (map.containsKey('refresh_token')) refreshToken = map['refresh_token'];
 
-      List scopesJson = map['scope'];
-      scope = scopesJson != null ? List.from(scopesJson) : null;
-
-      expiresIn = map['expires_in'];
-
-      if(map.containsKey('expiration_date')) {
-        expirationDate = DateTime.fromMillisecondsSinceEpoch(map['expiration_date']);
+      if (map.containsKey('scope')) {
+        if (map['scope'] is List) {
+          List scopesJson = map['scope'];
+          scope = scopesJson != null ? List.from(scopesJson) : null;
+        } else {
+          scope = [map['scope']];
+        }
       }
-      else {
-        DateTime now = DateTime.now();
-        expirationDate = now.add(Duration(seconds: expiresIn));
+
+      if (map.containsKey('expires_in')) expiresIn = map['expires_in'];
+
+      expirationDate = null;
+
+      if (map.containsKey('expiration_date') &&
+          map['expiration_date'] != null) {
+        expirationDate =
+            DateTime.fromMillisecondsSinceEpoch(map['expiration_date']);
+      } else {
+        if (expiresIn != null) {
+          DateTime now = DateTime.now();
+          expirationDate = now.add(Duration(seconds: expiresIn));
+        }
       }
     }
 
   }
 
   factory AccessTokenResponse.fromHttpResponse(http.Response response) {
-
     AccessTokenResponse resp;
 
-    if(response.statusCode != 404) {
+    if (response.statusCode != 404) {
       resp = AccessTokenResponse.fromMap(jsonDecode(response.body));
-    }
-    else {
+    } else {
       resp = AccessTokenResponse();
     }
 
     resp.httpStatusCode = response.statusCode;
 
-
     return resp;
-/*
-    if(response.statusCode != 200) {
-
-      final String error = respData['error'];
-
-      //@see https://tools.ietf.org/html/rfc6750#section-3.1
-      if(response.statusCode == 401 && response.headers.containsKey('WWW-Authenticate')) {
-        if(error == 'invalid_token') {
-          throw InvalidTokenException();
-        }
-      }
-      else if(response.statusCode == 400) {
-        //@see https://tools.ietf.org/html/rfc6749#section-5.2
-        // if(error == 'invalid_grant') {
-          throw InvalidGrantException();
-        // }
-      }
-
-      throw Exception(error + (respData['error_description'].isNotEmpty ? ': ' + respData['error_description'] : ''));
-    }
-    else {
-      AccessTokenResponse.fromMap(respData);
-    }
-
-    return tknResp;
-*/
-    // return respData;
   }
 
   Map<String, dynamic> toMap() {
-
     DateTime now = DateTime.now();
 
     return {
@@ -93,35 +74,63 @@ class AccessTokenResponse extends OAuth2Response {
       'token_type': tokenType,
       'refresh_token': refreshToken,
       'scope': scope,
-      'expires_in': expirationDate.difference(now).inSeconds,
-      'expiration_date': expirationDate.millisecondsSinceEpoch,
+      'expires_in': expirationDate != null
+          ? expirationDate.difference(now).inSeconds
+          : null,
+      'expiration_date':
+          expirationDate != null ? expirationDate.millisecondsSinceEpoch : null,
       'error': error,
       'errorDescriprion': errorDescription,
       'errorUri': errorUri
     };
   }
 
+  ///Checks if the access token is expired
   bool isExpired() {
-    DateTime now = DateTime.now();
-    return expirationDate.difference(now).inSeconds < 0;
+    bool expired = false;
+
+    if (expirationDate != null) {
+      DateTime now = DateTime.now();
+      expired = expirationDate.difference(now).inSeconds < 0;
+    }
+
+    return expired;
   }
 
+  ///Checks if the access token must be refreeshed
   bool refreshNeeded({secondsToExpiration: 30}) {
-    DateTime now = DateTime.now();
-    return expirationDate.difference(now).inSeconds < secondsToExpiration;
+    bool needsRefresh = false;
+
+    if (expirationDate != null) {
+      DateTime now = DateTime.now();
+      needsRefresh =
+          expirationDate.difference(now).inSeconds < secondsToExpiration;
+    }
+
+    return needsRefresh;
   }
 
+  ///Checks if the refresh token has been returned by the server
+  bool hasRefreshToken() {
+    return refreshToken != null;
+  }
+
+  ///Checks if the token is a "Bearer" token
   bool isBearer() {
     return tokenType.toLowerCase() == 'bearer';
   }
 
   @override
   String toString() {
-    if(httpStatusCode == 200) {
+    if (httpStatusCode == 200) {
       return 'Access Token: ' + accessToken;
-    }
-    else {
-      return 'HTTP ' + httpStatusCode.toString() + ' - ' + (error ?? '') + ' ' + (errorDescription ?? '');
+    } else {
+      return 'HTTP ' +
+          httpStatusCode.toString() +
+          ' - ' +
+          (error ?? '') +
+          ' ' +
+          (errorDescription ?? '');
     }
   }
 }

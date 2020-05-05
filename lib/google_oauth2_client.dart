@@ -16,7 +16,6 @@ class GoogleOAuth2Client extends OAuth2Client {
             tokenUrl: 'https://oauth2.googleapis.com/token',
             revokeUrl: 'https://oauth2.googleapis.com/revoke',
             // tokenUrl: 'https://www.googleapis.com/oauth2/v4/token',
-
             redirectUri: redirectUri,
             customUriScheme: customUriScheme);
 }

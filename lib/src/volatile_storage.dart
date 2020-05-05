@@ -1,7 +1,6 @@
 import 'package:oauth2_client/src/storage.dart';
 
 class VolatileStorage extends Storage {
-
   final Map<String, String> storage = {};
 
   VolatileStorage();
@@ -15,5 +14,4 @@ class VolatileStorage extends Storage {
   Future<void> write(String key, String value) async {
     storage[key] = value;
   }
-
 }
