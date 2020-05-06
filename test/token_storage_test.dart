@@ -10,13 +10,11 @@ import 'package:oauth2_client/src/token_storage.dart';
 class SecureStorageMock extends Mock implements SecureStorage {}
 
 void main() {
-
   group('Token Storage.', () {
-
     test('Read non existent token', () async {
-
       final Storage secStorage = SecureStorageMock();
-      final TokenStorage storage = TokenStorage('my_token_url', storage: secStorage);
+      final TokenStorage storage =
+          TokenStorage('my_token_url', storage: secStorage);
 
       Map<String, Map> tokens = {
         'scope1': {
@@ -28,7 +26,8 @@ void main() {
         }
       };
 
-      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode(tokens));
+      when(secStorage.read('my_token_url'))
+          .thenAnswer((_) async => jsonEncode(tokens));
 
       AccessTokenResponse tknResp = await storage.getToken(['scope2']);
 
@@ -36,9 +35,9 @@ void main() {
     });
 
     test('Read existent token', () async {
-
       final Storage secStorage = SecureStorageMock();
-      final TokenStorage storage = TokenStorage('my_token_url', storage: secStorage);
+      final TokenStorage storage =
+          TokenStorage('my_token_url', storage: secStorage);
 
       Map<String, Map> tokens = {
         'scope1': {
@@ -51,7 +50,8 @@ void main() {
         }
       };
 
-      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode(tokens));
+      when(secStorage.read('my_token_url'))
+          .thenAnswer((_) async => jsonEncode(tokens));
 
       AccessTokenResponse tknResp = await storage.getToken(['scope1']);
 
@@ -59,9 +59,9 @@ void main() {
     });
 
     test('Insert token', () async {
-
       final Storage secStorage = SecureStorageMock();
-      final TokenStorage storage = TokenStorage('my_token_url', storage: secStorage);
+      final TokenStorage storage =
+          TokenStorage('my_token_url', storage: secStorage);
 
       Map<String, dynamic> scope1Map = {
         'access_token': '1234567890',
@@ -81,25 +81,25 @@ void main() {
         'http_status_code': 200
       };
 
-      Map<String, Map> tokens = await storage.insertToken(AccessTokenResponse.fromMap(scope1Map));
+      Map<String, Map> tokens =
+          await storage.insertToken(AccessTokenResponse.fromMap(scope1Map));
 
       expect(tokens, contains('scope1'));
       expect(tokens.containsKey('scope2'), false);
 
-      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode({
-        'scope1': scope1Map
-      }));
+      when(secStorage.read('my_token_url'))
+          .thenAnswer((_) async => jsonEncode({'scope1': scope1Map}));
 
-      tokens = await storage.insertToken(AccessTokenResponse.fromMap(scope2Map));
+      tokens =
+          await storage.insertToken(AccessTokenResponse.fromMap(scope2Map));
 
       expect(tokens, contains('scope2'));
-
     });
 
     test('Add token', () async {
-
       final Storage secStorage = SecureStorageMock();
-      final TokenStorage storage = TokenStorage('my_token_url', storage: secStorage);
+      final TokenStorage storage =
+          TokenStorage('my_token_url', storage: secStorage);
 
       Map<String, dynamic> scope1Map = {
         'access_token': '1234567890',
@@ -111,8 +111,20 @@ void main() {
       };
 
       await storage.addToken(AccessTokenResponse.fromMap(scope1Map));
-
     });
 
+    test('Scope key generation', () async {
+      final Storage secStorage = SecureStorageMock();
+      final TokenStorage storage =
+          TokenStorage('my_token_url', storage: secStorage);
+
+      expect(storage.getScopeKey(['test']), 'test');
+
+      //The scope key must be invariant on the order in which the scopes are passed
+      expect(storage.getScopeKey(['test1', 'test2']), 'test1__test2');
+      expect(storage.getScopeKey(['test2', 'test1']), 'test1__test2');
+
+      expect(storage.getScopeKey([]), '_default_');
+    });
   });
 }

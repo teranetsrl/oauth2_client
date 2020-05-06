@@ -1,3 +1,5 @@
+import 'package:http/http.dart' as http;
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oauth2_client/access_token_response.dart';
 
@@ -9,9 +11,7 @@ void main() {
   final String tokenType = 'Bearer';
 
   group('Access Token Response.', () {
-
     test('Valid response', () async {
-
       final Map<String, dynamic> respMap = {
         'access_token': accessToken,
         'token_type': tokenType,
@@ -28,11 +28,9 @@ void main() {
       expect(resp.isValid(), false);
       expect(resp.isExpired(), false);
       expect(resp.isBearer(), true);
-
     });
 
-   test('Token expiration', () async {
-
+    test('Token expiration', () async {
       final Map<String, dynamic> respMap = {
         'access_token': accessToken,
         'token_type': tokenType,
@@ -50,7 +48,6 @@ void main() {
     });
 
     test('Error response', () async {
-
       final Map<String, dynamic> respMap = {
         'error': 'ERROR',
         'error_description': 'ERROR_DESC',
@@ -62,7 +59,6 @@ void main() {
     });
 
     test('Convert to map', () async {
-
       final Map<String, dynamic> respMap = {
         'access_token': accessToken,
         'token_type': tokenType,
@@ -76,16 +72,35 @@ void main() {
 
       final resp = AccessTokenResponse.fromMap(respMap);
 
-      expect(resp.toMap(), allOf(
-        containsPair('access_token', accessToken),
-        containsPair('token_type', tokenType),
-        containsPair('refresh_token', refreshToken),
-        containsPair('scope', scopes),
-        containsPair('expiration_date', expirationDate.millisecondsSinceEpoch)
-      ));
-
+      expect(
+          resp.toMap(),
+          allOf(
+              containsPair('access_token', accessToken),
+              containsPair('token_type', tokenType),
+              containsPair('refresh_token', refreshToken),
+              containsPair('scope', scopes),
+              containsPair(
+                  'expiration_date', expirationDate.millisecondsSinceEpoch)));
     });
-
   });
 
+  test('Conversion from HTTP response', () async {
+    //The OAuth 2 standard suggests that the scopes should be a space-separated list,
+    //but some providers (i.e. GitHub) return a comma-separated list
+    http.Response response = http.Response(
+        '{"access_token": "TKN12345", "token_type": "Bearer", "scope": "scope1 scope2"}',
+        200);
+
+    AccessTokenResponse resp = AccessTokenResponse.fromHttpResponse(response);
+
+    expect(resp.scope, ['scope1', 'scope2']);
+
+    response = http.Response(
+        '{"access_token": "TKN12345", "token_type": "Bearer", "scope": "scope1,scope2"}',
+        200);
+
+    resp = AccessTokenResponse.fromHttpResponse(response);
+
+    expect(resp.scope, ['scope1', 'scope2']);
+  });
 }

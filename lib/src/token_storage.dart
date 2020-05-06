@@ -66,6 +66,15 @@ class TokenStorage {
   }
 
   String getScopeKey(List<String> scope) {
-    return scope.isNotEmpty ? scope.join('__') : '_default_';
+    String key = '_default_';
+
+    if (scope.isNotEmpty) {
+      List<String> sortedScopes = scope.toList()
+        ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+
+      key = sortedScopes.join('__');
+    }
+
+    return key;
   }
 }
