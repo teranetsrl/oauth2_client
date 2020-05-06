@@ -1,3 +1,6 @@
+## [1.2.3] - 2020/05/06
+* Bugfixes (multiple scopes handling)
+
 ## [1.2.2] - 2020/05/03
 * Added trim for "scope" parameter
 
