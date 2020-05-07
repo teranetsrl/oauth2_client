@@ -113,6 +113,38 @@ void main() {
       await storage.addToken(AccessTokenResponse.fromMap(scope1Map));
     });
 
+    test('Delete token', () async {
+      final Storage secStorage = SecureStorageMock();
+      final TokenStorage storage =
+          TokenStorage('my_token_url', storage: secStorage);
+
+      final scopes = ['scope1'];
+
+      Map<String, dynamic> tknMap = {
+        'scope1': {
+          'access_token': '1234567890',
+          'token_type': 'Bearer',
+          'refresh_token': '0987654321',
+          'scope': scopes,
+          'expires_in': 3600,
+          'http_status_code': 200
+        }
+      };
+
+      when(secStorage.read('my_token_url'))
+          .thenAnswer((_) async => jsonEncode(tknMap));
+
+      when(secStorage.write('my_token_url', captureAny))
+          .thenAnswer((_) async => true);
+
+      await storage.deleteToken(scopes);
+
+      expect(verify(secStorage.write('my_token_url', captureAny)).captured,
+          ['{}']);
+
+      clearInteractions(secStorage);
+    });
+
     test('Scope key generation', () async {
       final Storage secStorage = SecureStorageMock();
       final TokenStorage storage =
