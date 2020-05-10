@@ -68,7 +68,7 @@ class TokenStorage {
   String getScopeKey(List<String> scope) {
     String key = '_default_';
 
-    if (scope.isNotEmpty) {
+    if (scope != null && scope.isNotEmpty) {
       List<String> sortedScopes = scope.toList()
         ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
 

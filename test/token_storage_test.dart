@@ -157,6 +157,8 @@ void main() {
       expect(storage.getScopeKey(['test2', 'test1']), 'test1__test2');
 
       expect(storage.getScopeKey([]), '_default_');
+
+      expect(storage.getScopeKey(null), '_default_');
     });
   });
 }

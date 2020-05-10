@@ -79,6 +79,7 @@ class OAuth2Client {
           httpClient: httpClient,
           code: authResp.code,
           clientId: clientId,
+          scopes: scopes,
           clientSecret: clientSecret,
           codeVerifier: codeVerifier);
     }
@@ -104,7 +105,8 @@ class OAuth2Client {
 
     http.Response response = await httpClient.post(tokenUrl, body: params);
 
-    return AccessTokenResponse.fromHttpResponse(response);
+    return AccessTokenResponse.fromHttpResponse(response,
+        requestedScopes: scopes);
   }
 
   /// Requests an Authorization Code to be used in the Authorization Code grant.
@@ -139,6 +141,7 @@ class OAuth2Client {
       @required String clientId,
       String clientSecret,
       String codeVerifier,
+      List<String> scopes,
       httpClient}) async {
     if (httpClient == null) httpClient = http.Client();
 
@@ -151,7 +154,8 @@ class OAuth2Client {
 
     http.Response response = await httpClient.post(tokenUrl,
         body: body, headers: _accessTokenRequestHeaders);
-    return AccessTokenResponse.fromHttpResponse(response);
+    return AccessTokenResponse.fromHttpResponse(response,
+        requestedScopes: scopes);
   }
 
   /// Refreshes an Access Token issuing a refresh_token grant to the OAuth2 server.

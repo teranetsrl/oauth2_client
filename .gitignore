@@ -76,3 +76,4 @@ build/
 
 launch.json
 coverage/
+test.sh

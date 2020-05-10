@@ -67,10 +67,10 @@ void main() {
         'expires_in': expiresIn
       };
 
+      final resp = AccessTokenResponse.fromMap(respMap);
+
       DateTime now = DateTime.now();
       DateTime expirationDate = now.add(Duration(seconds: expiresIn));
-
-      final resp = AccessTokenResponse.fromMap(respMap);
 
       expect(
           resp.toMap(),
@@ -102,5 +102,24 @@ void main() {
     resp = AccessTokenResponse.fromHttpResponse(response);
 
     expect(resp.scope, ['scope1', 'scope2']);
+  });
+
+  test('Conversion from HTTP response with no "scope" parameter', () async {
+    //If no scope parameter is sent by the server in the Access Token Response
+    //it means that it is identical to the one(s) requested by the client
+    http.Response response = http.Response(
+        '{"access_token": "TKN12345", "token_type": "Bearer"}', 200);
+
+    AccessTokenResponse resp = AccessTokenResponse.fromHttpResponse(response,
+        requestedScopes: ['scope1', 'scope2']);
+
+    expect(resp.scope, ['scope1', 'scope2']);
+
+    //If the server returned no "scope" parameter AND the client didn't request one, the scope in the AccessTokenResponse should be null
+    http.Response('{"access_token": "TKN12345", "token_type": "Bearer"}', 200);
+
+    resp = AccessTokenResponse.fromHttpResponse(response);
+
+    expect(resp.scope, null);
   });
 }
