@@ -33,10 +33,11 @@ void main() {
 
   group('Authorization Code Grant.', () {
     final oauth2Client = OAuth2Client(
-        authorizeUrl: authorizeUrl,
-        tokenUrl: tokenUrl,
-        redirectUri: redirectUri,
-        customUriScheme: customUriScheme);
+      authorizeUrl: authorizeUrl,
+      tokenUrl: tokenUrl,
+      redirectUri: redirectUri,
+      customUriScheme: customUriScheme,
+    );
 
     test('Authorization Request', () async {
       var authParams = {
@@ -56,11 +57,12 @@ void main() {
               redirectUri + '?code=' + authCode + '&state=' + state);
 
       final authResponse = await oauth2Client.requestAuthorization(
-          webAuthClient: webAuthClient,
-          clientId: clientId,
-          scopes: scopes,
-          codeChallenge: codeChallenge,
-          state: state);
+        webAuthClient: webAuthClient,
+        clientId: clientId,
+        scopes: scopes,
+        codeChallenge: codeChallenge,
+        state: state,
+      );
 
       expect(authResponse.code, authCode);
     });
@@ -90,11 +92,12 @@ void main() {
               200));
 
       final tknResponse = await oauth2Client.requestAccessToken(
-          httpClient: httpClient,
-          code: authCode,
-          clientId: clientId,
-          // clientSecret: clientSecret,
-          codeVerifier: codeVerifier);
+        httpClient: httpClient,
+        code: authCode,
+        clientId: clientId,
+        // clientSecret: clientSecret,
+        codeVerifier: codeVerifier,
+      );
 
       expect(tknResponse.accessToken, accessToken);
     });
@@ -115,11 +118,12 @@ void main() {
           .thenAnswer((_) async => http.Response('', 404));
 
       final tknResponse = await oauth2Client.requestAccessToken(
-          httpClient: httpClient,
-          code: authCode,
-          clientId: clientId,
-          // clientSecret: clientSecret,
-          codeVerifier: codeVerifier);
+        httpClient: httpClient,
+        code: authCode,
+        clientId: clientId,
+        // clientSecret: clientSecret,
+        codeVerifier: codeVerifier,
+      );
 
       expect(tknResponse.isValid(), false);
     });
