@@ -169,12 +169,13 @@ void main() {
               redirectUri + '?code=' + authCode + '&state=' + state);
 
       final tknResponse = await oauth2Client.getTokenWithAuthCodeFlow(
-          webAuthClient: webAuthClient,
-          httpClient: httpClient,
-          clientId: clientId,
-          scopes: scopes,
-          state: state,
-          codeVerifier: codeVerifier);
+        webAuthClient: webAuthClient,
+        httpClient: httpClient,
+        clientId: clientId,
+        scopes: scopes,
+        state: state,
+        codeVerifier: codeVerifier,
+      );
 
       expect(tknResponse.accessToken, accessToken);
     });
@@ -234,9 +235,10 @@ void main() {
       expect(
           urlParams,
           allOf(
-              containsPair('response_type', 'code'),
-              containsPair('client_id', clientId),
-              containsPair('redirect_uri', redirectUri)));
+            containsPair('response_type', 'code'),
+            containsPair('client_id', clientId),
+            containsPair('redirect_uri', redirectUri),
+          ));
     });
 
     test('Authorization url params (3/5)', () {
@@ -280,11 +282,12 @@ void main() {
 
     test('Authorization url params (5/5)', () {
       final authorizeUrl = oauth2Client.getAuthorizeUrl(
-          clientId: clientId,
-          redirectUri: redirectUri,
-          scopes: scopes,
-          state: state,
-          codeChallenge: codeChallenge);
+        clientId: clientId,
+        redirectUri: redirectUri,
+        scopes: scopes,
+        state: state,
+        codeChallenge: codeChallenge,
+      );
 
       var urlParams = Uri.parse(authorizeUrl).queryParameters;
 
@@ -306,8 +309,10 @@ void main() {
 
       expect(
           params,
-          allOf(containsPair('grant_type', 'authorization_code'),
-              containsPair('code', authorizationCode)));
+          allOf(
+            containsPair('grant_type', 'authorization_code'),
+            containsPair('code', authorizationCode),
+          ));
     });
 
     test('Token url params (2/5)', () {
@@ -317,9 +322,10 @@ void main() {
       expect(
           params,
           allOf(
-              containsPair('grant_type', 'authorization_code'),
-              containsPair('code', authorizationCode),
-              containsPair('redirect_uri', redirectUri)));
+            containsPair('grant_type', 'authorization_code'),
+            containsPair('code', authorizationCode),
+            containsPair('redirect_uri', redirectUri),
+          ));
     });
 
     test('Token url params (3/5)', () {
@@ -331,10 +337,11 @@ void main() {
       expect(
           params,
           allOf(
-              containsPair('grant_type', 'authorization_code'),
-              containsPair('code', authorizationCode),
-              containsPair('redirect_uri', redirectUri),
-              containsPair('client_id', clientId)));
+            containsPair('grant_type', 'authorization_code'),
+            containsPair('code', authorizationCode),
+            containsPair('redirect_uri', redirectUri),
+            containsPair('client_id', clientId),
+          ));
     });
 
     test('Token url params (4/5)', () {
