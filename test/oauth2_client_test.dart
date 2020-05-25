@@ -222,8 +222,10 @@ void main() {
 
       expect(
           urlParams,
-          allOf(containsPair('response_type', 'code'),
-              containsPair('client_id', clientId)));
+          allOf(
+            containsPair('response_type', 'code'),
+            containsPair('client_id', clientId),
+          ));
     });
 
     test('Authorization url params (2/5)', () {
@@ -387,10 +389,11 @@ void main() {
 
   group('Client Credentials Grant.', () {
     final oauth2Client = OAuth2Client(
-        authorizeUrl: authorizeUrl,
-        tokenUrl: tokenUrl,
-        redirectUri: redirectUri,
-        customUriScheme: customUriScheme);
+      authorizeUrl: authorizeUrl,
+      tokenUrl: tokenUrl,
+      redirectUri: redirectUri,
+      customUriScheme: customUriScheme,
+    );
 
     test('Get new token', () async {
       final httpClient = HttpClientMock();
@@ -415,10 +418,11 @@ void main() {
               200));
 
       final tknResponse = await oauth2Client.getTokenWithClientCredentialsFlow(
-          clientId: clientId,
-          clientSecret: clientSecret,
-          // List<String> scopes,
-          httpClient: httpClient);
+        clientId: clientId,
+        clientSecret: clientSecret,
+        // List<String> scopes,
+        httpClient: httpClient,
+      );
 
       expect(tknResponse.accessToken, accessToken);
     });
@@ -437,10 +441,11 @@ void main() {
           .thenAnswer((_) async => http.Response('', 404));
 
       final tknResponse = await oauth2Client.getTokenWithClientCredentialsFlow(
-          clientId: clientId,
-          clientSecret: clientSecret,
-          // List<String> scopes,
-          httpClient: httpClient);
+        clientId: clientId,
+        clientSecret: clientSecret,
+        // List<String> scopes,
+        httpClient: httpClient,
+      );
 
       expect(tknResponse.isValid(), false);
     });
