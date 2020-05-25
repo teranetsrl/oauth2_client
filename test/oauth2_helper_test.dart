@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:oauth2_client/access_token_response.dart';
 import 'package:oauth2_client/oauth2_client.dart';
+import 'package:oauth2_client/oauth2_exception.dart';
 import 'package:oauth2_client/oauth2_helper.dart';
 import 'package:oauth2_client/src/secure_storage.dart';
 import 'package:oauth2_client/src/token_storage.dart';
@@ -70,7 +71,8 @@ void main() {
   }
 
   void _mockRefreshToken(oauth2Client) {
-    when(oauth2Client.refreshToken(refreshToken))
+    when(oauth2Client.refreshToken(refreshToken,
+            clientId: clientId, clientSecret: clientSecret))
         .thenAnswer((_) async => AccessTokenResponse.fromMap({
               'access_token': renewedAccessToken,
               'token_type': tokenType,
@@ -170,8 +172,9 @@ void main() {
 
       _mockGetTokenWithAuthCodeFlow(oauth2Client);
 
-      when(oauth2Client.refreshToken(refreshToken)).thenAnswer((_) async =>
-          AccessTokenResponse.fromMap(
+      when(oauth2Client.refreshToken(refreshToken,
+              clientId: clientId, clientSecret: clientSecret))
+          .thenAnswer((_) async => AccessTokenResponse.fromMap(
               {'error': 'invalid_grant', 'http_status_code': 400}));
 
       OAuth2Helper hlp = OAuth2Helper(oauth2Client, tokenStorage: tokenStorage);
@@ -220,6 +223,29 @@ void main() {
       expect(tknResp.accessToken, renewedAccessToken);
     });
 
+    test('Refresh token generic error', () async {
+      final TokenStorage tokenStorage =
+          TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
+
+      _mockGetTokenWithAuthCodeFlow(oauth2Client);
+
+      when(oauth2Client.refreshToken(refreshToken,
+              clientId: clientId, clientSecret: clientSecret))
+          .thenAnswer((_) async => AccessTokenResponse.fromMap(
+              {'error': 'generic_error', 'http_status_code': 400}));
+
+      OAuth2Helper hlp = OAuth2Helper(oauth2Client, tokenStorage: tokenStorage);
+
+      hlp.setAuthorizationParams(
+          grantType: OAuth2Helper.AUTHORIZATION_CODE,
+          clientId: clientId,
+          clientSecret: clientSecret,
+          scopes: scopes);
+
+      expect(() async => await hlp.refreshToken(refreshToken),
+          throwsA(isInstanceOf<OAuth2Exception>()));
+    });
+
     test('Test GET method with custom headers', () async {
       final TokenStorage tokenStorage =
           TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
@@ -229,7 +255,8 @@ void main() {
 
       clearInteractions(httpClient);
 
-      when(httpClient.get('https://my.test.url', headers: captureAnyNamed('headers')))
+      when(httpClient.get('https://my.test.url',
+              headers: captureAnyNamed('headers')))
           .thenAnswer(
               (_) async => http.Response('{"error": "invalid_token"}', 401));
 
@@ -244,7 +271,11 @@ void main() {
       await hlp.get('https://my.test.url',
           httpClient: httpClient, headers: {'TestHeader': 'test'});
 
-      expect(verify(httpClient.get('https://my.test.url', headers: captureAnyNamed('headers'))).captured[0], {'TestHeader': 'test', 'Authorization': 'Bearer test_token_renewed'});
+      expect(
+          verify(httpClient.get('https://my.test.url',
+                  headers: captureAnyNamed('headers')))
+              .captured[0],
+          {'TestHeader': 'test', 'Authorization': 'Bearer test_token_renewed'});
     });
 
     test('Test GET method without custom headers', () async {
@@ -256,7 +287,8 @@ void main() {
 
       clearInteractions(httpClient);
 
-      when(httpClient.get('https://my.test.url', headers: captureAnyNamed('headers')))
+      when(httpClient.get('https://my.test.url',
+              headers: captureAnyNamed('headers')))
           .thenAnswer(
               (_) async => http.Response('{"error": "invalid_token"}', 401));
 
@@ -268,10 +300,13 @@ void main() {
           clientSecret: clientSecret,
           scopes: scopes);
 
-      await hlp.get('https://my.test.url',
-          httpClient: httpClient);
+      await hlp.get('https://my.test.url', httpClient: httpClient);
 
-      expect(verify(httpClient.get('https://my.test.url', headers: captureAnyNamed('headers'))).captured[0], {'Authorization': 'Bearer test_token_renewed'});
+      expect(
+          verify(httpClient.get('https://my.test.url',
+                  headers: captureAnyNamed('headers')))
+              .captured[0],
+          {'Authorization': 'Bearer test_token_renewed'});
     });
 
     test('Test POST method with custom headers', () async {
@@ -283,7 +318,8 @@ void main() {
 
       clearInteractions(httpClient);
 
-      when(httpClient.post('https://my.test.url', headers: captureAnyNamed('headers')))
+      when(httpClient.post('https://my.test.url',
+              headers: captureAnyNamed('headers')))
           .thenAnswer(
               (_) async => http.Response('{"error": "invalid_token"}', 401));
 
@@ -298,7 +334,11 @@ void main() {
       await hlp.post('https://my.test.url',
           httpClient: httpClient, headers: {'TestHeader': 'test'});
 
-      expect(verify(httpClient.post('https://my.test.url', headers: captureAnyNamed('headers'))).captured[0], {'TestHeader': 'test', 'Authorization': 'Bearer test_token_renewed'});
+      expect(
+          verify(httpClient.post('https://my.test.url',
+                  headers: captureAnyNamed('headers')))
+              .captured[0],
+          {'TestHeader': 'test', 'Authorization': 'Bearer test_token_renewed'});
     });
 
     test('Test POST method without custom headers', () async {
@@ -310,7 +350,8 @@ void main() {
 
       clearInteractions(httpClient);
 
-      when(httpClient.post('https://my.test.url', headers: captureAnyNamed('headers')))
+      when(httpClient.post('https://my.test.url',
+              headers: captureAnyNamed('headers')))
           .thenAnswer(
               (_) async => http.Response('{"error": "invalid_token"}', 401));
 
@@ -322,10 +363,13 @@ void main() {
           clientSecret: clientSecret,
           scopes: scopes);
 
-      await hlp.post('https://my.test.url',
-          httpClient: httpClient);
+      await hlp.post('https://my.test.url', httpClient: httpClient);
 
-      expect(verify(httpClient.post('https://my.test.url', headers: captureAnyNamed('headers'))).captured[0], {'Authorization': 'Bearer test_token_renewed'});
+      expect(
+          verify(httpClient.post('https://my.test.url',
+                  headers: captureAnyNamed('headers')))
+              .captured[0],
+          {'Authorization': 'Bearer test_token_renewed'});
     });
   });
 
@@ -419,8 +463,9 @@ void main() {
 
       _mockGetTokenWithClientCredentials(oauth2Client);
 
-      when(oauth2Client.refreshToken(refreshToken)).thenAnswer((_) async =>
-          AccessTokenResponse.fromMap(
+      when(oauth2Client.refreshToken(refreshToken,
+              clientId: clientId, clientSecret: clientSecret))
+          .thenAnswer((_) async => AccessTokenResponse.fromMap(
               {'error': 'invalid_grant', 'http_status_code': 400}));
 
       OAuth2Helper hlp = OAuth2Helper(oauth2Client, tokenStorage: tokenStorage);

@@ -29,8 +29,12 @@ class AccessTokenResponse extends OAuth2Response {
           List scopesJson = map['scope'];
           scope = scopesJson != null ? List.from(scopesJson) : null;
         } else {
-          scope = [map['scope']];
+          //The OAuth 2 standard suggests that the scopes should be a space-separated list,
+          //but some providers (i.e. GitHub) return a comma-separated list
+          scope = map['scope'].split(RegExp(r"[\s,]"));
         }
+
+        scope = scope.map((s) => s.trim()).toList();
       }
 
       if (map.containsKey('expires_in')) expiresIn = map['expires_in'];
@@ -51,11 +55,18 @@ class AccessTokenResponse extends OAuth2Response {
 
   }
 
-  factory AccessTokenResponse.fromHttpResponse(http.Response response) {
+  factory AccessTokenResponse.fromHttpResponse(http.Response response,
+      {requestedScopes}) {
     AccessTokenResponse resp;
 
     if (response.statusCode != 404) {
-      resp = AccessTokenResponse.fromMap(jsonDecode(response.body));
+      Map respMap = jsonDecode(response.body);
+      //From Section 4.2.2. (Access Token Response) of OAuth2 rfc, the "scope" parameter in the Access Token Response is
+      //"OPTIONAL, if identical to the scope requested by the client; otherwise, REQUIRED."
+      if (!respMap.containsKey('scope') && requestedScopes != null) {
+        respMap['scope'] = requestedScopes;
+      }
+      resp = AccessTokenResponse.fromMap(respMap);
     } else {
       resp = AccessTokenResponse();
     }

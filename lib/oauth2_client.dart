@@ -82,6 +82,7 @@ class OAuth2Client {
           httpClient: httpClient,
           code: authResp.code,
           clientId: clientId,
+          scopes: scopes,
           clientSecret: clientSecret,
           codeVerifier: codeVerifier);
     }
@@ -107,7 +108,8 @@ class OAuth2Client {
 
     http.Response response = await httpClient.post(tokenUrl, body: params);
 
-    return AccessTokenResponse.fromHttpResponse(response);
+    return AccessTokenResponse.fromHttpResponse(response,
+        requestedScopes: scopes);
   }
 
   /// Requests an Authorization Code to be used in the Authorization Code grant.
@@ -142,6 +144,7 @@ class OAuth2Client {
       @required String clientId,
       String clientSecret,
       String codeVerifier,
+      List<String> scopes,
       httpClient}) async {
     if (httpClient == null) httpClient = http.Client();
 
@@ -154,16 +157,22 @@ class OAuth2Client {
 
     http.Response response = await httpClient.post(tokenUrl,
         body: body, headers: _accessTokenRequestHeaders);
-    return AccessTokenResponse.fromHttpResponse(response);
+    return AccessTokenResponse.fromHttpResponse(response,
+        requestedScopes: scopes);
   }
 
   /// Refreshes an Access Token issuing a refresh_token grant to the OAuth2 server.
   Future<AccessTokenResponse> refreshToken(String refreshToken,
-      {httpClient}) async {
+      {httpClient, String clientId, String clientSecret}) async {
     if (httpClient == null) httpClient = http.Client();
 
-    http.Response response = await httpClient.post(_getRefreshUrl(),
-        body: {'grant_type': 'refresh_token', 'refresh_token': refreshToken});
+    final Map body = getRefreshUrlParams(
+        refreshToken: refreshToken,
+        clientId: clientId,
+        clientSecret: clientSecret);
+
+    http.Response response =
+        await httpClient.post(_getRefreshUrl(), body: body);
 
     return AccessTokenResponse.fromHttpResponse(response);
   }
@@ -229,21 +238,45 @@ class OAuth2Client {
       String clientId,
       String clientSecret,
       String codeVerifier}) {
-    Map<String, String> params = {
+    final Map<String, String> params = {
       'grant_type': 'authorization_code',
       'code': code
     };
 
-    if (redirectUri != null && redirectUri.isNotEmpty)
+    if (redirectUri != null && redirectUri.isNotEmpty) {
       params['redirect_uri'] = redirectUri;
+    }
 
-    if (clientId != null && clientId.isNotEmpty) params['client_id'] = clientId;
+    if (clientId != null && clientId.isNotEmpty) {
+      params['client_id'] = clientId;
+    }
 
-    if (clientSecret != null && clientSecret.isNotEmpty)
+    if (clientSecret != null && clientSecret.isNotEmpty) {
       params['client_secret'] = clientSecret;
+    }
 
-    if (codeVerifier != null && codeVerifier.isNotEmpty)
+    if (codeVerifier != null && codeVerifier.isNotEmpty) {
       params['code_verifier'] = codeVerifier;
+    }
+
+    return params;
+  }
+
+  /// Returns the parameters needed for the refresh token request
+  Map<String, String> getRefreshUrlParams(
+      {@required String refreshToken, String clientId, String clientSecret}) {
+    final Map<String, String> params = {
+      'grant_type': 'refresh_token',
+      'refresh_token': refreshToken
+    };
+
+    if (clientId != null && clientId.isNotEmpty) {
+      params['client_id'] = clientId;
+    }
+
+    if (clientSecret != null && clientSecret.isNotEmpty) {
+      params['client_secret'] = clientSecret;
+    }
 
     return params;
   }

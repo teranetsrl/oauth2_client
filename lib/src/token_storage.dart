@@ -51,9 +51,9 @@ class TokenStorage {
 
   Future<bool> deleteToken(List<String> scopes) async {
     final String serTokens = await storage.read(key);
-    final String scopeKey = getScopeKey(scopes);
 
     if (serTokens != null) {
+      final String scopeKey = getScopeKey(scopes);
       final Map<String, Map> tokens = Map.from(jsonDecode(serTokens));
 
       if (tokens.containsKey(scopeKey)) {
@@ -66,6 +66,15 @@ class TokenStorage {
   }
 
   String getScopeKey(List<String> scope) {
-    return scope.isNotEmpty ? scope.join('__') : '_default_';
+    String key = '_default_';
+
+    if (scope != null && scope.isNotEmpty) {
+      List<String> sortedScopes = scope.toList()
+        ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+
+      key = sortedScopes.join('__');
+    }
+
+    return key;
   }
 }
