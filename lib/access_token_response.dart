@@ -35,7 +35,7 @@ class AccessTokenResponse {
         } else {
           //The OAuth 2 standard suggests that the scopes should be a space-separated list,
           //but some providers (i.e. GitHub) return a comma-separated list
-          scope = map['scope'].split(RegExp(r"[\s,]"));
+          scope = map['scope'].split(RegExp(r'[\s,]'));
         }
 
         scope = scope.map((s) => s.trim()).toList();
@@ -51,7 +51,7 @@ class AccessTokenResponse {
             DateTime.fromMillisecondsSinceEpoch(map['expiration_date']);
       } else {
         if (expiresIn != null) {
-          DateTime now = DateTime.now();
+          var now = DateTime.now();
           expirationDate = now.add(Duration(seconds: expiresIn));
         }
       }
@@ -86,7 +86,7 @@ class AccessTokenResponse {
   }
 
   Map<String, dynamic> toMap() {
-    DateTime now = DateTime.now();
+    var now = DateTime.now();
 
     return {
       'http_status_code': httpStatusCode,
@@ -107,10 +107,10 @@ class AccessTokenResponse {
 
   ///Checks if the access token is expired
   bool isExpired() {
-    bool expired = false;
+    var expired = false;
 
     if (expirationDate != null) {
-      DateTime now = DateTime.now();
+      var now = DateTime.now();
       expired = expirationDate.difference(now).inSeconds < 0;
     }
 
@@ -118,11 +118,11 @@ class AccessTokenResponse {
   }
 
   ///Checks if the access token must be refreeshed
-  bool refreshNeeded({secondsToExpiration: 30}) {
-    bool needsRefresh = false;
+  bool refreshNeeded({secondsToExpiration = 30}) {
+    var needsRefresh = false;
 
     if (expirationDate != null) {
-      DateTime now = DateTime.now();
+      var now = DateTime.now();
       needsRefresh =
           expirationDate.difference(now).inSeconds < secondsToExpiration;
     }

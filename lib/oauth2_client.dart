@@ -62,12 +62,12 @@ class OAuth2Client {
     String codeChallenge;
 
     if (enablePKCE) {
-      if (codeVerifier == null) codeVerifier = randomAlphaNumeric(80);
+      codeVerifier ??= randomAlphaNumeric(80);
 
       codeChallenge = OAuth2Utils.generateCodeChallenge(codeVerifier);
     }
 
-    AuthorizationResponse authResp = await requestAuthorization(
+    var authResp = await requestAuthorization(
         webAuthClient: webAuthClient,
         clientId: clientId,
         scopes: scopes,
@@ -93,9 +93,9 @@ class OAuth2Client {
       @required String clientSecret,
       List<String> scopes,
       httpClient}) async {
-    if (httpClient == null) httpClient = http.Client();
+    httpClient ??= http.Client();
 
-    Map<String, String> params = {
+    var params = <String, String>{
       'grant_type': 'client_credentials',
       'client_id': clientId,
       'client_secret': clientSecret
@@ -117,11 +117,11 @@ class OAuth2Client {
     String state,
     webAuthClient,
   }) async {
-    if (webAuthClient == null) webAuthClient = this.webAuthClient;
+    webAuthClient ??= this.webAuthClient;
 
-    if (state == null) state = randomAlphaNumeric(25);
+    state ??= randomAlphaNumeric(25);
 
-    final String authorizeUrl = getAuthorizeUrl(
+    final authorizeUrl = getAuthorizeUrl(
         clientId: clientId,
         redirectUri: redirectUri,
         scopes: scopes,
@@ -143,7 +143,7 @@ class OAuth2Client {
       String codeVerifier,
       List<String> scopes,
       httpClient}) async {
-    if (httpClient == null) httpClient = http.Client();
+    httpClient ??= http.Client();
 
     final Map body = getTokenUrlParams(
         code: code,
@@ -161,7 +161,7 @@ class OAuth2Client {
   /// Refreshes an Access Token issuing a refresh_token grant to the OAuth2 server.
   Future<AccessTokenResponse> refreshToken(String refreshToken,
       {httpClient}) async {
-    if (httpClient == null) httpClient = http.Client();
+    httpClient ??= http.Client();
 
     http.Response response = await httpClient.post(_getRefreshUrl(),
         body: {'grant_type': 'refresh_token', 'refresh_token': refreshToken});
@@ -176,13 +176,14 @@ class OAuth2Client {
       List<String> scopes,
       String state,
       String codeChallenge}) {
-    final Map<String, dynamic> params = {
+    final params = <String, dynamic>{
       'response_type': 'code',
       'client_id': clientId
     };
 
-    if (redirectUri != null && redirectUri.isNotEmpty)
+    if (redirectUri != null && redirectUri.isNotEmpty) {
       params['redirect_uri'] = redirectUri;
+    }
 
     if (scopes != null && scopes.isNotEmpty) params['scope'] = scopes;
 
@@ -207,21 +208,24 @@ class OAuth2Client {
       String clientId,
       String clientSecret,
       String codeVerifier}) {
-    Map<String, String> params = {
+    var params = <String, String>{
       'grant_type': 'authorization_code',
       'code': code
     };
 
-    if (redirectUri != null && redirectUri.isNotEmpty)
+    if (redirectUri != null && redirectUri.isNotEmpty) {
       params['redirect_uri'] = redirectUri;
+    }
 
     if (clientId != null && clientId.isNotEmpty) params['client_id'] = clientId;
 
-    if (clientSecret != null && clientSecret.isNotEmpty)
+    if (clientSecret != null && clientSecret.isNotEmpty) {
       params['client_secret'] = clientSecret;
+    }
 
-    if (codeVerifier != null && codeVerifier.isNotEmpty)
+    if (codeVerifier != null && codeVerifier.isNotEmpty) {
       params['code_verifier'] = codeVerifier;
+    }
 
     return params;
   }
