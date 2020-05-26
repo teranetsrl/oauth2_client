@@ -17,9 +17,8 @@ class AccessTokenResponse extends OAuth2Response {
 
   AccessTokenResponse();
 
-  AccessTokenResponse.fromMap(Map<String, dynamic> map): super.fromMap(map) {
-
-    if(isValid()) {
+  AccessTokenResponse.fromMap(Map<String, dynamic> map) : super.fromMap(map) {
+    if (isValid()) {
       accessToken = map['access_token'];
       tokenType = map['token_type'];
       if (map.containsKey('refresh_token')) refreshToken = map['refresh_token'];
@@ -52,7 +51,6 @@ class AccessTokenResponse extends OAuth2Response {
         }
       }
     }
-
   }
 
   factory AccessTokenResponse.fromHttpResponse(http.Response response,
@@ -66,12 +64,13 @@ class AccessTokenResponse extends OAuth2Response {
       if (!respMap.containsKey('scope') && requestedScopes != null) {
         respMap['scope'] = requestedScopes;
       }
+      respMap['http_status_code'] = response.statusCode;
+
       resp = AccessTokenResponse.fromMap(respMap);
     } else {
       resp = AccessTokenResponse();
+      resp.httpStatusCode = response.statusCode;
     }
-
-    resp.httpStatusCode = response.statusCode;
 
     return resp;
   }
@@ -91,7 +90,7 @@ class AccessTokenResponse extends OAuth2Response {
       'expiration_date':
           expirationDate != null ? expirationDate.millisecondsSinceEpoch : null,
       'error': error,
-      'errorDescriprion': errorDescription,
+      'errorDescription': errorDescription,
       'errorUri': errorUri
     };
   }

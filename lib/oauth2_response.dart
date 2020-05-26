@@ -44,7 +44,7 @@ class OAuth2Response {
     return {
       'http_status_code': httpStatusCode,
       'error': error,
-      'errorDescriprion': errorDescription,
+      'errorDescription': errorDescription,
       'errorUri': errorUri
     };
   }

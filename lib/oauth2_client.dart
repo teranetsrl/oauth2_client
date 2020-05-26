@@ -177,17 +177,17 @@ class OAuth2Client {
     return AccessTokenResponse.fromHttpResponse(response);
   }
 
-  /// Revokes both the Access and the Refresh tokens in the provided [tnlesp]
+  /// Revokes both the Access and the Refresh tokens in the provided [tknResp]
   Future<OAuth2Response> revokeToken(AccessTokenResponse tknResp,
       {httpClient}) async {
-    OAuth2Response tokenRevokationResp =
+    OAuth2Response tokenRevocationResp =
         await revokeAccessToken(tknResp, httpClient: httpClient);
-    if (tokenRevokationResp.isValid()) {
-      tokenRevokationResp =
+    if (tokenRevocationResp.isValid()) {
+      tokenRevocationResp =
           await revokeRefreshToken(tknResp, httpClient: httpClient);
     }
 
-    return tokenRevokationResp;
+    return tokenRevocationResp;
   }
 
   /// Revokes the Access Token in the provided [tknResp]
@@ -313,5 +313,4 @@ class OAuth2Client {
   set accessTokenRequestHeaders(Map<String, String> headers) {
     _accessTokenRequestHeaders = headers;
   }
-
 }
