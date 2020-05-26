@@ -9,14 +9,14 @@ class TokenStorage {
   Storage storage;
 
   TokenStorage(this.key, {this.storage}) {
-    if (storage == null) storage = SecureStorage();
+    storage ??= SecureStorage();
   }
 
   Future<AccessTokenResponse> getToken(List<String> scopes) async {
     AccessTokenResponse tknResp;
 
-    final String serTokens = await storage.read(key);
-    final String scopeKey = getScopeKey(scopes);
+    final serTokens = await storage.read(key);
+    final scopeKey = getScopeKey(scopes);
 
     if (serTokens != null) {
       final Map<String, dynamic> tokens = jsonDecode(serTokens);
@@ -30,15 +30,15 @@ class TokenStorage {
   }
 
   Future<void> addToken(AccessTokenResponse tknResp) async {
-    Map<String, Map> tokens = await insertToken(tknResp);
+    var tokens = await insertToken(tknResp);
     await storage.write(key, jsonEncode(tokens));
   }
 
   Future<Map<String, Map>> insertToken(AccessTokenResponse tknResp) async {
-    final String serTokens = await storage.read(key);
-    final String scopeKey = getScopeKey(tknResp.scope);
+    final serTokens = await storage.read(key);
+    final scopeKey = getScopeKey(tknResp.scope);
 
-    Map<String, Map> tokens = {};
+    var tokens = <String, Map>{};
 
     if (serTokens != null) {
       tokens = Map.from(jsonDecode(serTokens));
@@ -50,11 +50,11 @@ class TokenStorage {
   }
 
   Future<bool> deleteToken(List<String> scopes) async {
-    final String serTokens = await storage.read(key);
+    final serTokens = await storage.read(key);
 
     if (serTokens != null) {
-      final String scopeKey = getScopeKey(scopes);
-      final Map<String, Map> tokens = Map.from(jsonDecode(serTokens));
+      final scopeKey = getScopeKey(scopes);
+      final tokens = Map.from(jsonDecode(serTokens));
 
       if (tokens.containsKey(scopeKey)) {
         tokens.remove(scopeKey);
@@ -66,10 +66,10 @@ class TokenStorage {
   }
 
   String getScopeKey(List<String> scope) {
-    String key = '_default_';
+    var key = '_default_';
 
     if (scope != null && scope.isNotEmpty) {
-      List<String> sortedScopes = scope.toList()
+      var sortedScopes = scope.toList()
         ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
 
       key = sortedScopes.join('__');

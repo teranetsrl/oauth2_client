@@ -31,7 +31,7 @@ class OAuth2Helper {
       this.clientSecret,
       this.scopes,
       this.tokenStorage}) {
-    if (tokenStorage == null) tokenStorage = TokenStorage(client.tokenUrl);
+    tokenStorage ??= TokenStorage(client.tokenUrl);
   }
 
   /// Sets the proper parameters for requesting an authorization token.
@@ -56,7 +56,7 @@ class OAuth2Helper {
   Future<AccessTokenResponse> getToken() async {
     _validateAuthorizationParams();
 
-    AccessTokenResponse tknResp = await tokenStorage.getToken(scopes);
+    var tknResp = await tokenStorage.getToken(scopes);
 
     if (tknResp != null) {
       if (tknResp.refreshNeeded()) {
@@ -88,8 +88,9 @@ class OAuth2Helper {
           clientId: clientId, clientSecret: clientSecret, scopes: scopes);
     }
 
-    if (tknResp != null && tknResp.isValid())
+    if (tknResp != null && tknResp.isValid()) {
       await tokenStorage.addToken(tknResp);
+    }
 
     return tknResp;
   }
@@ -121,9 +122,9 @@ class OAuth2Helper {
 
   /// Revokes the previously fetched token
   Future<OAuth2Response> disconnect({httpClient}) async {
-    if (httpClient == null) httpClient = http.Client();
+    httpClient ??= http.Client();
 
-    final AccessTokenResponse tknResp = await tokenStorage.getToken(scopes);
+    final tknResp = await tokenStorage.getToken(scopes);
 
     if (tknResp != null) {
       await tokenStorage.deleteToken(scopes);
@@ -138,13 +139,13 @@ class OAuth2Helper {
   /// If no token already exists, or if it is exipired, a new one is requested.
   Future<http.Response> post(String url,
       {Map<String, String> headers, dynamic body, httpClient}) async {
-    if (httpClient == null) httpClient = http.Client();
+    httpClient ??= http.Client();
 
-    if (headers == null) headers = {};
+    headers ??= {};
 
     http.Response resp;
 
-    AccessTokenResponse tknResp = await getToken();
+    var tknResp = await getToken();
 
     try {
       headers['Authorization'] = 'Bearer ' + tknResp.accessToken;
@@ -173,13 +174,13 @@ class OAuth2Helper {
   /// If no token already exists, or if it is exipired, a new one is requested.
   Future<http.Response> get(String url,
       {Map<String, String> headers, httpClient}) async {
-    if (httpClient == null) httpClient = http.Client();
+    httpClient ??= http.Client();
 
-    if (headers == null) headers = {};
+    headers ??= {};
 
     http.Response resp;
 
-    AccessTokenResponse tknResp = await getToken();
+    var tknResp = await getToken();
 
     try {
       headers['Authorization'] = 'Bearer ' + tknResp.accessToken;
@@ -204,22 +205,26 @@ class OAuth2Helper {
     return resp;
   }
 
-  _validateAuthorizationParams() {
+  void _validateAuthorizationParams() {
     switch (grantType) {
       case AUTHORIZATION_CODE:
         // if(clientSecret == null || clientSecret.isEmpty)
         // throw Exception('Required "clientSecret" parameter not set');
-        if (clientId == null || clientId.isEmpty)
+        if (clientId == null || clientId.isEmpty) {
           throw Exception('Required "clientId" parameter not set');
-        if (scopes == null || scopes.isEmpty)
+        }
+        if (scopes == null || scopes.isEmpty) {
           throw Exception('Required "scopes" parameter not set');
+        }
         break;
 
       case CLIENT_CREDENTIALS:
-        if (clientSecret == null || clientSecret.isEmpty)
+        if (clientSecret == null || clientSecret.isEmpty) {
           throw Exception('Required "clientSecret" parameter not set');
-        if (clientId == null || clientId.isEmpty)
+        }
+        if (clientId == null || clientId.isEmpty) {
           throw Exception('Required "clientId" parameter not set');
+        }
         break;
     }
   }
