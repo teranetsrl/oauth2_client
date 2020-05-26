@@ -13,7 +13,8 @@ class GoogleOAuth2Client extends OAuth2Client {
       {@required String redirectUri, @required String customUriScheme})
       : super(
             authorizeUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
-            tokenUrl: 'https://www.googleapis.com/oauth2/v4/token',
+            tokenUrl: 'https://oauth2.googleapis.com/token',
+            revokeUrl: 'https://oauth2.googleapis.com/revoke',
             redirectUri: redirectUri,
             customUriScheme: customUriScheme);
 }

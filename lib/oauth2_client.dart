@@ -2,6 +2,7 @@ import 'package:http/http.dart' as http;
 import 'package:oauth2_client/access_token_response.dart';
 import 'package:oauth2_client/authorization_response.dart';
 import 'package:meta/meta.dart';
+import 'package:oauth2_client/oauth2_response.dart';
 import 'package:oauth2_client/src/oauth2_utils.dart';
 import 'package:oauth2_client/src/web_auth.dart';
 import 'package:random_string/random_string.dart';
@@ -32,6 +33,7 @@ class OAuth2Client {
 
   String tokenUrl;
   String refreshUrl;
+  String revokeUrl;
   String authorizeUrl;
   Map<String, String> _accessTokenRequestHeaders;
 
@@ -41,6 +43,7 @@ class OAuth2Client {
       {@required this.authorizeUrl,
       @required this.tokenUrl,
       this.refreshUrl,
+      this.revokeUrl,
       @required this.redirectUri,
       @required this.customUriScheme}) {
     webAuthClient = WebAuth();
@@ -174,6 +177,33 @@ class OAuth2Client {
     return AccessTokenResponse.fromHttpResponse(response);
   }
 
+  /// Revokes both the Access and the Refresh tokens in the provided [tknResp]
+  Future<OAuth2Response> revokeToken(AccessTokenResponse tknResp,
+      {httpClient}) async {
+    OAuth2Response tokenRevocationResp =
+        await revokeAccessToken(tknResp, httpClient: httpClient);
+    if (tokenRevocationResp.isValid()) {
+      tokenRevocationResp =
+          await revokeRefreshToken(tknResp, httpClient: httpClient);
+    }
+
+    return tokenRevocationResp;
+  }
+
+  /// Revokes the Access Token in the provided [tknResp]
+  Future<OAuth2Response> revokeAccessToken(AccessTokenResponse tknResp,
+      {httpClient}) async {
+    return await _revokeTokenByType(tknResp, 'access_token',
+        httpClient: httpClient);
+  }
+
+  /// Revokes the Refresh Token in the provided [tknResp]
+  Future<OAuth2Response> revokeRefreshToken(AccessTokenResponse tknResp,
+      {httpClient}) async {
+    return await _revokeTokenByType(tknResp, 'refresh_token',
+        httpClient: httpClient);
+  }
+
   /// Generates the url to be used for fetching the authorization code.
   String getAuthorizeUrl(
       {@required String clientId,
@@ -199,10 +229,6 @@ class OAuth2Client {
     }
 
     return OAuth2Utils.addParamsToUrl(authorizeUrl, params);
-  }
-
-  String _getRefreshUrl() {
-    return refreshUrl ?? tokenUrl;
   }
 
   /// Returns the parameters needed for the authorization code request
@@ -253,6 +279,35 @@ class OAuth2Client {
     }
 
     return params;
+  }
+
+  /// Revokes the specified token [type] in the [tknResp]
+  Future<OAuth2Response> _revokeTokenByType(
+      AccessTokenResponse tknResp, String tokenType,
+      {httpClient}) async {
+    OAuth2Response resp = OAuth2Response();
+
+    if (revokeUrl == null) return resp;
+
+    if (httpClient == null) httpClient = http.Client();
+
+    String token = tokenType == 'access_token'
+        ? tknResp.accessToken
+        : tknResp.refreshToken;
+
+    if (token != null) {
+      http.Response response = await httpClient.post(revokeUrl,
+          body: {'token': token, 'token_type_hint': tokenType},
+          headers: {'Authorization': 'Bearer ' + tknResp.accessToken});
+
+      resp = OAuth2Response.fromHttpResponse(response);
+    }
+
+    return resp;
+  }
+
+  String _getRefreshUrl() {
+    return refreshUrl ?? tokenUrl;
   }
 
   set accessTokenRequestHeaders(Map<String, String> headers) {

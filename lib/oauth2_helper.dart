@@ -3,6 +3,7 @@ import 'package:oauth2_client/oauth2_exception.dart';
 import 'package:oauth2_client/oauth2_client.dart';
 import 'package:http/http.dart' as http;
 import 'package:meta/meta.dart';
+import 'package:oauth2_client/oauth2_response.dart';
 import 'package:oauth2_client/src/token_storage.dart';
 
 /// Helper class for simplifying OAuth2 authorization process.
@@ -116,6 +117,20 @@ class OAuth2Helper {
     }
 
     return tknResp;
+  }
+
+  /// Revokes the previously fetched token
+  Future<OAuth2Response> disconnect({httpClient}) async {
+    if (httpClient == null) httpClient = http.Client();
+
+    final AccessTokenResponse tknResp = await tokenStorage.getToken(scopes);
+
+    if (tknResp != null) {
+      await tokenStorage.deleteToken(scopes);
+      return await client.revokeToken(tknResp, httpClient: httpClient);
+    } else {
+      return OAuth2Response();
+    }
   }
 
   /// Performs a post request to the specified [url], adding the authorization token.

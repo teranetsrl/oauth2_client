@@ -1,10 +1,12 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:oauth2_client/oauth2_response.dart';
 
 /// Represents the response to an Access Token Request.
 /// see https://tools.ietf.org/html/rfc6749#section-5.2
-class AccessTokenResponse {
+
+class AccessTokenResponse extends OAuth2Response {
   String accessToken;
   String tokenType;
   int expiresIn;
@@ -13,17 +15,10 @@ class AccessTokenResponse {
 
   DateTime expirationDate;
 
-  String error;
-  String errorDescription;
-  String errorUri;
-  int httpStatusCode;
-
   AccessTokenResponse();
 
-  AccessTokenResponse.fromMap(Map<String, dynamic> map) {
-    httpStatusCode = map['http_status_code'];
-
-    if (!map.containsKey('error') || map['error'] == null) {
+  AccessTokenResponse.fromMap(Map<String, dynamic> map) : super.fromMap(map) {
+    if (isValid()) {
       accessToken = map['access_token'];
       tokenType = map['token_type'];
       if (map.containsKey('refresh_token')) refreshToken = map['refresh_token'];
@@ -55,12 +50,6 @@ class AccessTokenResponse {
           expirationDate = now.add(Duration(seconds: expiresIn));
         }
       }
-    } else {
-      error = map['error'];
-      errorDescription = map.containsKey('error_description')
-          ? map['error_description']
-          : null;
-      errorUri = map.containsKey('errorUri') ? map['errorUri'] : null;
     }
   }
 
@@ -75,12 +64,13 @@ class AccessTokenResponse {
       if (!respMap.containsKey('scope') && requestedScopes != null) {
         respMap['scope'] = requestedScopes;
       }
+      respMap['http_status_code'] = response.statusCode;
+
       resp = AccessTokenResponse.fromMap(respMap);
     } else {
       resp = AccessTokenResponse();
+      resp.httpStatusCode = response.statusCode;
     }
-
-    resp.httpStatusCode = response.statusCode;
 
     return resp;
   }
@@ -100,7 +90,7 @@ class AccessTokenResponse {
       'expiration_date':
           expirationDate != null ? expirationDate.millisecondsSinceEpoch : null,
       'error': error,
-      'errorDescriprion': errorDescription,
+      'errorDescription': errorDescription,
       'errorUri': errorUri
     };
   }
@@ -138,11 +128,6 @@ class AccessTokenResponse {
   ///Checks if the token is a "Bearer" token
   bool isBearer() {
     return tokenType.toLowerCase() == 'bearer';
-  }
-
-  ///Checks if the access token request returned a valid status code
-  bool isValid() {
-    return httpStatusCode == 200 && (error == null || error.isEmpty);
   }
 
   @override
