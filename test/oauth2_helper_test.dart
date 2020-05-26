@@ -4,12 +4,15 @@ import 'package:oauth2_client/access_token_response.dart';
 import 'package:oauth2_client/oauth2_client.dart';
 import 'package:oauth2_client/oauth2_exception.dart';
 import 'package:oauth2_client/oauth2_helper.dart';
+import 'package:oauth2_client/oauth2_response.dart';
 import 'package:oauth2_client/src/secure_storage.dart';
 import 'package:oauth2_client/src/token_storage.dart';
 import 'package:oauth2_client/src/volatile_storage.dart';
 import 'package:http/http.dart' as http;
 
 class OAuth2ClientMock extends Mock implements OAuth2Client {}
+
+class TokenStorageMock extends Mock implements TokenStorage {}
 
 class SecureStorageMock extends Mock implements SecureStorage {}
 
@@ -28,7 +31,15 @@ void main() {
   final OAuth2Client oauth2Client = OAuth2ClientMock();
   final httpClient = HttpClientMock();
 
-  when(oauth2Client.tokenUrl).thenReturn('my:/token/url');
+  // final String authorizeUrl = 'http://my.test.app/authorize';
+  // final String tokenUrl = 'http://my.test.app/token';
+  // final String revokeUrl = 'http://my.test.app/revoke';
+
+  // when(oauth2Client.tokenUrl).thenReturn('my:/token/url');
+  // when(oauth2Client.revokeUrl).thenReturn('my:/revoke/url');
+
+  when(oauth2Client.tokenUrl).thenReturn('http://my.test.app/token');
+  when(oauth2Client.revokeUrl).thenReturn('http://my.test.app/revoke');
 
   void _mockGetTokenWithAuthCodeFlow(oauth2Client,
       {Map<String, dynamic> respMap}) {
@@ -371,6 +382,53 @@ void main() {
               .captured[0],
           {'Authorization': 'Bearer test_token_renewed'});
     });
+
+    test('Token revocation', () async {
+      final tknResp = AccessTokenResponse.fromMap({
+        'access_token': accessToken,
+        'token_type': tokenType,
+        'refresh_token': refreshToken,
+        'scope': scopes,
+        'expires_in': expiresIn,
+        'http_status_code': 200
+      });
+
+      final tokenStorage = TokenStorageMock();
+      when(tokenStorage.getToken(scopes)).thenAnswer((_) async => tknResp);
+      when(tokenStorage.deleteToken(scopes)).thenAnswer((_) async => true);
+
+      when(oauth2Client.revokeToken(tknResp, httpClient: httpClient))
+          .thenAnswer(
+              (_) async => OAuth2Response.fromMap({'http_status_code': 200}));
+
+      OAuth2Helper hlp = OAuth2Helper(oauth2Client,
+          tokenStorage: tokenStorage,
+          grantType: OAuth2Helper.CLIENT_CREDENTIALS,
+          clientId: clientId,
+          clientSecret: clientSecret,
+          scopes: scopes);
+
+      final revokeResp = await hlp.disconnect(httpClient: httpClient);
+
+      expect(revokeResp.isValid(), true);
+    });
+  });
+
+  test('Token revocation without a previously fetched token (fallback)',
+      () async {
+    final tokenStorage = TokenStorageMock();
+    when(tokenStorage.getToken(scopes)).thenAnswer((_) async => null);
+
+    OAuth2Helper hlp = OAuth2Helper(oauth2Client,
+        tokenStorage: tokenStorage,
+        grantType: OAuth2Helper.CLIENT_CREDENTIALS,
+        clientId: clientId,
+        clientSecret: clientSecret,
+        scopes: scopes);
+
+    final revokeResp = await hlp.disconnect(httpClient: httpClient);
+
+    expect(revokeResp.isValid(), true);
   });
 
   group('Client Credentials Grant.', () {

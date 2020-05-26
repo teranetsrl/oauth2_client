@@ -17,7 +17,8 @@ void main() {
         'token_type': tokenType,
         'refresh_token': refreshToken,
         'scope': scopes,
-        'expires_in': expiresIn
+        'expires_in': expiresIn,
+        'http_status_code': 200
       };
 
       final resp = AccessTokenResponse.fromMap(respMap);
@@ -25,7 +26,7 @@ void main() {
       expect(resp.accessToken, accessToken);
       expect(resp.refreshToken, refreshToken);
       expect(resp.expiresIn, expiresIn);
-      expect(resp.isValid(), false);
+      expect(resp.isValid(), true);
       expect(resp.isExpired(), false);
       expect(resp.isBearer(), true);
     });
@@ -36,7 +37,8 @@ void main() {
         'token_type': tokenType,
         'refresh_token': refreshToken,
         'scope': scopes,
-        'expires_in': 1
+        'expires_in': 1,
+        'http_status_code': 200
       };
 
       final resp = AccessTokenResponse.fromMap(respMap);
@@ -64,7 +66,8 @@ void main() {
         'token_type': tokenType,
         'refresh_token': refreshToken,
         'scope': scopes,
-        'expires_in': expiresIn
+        'expires_in': expiresIn,
+        'http_status_code': 200
       };
 
       final resp = AccessTokenResponse.fromMap(respMap);
@@ -121,5 +124,32 @@ void main() {
     resp = AccessTokenResponse.fromHttpResponse(response);
 
     expect(resp.scope, null);
+  });
+
+  test('toString(1)', () async {
+    final Map<String, dynamic> respMap = {
+      'access_token': accessToken,
+      'token_type': tokenType,
+      'refresh_token': refreshToken,
+      'scope': scopes,
+      'expires_in': expiresIn,
+      'http_status_code': 200
+    };
+
+    final resp = AccessTokenResponse.fromMap(respMap);
+
+    expect(resp.toString(), 'Access Token: ' + accessToken);
+  });
+
+  test('toString(2)', () async {
+    final Map<String, dynamic> respMap = {
+      'error': 'generic_error',
+      'error_description': 'error_desc',
+      'http_status_code': 400
+    };
+
+    final resp = AccessTokenResponse.fromMap(respMap);
+
+    expect(resp.toString(), 'HTTP 400 - generic_error error_desc');
   });
 }
