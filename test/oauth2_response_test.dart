@@ -5,7 +5,7 @@ import 'package:oauth2_client/oauth2_response.dart';
 
 void main() {
   test('Valid response', () async {
-    final Map<String, dynamic> respMap = {'http_status_code': 200};
+    final respMap = <String, dynamic>{'http_status_code': 200};
 
     final resp = OAuth2Response.fromMap(respMap);
 
@@ -13,7 +13,7 @@ void main() {
   });
 
   test('Error response', () async {
-    final Map<String, dynamic> respMap = {
+    final respMap = <String, dynamic>{
       'error': 'ERROR',
       'error_description': 'ERROR_DESC',
       'http_status_code': 400
@@ -25,7 +25,7 @@ void main() {
   });
 
   test('Convert to map', () async {
-    final Map<String, dynamic> respMap = {
+    final respMap = <String, dynamic>{
       'error': 'generic_error',
       'error_description': 'err_desc',
       'http_status_code': 400
@@ -42,15 +42,15 @@ void main() {
   });
 
   test('Conversion from HTTP response', () async {
-    http.Response response = http.Response('{}', 200);
+    final response = http.Response('{}', 200);
 
-    var resp = OAuth2Response.fromHttpResponse(response);
+    final resp = OAuth2Response.fromHttpResponse(response);
 
     expect(resp.isValid(), true);
   });
 
   test('toString(1)', () async {
-    final Map<String, dynamic> respMap = {'http_status_code': 200};
+    final respMap = <String, dynamic>{'http_status_code': 200};
 
     final resp = OAuth2Response.fromMap(respMap);
 
@@ -58,7 +58,7 @@ void main() {
   });
 
   test('toString(2)', () async {
-    final Map<String, dynamic> respMap = {
+    final respMap = <String, dynamic>{
       'error': 'generic_error',
       'error_description': 'err_desc',
       'http_status_code': 400
