@@ -1,3 +1,8 @@
+## [1.3.0] - 2020/05/27
+* Added revocation token ("logout") process
+* Refresh token flow is more spec compliant
+* Updated dependencies
+
 ## [1.2.4] - 2020/05/10
 * Bugfixes (optional scopes handling in the Access Token Response)
 
