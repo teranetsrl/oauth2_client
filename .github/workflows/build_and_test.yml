@@ -24,10 +24,10 @@ jobs:
       with:
         java-version: '12.x'
 
-    - uses: subosito/flutter-action@v1.2.0
-      with:
+    - uses: subosito/flutter-action@v1.3.2
+      #with:
         # The Flutter version to make available on the path
-        flutter-version: '1.12.x'
+       # flutter-version: 
     
     # Get flutter packages
     - run: flutter pub get
