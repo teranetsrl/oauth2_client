@@ -71,7 +71,8 @@ void main() {
   }
 
   void _mockRefreshToken(oauth2Client) {
-    when(oauth2Client.refreshToken(refreshToken))
+    when(oauth2Client.refreshToken(refreshToken,
+            clientId: clientId, clientSecret: clientSecret))
         .thenAnswer((_) async => AccessTokenResponse.fromMap({
               'access_token': renewedAccessToken,
               'token_type': tokenType,
@@ -171,8 +172,9 @@ void main() {
 
       _mockGetTokenWithAuthCodeFlow(oauth2Client);
 
-      when(oauth2Client.refreshToken(refreshToken)).thenAnswer((_) async =>
-          AccessTokenResponse.fromMap(
+      when(oauth2Client.refreshToken(refreshToken,
+              clientId: clientId, clientSecret: clientSecret))
+          .thenAnswer((_) async => AccessTokenResponse.fromMap(
               {'error': 'invalid_grant', 'http_status_code': 400}));
 
       OAuth2Helper hlp = OAuth2Helper(oauth2Client, tokenStorage: tokenStorage);
@@ -227,8 +229,9 @@ void main() {
 
       _mockGetTokenWithAuthCodeFlow(oauth2Client);
 
-      when(oauth2Client.refreshToken(refreshToken)).thenAnswer((_) async =>
-          AccessTokenResponse.fromMap(
+      when(oauth2Client.refreshToken(refreshToken,
+              clientId: clientId, clientSecret: clientSecret))
+          .thenAnswer((_) async => AccessTokenResponse.fromMap(
               {'error': 'generic_error', 'http_status_code': 400}));
 
       OAuth2Helper hlp = OAuth2Helper(oauth2Client, tokenStorage: tokenStorage);
@@ -460,8 +463,9 @@ void main() {
 
       _mockGetTokenWithClientCredentials(oauth2Client);
 
-      when(oauth2Client.refreshToken(refreshToken)).thenAnswer((_) async =>
-          AccessTokenResponse.fromMap(
+      when(oauth2Client.refreshToken(refreshToken,
+              clientId: clientId, clientSecret: clientSecret))
+          .thenAnswer((_) async => AccessTokenResponse.fromMap(
               {'error': 'invalid_grant', 'http_status_code': 400}));
 
       OAuth2Helper hlp = OAuth2Helper(oauth2Client, tokenStorage: tokenStorage);

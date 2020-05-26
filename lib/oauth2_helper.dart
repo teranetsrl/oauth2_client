@@ -97,9 +97,12 @@ class OAuth2Helper {
   Future<AccessTokenResponse> refreshToken(String refreshToken) async {
     AccessTokenResponse tknResp;
 
-    tknResp = await client.refreshToken(refreshToken);
+    tknResp = await client.refreshToken(refreshToken,
+        clientId: clientId, clientSecret: clientSecret);
 
-    if (tknResp != null && tknResp.isValid()) {
+    if (tknResp == null) {
+      throw OAuth2Exception('Unexpected error');
+    } else if (tknResp.isValid()) {
       await tokenStorage.addToken(tknResp);
     } else {
       if (tknResp.error == 'invalid_grant') {
