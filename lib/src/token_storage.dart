@@ -44,6 +44,11 @@ class TokenStorage {
       tokens = Map.from(jsonDecode(serTokens));
     }
 
+    if (tknResp.refreshToken == null &&
+        tokens[scopeKey]?.containsKey('refresh_token')) {
+      tknResp.refreshToken = tokens[scopeKey]['refresh_token'];
+    }
+
     tokens[scopeKey] = tknResp.toMap();
 
     return tokens;
