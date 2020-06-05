@@ -539,5 +539,36 @@ void main() {
       expect(tknResp.isValid(), true);
       expect(tknResp.accessToken, accessToken);
     });
+
+    test(
+        'Keep using previous refresh token when no newly refresh token returned',
+        () async {
+      final tokenStorage =
+          TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
+
+      _mockGetTokenWithClientCredentials(oauth2Client);
+
+      when(oauth2Client.refreshToken(refreshToken,
+              clientId: clientId, clientSecret: clientSecret))
+          .thenAnswer((_) async => AccessTokenResponse.fromMap({
+                'access_token': accessToken,
+                'token_type': tokenType,
+                'expires_in': expiresIn,
+                'http_status_code': 200
+              }));
+
+      var hlp = OAuth2Helper(oauth2Client, tokenStorage: tokenStorage);
+
+      hlp.setAuthorizationParams(
+          grantType: OAuth2Helper.CLIENT_CREDENTIALS,
+          clientId: clientId,
+          clientSecret: clientSecret,
+          scopes: scopes);
+
+      var tknResp = await hlp.refreshToken(refreshToken);
+
+      expect(tknResp.isValid(), true);
+      expect(tknResp.refreshToken, refreshToken);
+    });
   });
 }

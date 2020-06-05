@@ -97,7 +97,7 @@ class OAuth2Helper {
 
   /// Performs a refresh_token request using the [refreshToken].
   Future<AccessTokenResponse> refreshToken(String refreshToken) async {
-    AccessTokenResponse tknResp;
+    var tknResp;
 
     tknResp = await client.refreshToken(refreshToken,
         clientId: clientId, clientSecret: clientSecret);
@@ -105,11 +105,16 @@ class OAuth2Helper {
     if (tknResp == null) {
       throw OAuth2Exception('Unexpected error');
     } else if (tknResp.isValid()) {
+      //If the response doesn't contain a refresh token, keep using the current one
+      if (!tknResp.hasRefreshToken()) {
+        tknResp.refreshToken = refreshToken;
+      }
       await tokenStorage.addToken(tknResp);
     } else {
       if (tknResp.error == 'invalid_grant') {
         //The refresh token is expired too
         await tokenStorage.deleteToken(scopes);
+        //Fetch another access token
         tknResp = await getToken();
       } else {
         throw OAuth2Exception(tknResp.error,
