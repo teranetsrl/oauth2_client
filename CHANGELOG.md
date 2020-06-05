@@ -1,3 +1,6 @@
+## [1.3.1] - 2020/06/05
+* Handled situations in which no new refresh token is returned upon a refresh flow.
+
 ## [1.3.0] - 2020/05/27
 * Added revocation token ("logout") process
 * Refresh token flow is more spec compliant
