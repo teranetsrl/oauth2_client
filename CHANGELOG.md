@@ -1,3 +1,6 @@
+## [1.3.2] - 2020/06/08
+* Minor bugfixes.
+
 ## [1.3.1] - 2020/06/05
 * Handled situations in which no new refresh token is returned upon a refresh flow.
 
