@@ -1,3 +1,8 @@
+## [1.4.0] - 2020/06/14
+* scopes parameter become ooptional (as per OAuth2 specs)
+* custom query parameters sent back from the authorization code response can now be retrieved throught the AuthorizationCode.getQueryParam method
+* added _afterAuthorizationCodeCb_ callback to handle use cases for access token requests
+
 ## [1.3.2] - 2020/06/08
 * Minor bugfixes.
 
