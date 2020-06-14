@@ -59,7 +59,7 @@ class OAuth2Helper {
   Future<AccessTokenResponse> getToken() async {
     _validateAuthorizationParams();
 
-    var tknResp = await tokenStorage.getToken(scopes);
+    var tknResp = await getTokenFromStorage();
 
     if (tknResp != null) {
       if (tknResp.refreshNeeded()) {
@@ -75,6 +75,11 @@ class OAuth2Helper {
     }
 
     return tknResp;
+  }
+
+  /// Returns the previously stored Access Token from the storage, if any
+  Future<AccessTokenResponse> getTokenFromStorage() async {
+    return await tokenStorage.getToken(scopes);
   }
 
   /// Fetches a new token and saves it in the storage
@@ -219,13 +224,8 @@ class OAuth2Helper {
   void _validateAuthorizationParams() {
     switch (grantType) {
       case AUTHORIZATION_CODE:
-        // if(clientSecret == null || clientSecret.isEmpty)
-        // throw Exception('Required "clientSecret" parameter not set');
         if (clientId == null || clientId.isEmpty) {
           throw Exception('Required "clientId" parameter not set');
-        }
-        if (scopes == null || scopes.isEmpty) {
-          throw Exception('Required "scopes" parameter not set');
         }
         break;
 
