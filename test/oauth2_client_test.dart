@@ -178,6 +178,62 @@ void main() {
       expect(tknResponse.accessToken, accessToken);
     });
 
+    test('Authorization code flow with callback', () async {
+      var authParams = {
+        'response_type': 'code',
+        'client_id': clientId,
+        'redirect_uri': redirectUri,
+        'scope': scopes,
+        'state': state,
+        'code_challenge': codeChallenge,
+        'code_challenge_method': 'S256'
+      };
+
+      final httpClient = HttpClientMock();
+
+      final accessToken = '12345';
+      final refreshToken = '54321';
+
+      var tokenParams = {
+        'grant_type': 'authorization_code',
+        'code': authCode,
+        'redirect_uri': redirectUri,
+        'client_id': clientId,
+        'code_verifier': codeVerifier,
+        // 'client_secret': clientSecret
+      };
+
+      when(httpClient.post('https://test.token.url', body: tokenParams))
+          .thenAnswer((_) async => http.Response(
+              '{"access_token": "' +
+                  accessToken +
+                  '", "token_type": "Bearer", "refresh_token": "' +
+                  refreshToken +
+                  '", "expires_in": 3600}',
+              200));
+
+      when(webAuthClient.authenticate(
+              url: OAuth2Utils.addParamsToUrl(authorizeUrl, authParams),
+              callbackUrlScheme: customUriScheme))
+          .thenAnswer((_) async =>
+              redirectUri + '?code=' + authCode + '&state=' + state);
+
+      await oauth2Client.getTokenWithAuthCodeFlow(
+          webAuthClient: webAuthClient,
+          httpClient: httpClient,
+          clientId: clientId,
+          scopes: scopes,
+          state: state,
+          codeVerifier: codeVerifier,
+          afterAuthorizationCodeCb: (authResp) {
+            oauth2Client.tokenUrl = 'https://test.token.url';
+          });
+
+      expect(oauth2Client.tokenUrl, 'https://test.token.url');
+
+      oauth2Client.tokenUrl = tokenUrl;
+    });
+
     test('Refresh token', () async {
       final httpClient = HttpClientMock();
 

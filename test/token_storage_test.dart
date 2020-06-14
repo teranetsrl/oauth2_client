@@ -109,6 +109,24 @@ void main() {
       await storage.addToken(AccessTokenResponse.fromMap(scope1Map));
     });
 
+    test('Add token without no scope', () async {
+      final Storage secStorage = SecureStorageMock();
+      final storage = TokenStorage('my_token_url', storage: secStorage);
+
+      var noScopesMap = <String, dynamic>{
+        'access_token': '1234567890',
+        'token_type': 'Bearer',
+        'refresh_token': '0987654321',
+        'expires_in': 3600,
+        'http_status_code': 200
+      };
+
+      var tokens =
+          await storage.insertToken(AccessTokenResponse.fromMap(noScopesMap));
+
+      expect(tokens, contains('_default_'));
+    });
+
     test('Delete token', () async {
       final Storage secStorage = SecureStorageMock();
       final storage = TokenStorage('my_token_url', storage: secStorage);

@@ -25,12 +25,15 @@ class OAuth2Helper {
   String clientSecret;
   List<String> scopes;
 
+  Function afterAuthorizationCodeCb;
+
   OAuth2Helper(this.client,
       {this.grantType = AUTHORIZATION_CODE,
       this.clientId,
       this.clientSecret,
       this.scopes,
-      this.tokenStorage}) {
+      this.tokenStorage,
+      this.afterAuthorizationCodeCb}) {
     tokenStorage ??= TokenStorage(client.tokenUrl);
   }
 
@@ -82,7 +85,10 @@ class OAuth2Helper {
 
     if (grantType == AUTHORIZATION_CODE) {
       tknResp = await client.getTokenWithAuthCodeFlow(
-          clientId: clientId, clientSecret: clientSecret, scopes: scopes);
+          clientId: clientId,
+          clientSecret: clientSecret,
+          scopes: scopes,
+          afterAuthorizationCodeCb: afterAuthorizationCodeCb);
     } else if (grantType == CLIENT_CREDENTIALS) {
       tknResp = await client.getTokenWithClientCredentialsFlow(
           clientId: clientId, clientSecret: clientSecret, scopes: scopes);

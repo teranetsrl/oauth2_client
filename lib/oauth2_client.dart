@@ -52,11 +52,12 @@ class OAuth2Client {
   /// Requests an Access Token to the OAuth2 endpoint using the Authorization Code Flow.
   Future<AccessTokenResponse> getTokenWithAuthCodeFlow({
     @required String clientId,
-    @required List<String> scopes,
+    List<String> scopes,
     String clientSecret,
     bool enablePKCE = true,
     String state,
     String codeVerifier,
+    Function afterAuthorizationCodeCb,
     httpClient,
     webAuthClient,
   }) async {
@@ -78,6 +79,8 @@ class OAuth2Client {
         state: state);
 
     if (authResp.isAccessGranted()) {
+      if (afterAuthorizationCodeCb != null) afterAuthorizationCodeCb(authResp);
+
       tknResp = await requestAccessToken(
           httpClient: httpClient,
           code: authResp.code,
