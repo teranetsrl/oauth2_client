@@ -3,6 +3,7 @@
 class AuthorizationResponse {
   String code;
   String state;
+  Map<String, String> queryParams;
 
   String error;
   String errorDescription;
@@ -10,32 +11,36 @@ class AuthorizationResponse {
   AuthorizationResponse();
 
   AuthorizationResponse.fromRedirectUri(String redirectUri, String checkState) {
-    var queryParams = Uri.parse(redirectUri).queryParameters;
+    queryParams = Uri.parse(redirectUri).queryParameters;
 
-    if (queryParams.containsKey('error') && queryParams['error'].isNotEmpty) {
-      error = queryParams['error'];
-      if (queryParams.containsKey('error_description')) {
-        errorDescription = (queryParams['error_description'].isNotEmpty
-            ? ': ' + queryParams['error_description']
-            : '');
-      }
-    } else {
-      if (!queryParams.containsKey('code') || queryParams['code'].isEmpty) {
+    error = getQueryParam('error');
+    errorDescription = getQueryParam('error_description');
+
+    if (error == null) {
+      code = getQueryParam('code');
+      if (code == null) {
         throw Exception('Expected "code" parameter not found in response');
       }
 
-      if (!queryParams.containsKey('state') || queryParams['state'].isEmpty) {
+      state = getQueryParam('state');
+      if (state == null) {
         throw Exception('Expected "state" parameter not found in response');
       }
 
-      if (queryParams['state'] != checkState) {
+      if (state != checkState) {
         throw Exception(
             '"state" parameter in response doesn\'t correspond to the expected value');
       }
-
-      code = queryParams['code'];
-      state = queryParams['state'];
     }
+  }
+
+  /// Returns the value of the [paramName] key in the queryParams map
+  dynamic getQueryParam(String paramName) {
+    return queryParams != null &&
+            queryParams.containsKey(paramName) &&
+            queryParams[paramName].isNotEmpty
+        ? queryParams[paramName]
+        : null;
   }
 
   bool isAccessGranted() {

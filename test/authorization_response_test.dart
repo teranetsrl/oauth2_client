@@ -43,5 +43,21 @@ void main() {
       expect(() => AuthorizationResponse.fromRedirectUri(url, state),
           throwsException);
     });
+
+    test('Fetch query parameters', () {
+      final testParamVal = 'testValue';
+      final url = 'myurlscheme:/oauth2?code=' +
+          authCode +
+          '&state=' +
+          state +
+          '&testParam=' +
+          testParamVal;
+      final resp = AuthorizationResponse.fromRedirectUri(url, state);
+
+      expect(resp.getQueryParam('code'), authCode);
+      expect(resp.getQueryParam('state'), state);
+      expect(resp.getQueryParam('testParam'), testParamVal);
+      expect(resp.getQueryParam('testParam2'), null);
+    });
   });
 }
