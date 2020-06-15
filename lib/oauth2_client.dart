@@ -35,6 +35,7 @@ class OAuth2Client {
   String refreshUrl;
   String revokeUrl;
   String authorizeUrl;
+
   Map<String, String> _accessTokenRequestHeaders;
 
   WebAuth webAuthClient;
@@ -58,6 +59,8 @@ class OAuth2Client {
     String state,
     String codeVerifier,
     Function afterAuthorizationCodeCb,
+    Map<String, dynamic> authCodeRequestParams,
+    Map<String, dynamic> accessTokenRequestParams,
     httpClient,
     webAuthClient,
   }) async {
@@ -76,7 +79,8 @@ class OAuth2Client {
         clientId: clientId,
         scopes: scopes,
         codeChallenge: codeChallenge,
-        state: state);
+        state: state,
+        customParams: authCodeRequestParams);
 
     if (authResp.isAccessGranted()) {
       if (afterAuthorizationCodeCb != null) afterAuthorizationCodeCb(authResp);
@@ -87,7 +91,8 @@ class OAuth2Client {
           clientId: clientId,
           scopes: scopes,
           clientSecret: clientSecret,
-          codeVerifier: codeVerifier);
+          codeVerifier: codeVerifier,
+          customParams: accessTokenRequestParams);
     }
 
     return tknResp;
@@ -121,6 +126,7 @@ class OAuth2Client {
     List<String> scopes,
     String codeChallenge,
     String state,
+    Map<String, dynamic> customParams,
     webAuthClient,
   }) async {
     webAuthClient ??= this.webAuthClient;
@@ -132,7 +138,8 @@ class OAuth2Client {
         redirectUri: redirectUri,
         scopes: scopes,
         state: state,
-        codeChallenge: codeChallenge);
+        codeChallenge: codeChallenge,
+        customParams: customParams);
 
     // Present the dialog to the user
     final result = await webAuthClient.authenticate(
@@ -148,6 +155,7 @@ class OAuth2Client {
       String clientSecret,
       String codeVerifier,
       List<String> scopes,
+      Map<String, dynamic> customParams,
       httpClient}) async {
     httpClient ??= http.Client();
 
@@ -156,7 +164,8 @@ class OAuth2Client {
         redirectUri: redirectUri,
         clientId: clientId,
         clientSecret: clientSecret,
-        codeVerifier: codeVerifier);
+        codeVerifier: codeVerifier,
+        customParams: customParams);
 
     var response = await httpClient.post(tokenUrl,
         body: body, headers: _accessTokenRequestHeaders);
@@ -213,7 +222,8 @@ class OAuth2Client {
       String redirectUri,
       List<String> scopes,
       String state,
-      String codeChallenge}) {
+      String codeChallenge,
+      Map<String, String> customParams}) {
     final params = <String, dynamic>{
       'response_type': 'code',
       'client_id': clientId
@@ -232,6 +242,10 @@ class OAuth2Client {
       params['code_challenge_method'] = 'S256';
     }
 
+    if (customParams != null && customParams is Map) {
+      params.addAll(customParams);
+    }
+
     return OAuth2Utils.addParamsToUrl(authorizeUrl, params);
   }
 
@@ -241,7 +255,8 @@ class OAuth2Client {
       String redirectUri,
       String clientId,
       String clientSecret,
-      String codeVerifier}) {
+      String codeVerifier,
+      Map<String, String> customParams}) {
     final params = <String, String>{
       'grant_type': 'authorization_code',
       'code': code
@@ -261,6 +276,10 @@ class OAuth2Client {
 
     if (codeVerifier != null && codeVerifier.isNotEmpty) {
       params['code_verifier'] = codeVerifier;
+    }
+
+    if (customParams != null && customParams is Map) {
+      params.addAll(customParams);
     }
 
     return params;

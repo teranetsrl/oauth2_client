@@ -317,7 +317,7 @@ void main() {
             containsPair('response_type', 'code'),
             containsPair('client_id', clientId),
             containsPair('redirect_uri', redirectUri),
-            containsPair('scope', scopes.join(' ')),
+            containsPair('scope', scopes.join('+')),
           ));
     });
 
@@ -336,7 +336,7 @@ void main() {
             containsPair('response_type', 'code'),
             containsPair('client_id', clientId),
             containsPair('redirect_uri', redirectUri),
-            containsPair('scope', scopes.join(' ')),
+            containsPair('scope', scopes.join('+')),
             containsPair('state', state),
           ));
     });
@@ -347,21 +347,31 @@ void main() {
           redirectUri: redirectUri,
           scopes: scopes,
           state: state,
-          codeChallenge: codeChallenge);
+          codeChallenge: codeChallenge,
+          customParams: {
+            'authparm1': 'test1',
+            'authparm2': '5',
+            'authparm3': 'must be urlencoded'
+          });
 
       final urlParams = Uri.parse(authorizeUrl).queryParameters;
 
+      expect(authorizeUrl.contains('authparm3=must%20be%20urlencoded'), true);
+
       expect(
           urlParams,
-          allOf(
+          allOf([
             containsPair('response_type', 'code'),
             containsPair('client_id', clientId),
             containsPair('redirect_uri', redirectUri),
-            containsPair('scope', scopes.join(' ')),
+            containsPair('scope', scopes.join('+')),
             containsPair('state', state),
             containsPair('code_challenge', codeChallenge),
             containsPair('code_challenge_method', 'S256'),
-          ));
+            containsPair('authparm1', 'test1'),
+            containsPair('authparm2', '5'),
+            containsPair('authparm3', 'must be urlencoded')
+          ]));
     });
 
     test('Token url params (1/5)', () {
@@ -426,18 +436,21 @@ void main() {
           redirectUri: redirectUri,
           clientId: clientId,
           clientSecret: clientSecret,
-          codeVerifier: verifier);
+          codeVerifier: verifier,
+          customParams: {'accTknparm1': 'test1', 'accTknparm2': '5'});
 
       expect(
           params,
-          allOf(
+          allOf([
             containsPair('grant_type', 'authorization_code'),
             containsPair('code', authorizationCode),
             containsPair('redirect_uri', redirectUri),
             containsPair('client_id', clientId),
             containsPair('client_secret', clientSecret),
             containsPair('code_verifier', verifier),
-          ));
+            containsPair('accTknparm1', 'test1'),
+            containsPair('accTknparm2', '5'),
+          ]));
     });
   });
 

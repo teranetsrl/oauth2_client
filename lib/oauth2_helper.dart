@@ -27,13 +27,18 @@ class OAuth2Helper {
 
   Function afterAuthorizationCodeCb;
 
+  Map<String, dynamic> authCodeRequestParams;
+  Map<String, dynamic> accessTokenRequestParams;
+
   OAuth2Helper(this.client,
       {this.grantType = AUTHORIZATION_CODE,
       this.clientId,
       this.clientSecret,
       this.scopes,
       this.tokenStorage,
-      this.afterAuthorizationCodeCb}) {
+      this.afterAuthorizationCodeCb,
+      this.authCodeRequestParams,
+      this.accessTokenRequestParams}) {
     tokenStorage ??= TokenStorage(client.tokenUrl);
   }
 
@@ -44,11 +49,15 @@ class OAuth2Helper {
       {@required int grantType,
       String clientId,
       String clientSecret,
-      List<String> scopes}) {
+      List<String> scopes,
+      Map<String, dynamic> authCodeRequestParams,
+      Map<String, dynamic> accessTokenRequestParams}) {
     this.grantType = grantType;
     this.clientId = clientId;
     this.clientSecret = clientSecret;
     this.scopes = scopes;
+    this.authCodeRequestParams = authCodeRequestParams;
+    this.accessTokenRequestParams = accessTokenRequestParams;
 
     _validateAuthorizationParams();
   }
@@ -93,6 +102,8 @@ class OAuth2Helper {
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes,
+          authCodeRequestParams: authCodeRequestParams,
+          accessTokenRequestParams: accessTokenRequestParams,
           afterAuthorizationCodeCb: afterAuthorizationCodeCb);
     } else if (grantType == CLIENT_CREDENTIALS) {
       tknResp = await client.getTokenWithClientCredentialsFlow(
