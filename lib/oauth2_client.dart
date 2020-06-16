@@ -59,8 +59,8 @@ class OAuth2Client {
     String state,
     String codeVerifier,
     Function afterAuthorizationCodeCb,
-    Map<String, dynamic> authCodeRequestParams,
-    Map<String, dynamic> accessTokenRequestParams,
+    Map<String, dynamic> authCodeParams,
+    Map<String, dynamic> accessTokenParams,
     httpClient,
     webAuthClient,
   }) async {
@@ -80,7 +80,7 @@ class OAuth2Client {
         scopes: scopes,
         codeChallenge: codeChallenge,
         state: state,
-        customParams: authCodeRequestParams);
+        customParams: authCodeParams);
 
     if (authResp.isAccessGranted()) {
       if (afterAuthorizationCodeCb != null) afterAuthorizationCodeCb(authResp);
@@ -92,7 +92,7 @@ class OAuth2Client {
           scopes: scopes,
           clientSecret: clientSecret,
           codeVerifier: codeVerifier,
-          customParams: accessTokenRequestParams);
+          customParams: accessTokenParams);
     }
 
     return tknResp;
