@@ -317,7 +317,7 @@ void main() {
             containsPair('response_type', 'code'),
             containsPair('client_id', clientId),
             containsPair('redirect_uri', redirectUri),
-            containsPair('scope', scopes.join('+')),
+            containsPair('scope', scopes.join(' ')),
           ));
     });
 
@@ -336,7 +336,7 @@ void main() {
             containsPair('response_type', 'code'),
             containsPair('client_id', clientId),
             containsPair('redirect_uri', redirectUri),
-            containsPair('scope', scopes.join('+')),
+            containsPair('scope', scopes.join(' ')),
             containsPair('state', state),
           ));
     });
@@ -348,15 +348,9 @@ void main() {
           scopes: scopes,
           state: state,
           codeChallenge: codeChallenge,
-          customParams: {
-            'authparm1': 'test1',
-            'authparm2': '5',
-            'authparm3': 'must be urlencoded'
-          });
+          customParams: {'authparm1': 'test1', 'authparm2': '5'});
 
       final urlParams = Uri.parse(authorizeUrl).queryParameters;
-
-      expect(authorizeUrl.contains('authparm3=must%20be%20urlencoded'), true);
 
       expect(
           urlParams,
@@ -364,13 +358,12 @@ void main() {
             containsPair('response_type', 'code'),
             containsPair('client_id', clientId),
             containsPair('redirect_uri', redirectUri),
-            containsPair('scope', scopes.join('+')),
+            containsPair('scope', scopes.join(' ')),
             containsPair('state', state),
             containsPair('code_challenge', codeChallenge),
             containsPair('code_challenge_method', 'S256'),
             containsPair('authparm1', 'test1'),
-            containsPair('authparm2', '5'),
-            containsPair('authparm3', 'must be urlencoded')
+            containsPair('authparm2', '5')
           ]));
     });
 
