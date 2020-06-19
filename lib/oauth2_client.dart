@@ -190,13 +190,13 @@ class OAuth2Client {
   }
 
   /// Revokes both the Access and the Refresh tokens in the provided [tknResp]
-  Future<OAuth2Response> revokeToken(AccessTokenResponse tknResp,
+  Future<OAuth2Response> revokeToken(AccessTokenResponse tknResp, String clientId,
       {httpClient}) async {
     var tokenRevocationResp =
-        await revokeAccessToken(tknResp, httpClient: httpClient);
+        await revokeAccessToken(tknResp, clientId, httpClient: httpClient);
     if (tokenRevocationResp.isValid()) {
       tokenRevocationResp =
-          await revokeRefreshToken(tknResp, httpClient: httpClient);
+          await revokeRefreshToken(tknResp, clientId, httpClient: httpClient);
     }
 
     return tokenRevocationResp;
@@ -204,15 +204,19 @@ class OAuth2Client {
 
   /// Revokes the Access Token in the provided [tknResp]
   Future<OAuth2Response> revokeAccessToken(AccessTokenResponse tknResp,
+      String clientId,
       {httpClient}) async {
     return await _revokeTokenByType(tknResp, 'access_token',
+        clientId,
         httpClient: httpClient);
   }
 
   /// Revokes the Refresh Token in the provided [tknResp]
   Future<OAuth2Response> revokeRefreshToken(AccessTokenResponse tknResp,
+      String clientId,
       {httpClient}) async {
     return await _revokeTokenByType(tknResp, 'refresh_token',
+        clientId,
         httpClient: httpClient);
   }
 
@@ -307,6 +311,7 @@ class OAuth2Client {
   /// Revokes the specified token [type] in the [tknResp]
   Future<OAuth2Response> _revokeTokenByType(
       AccessTokenResponse tknResp, String tokenType,
+      String clientId,
       {httpClient}) async {
     var resp = OAuth2Response();
 
@@ -320,8 +325,7 @@ class OAuth2Client {
 
     if (token != null) {
       http.Response response = await httpClient.post(revokeUrl,
-          body: {'token': token, 'token_type_hint': tokenType},
-          headers: {'Authorization': 'Bearer ' + tknResp.accessToken});
+          body: {'token': token, 'token_type_hint': tokenType, 'client_id': clientId});
 
       resp = OAuth2Response.fromHttpResponse(response);
     }
