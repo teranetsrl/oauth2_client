@@ -223,7 +223,7 @@ class OAuth2Client {
       List<String> scopes,
       String state,
       String codeChallenge,
-      Map<String, String> customParams}) {
+      Map<String, dynamic> customParams}) {
     final params = <String, dynamic>{
       'response_type': 'code',
       'client_id': clientId
@@ -250,14 +250,14 @@ class OAuth2Client {
   }
 
   /// Returns the parameters needed for the authorization code request
-  Map<String, String> getTokenUrlParams(
+  Map<String, dynamic> getTokenUrlParams(
       {@required String code,
       String redirectUri,
       String clientId,
       String clientSecret,
       String codeVerifier,
-      Map<String, String> customParams}) {
-    final params = <String, String>{
+      Map<String, dynamic> customParams}) {
+    final params = <String, dynamic>{
       'grant_type': 'authorization_code',
       'code': code
     };

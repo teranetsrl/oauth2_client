@@ -135,7 +135,8 @@ void main() {
         'scope': scopes,
         'state': state,
         'code_challenge': codeChallenge,
-        'code_challenge_method': 'S256'
+        'code_challenge_method': 'S256',
+        'testParam': 'testVal'
       };
 
       final httpClient = HttpClientMock();
@@ -173,7 +174,8 @@ void main() {
           clientId: clientId,
           scopes: scopes,
           state: state,
-          codeVerifier: codeVerifier);
+          codeVerifier: codeVerifier,
+          authCodeParams: {'testParam': 'testVal'});
 
       expect(tknResponse.accessToken, accessToken);
     });
