@@ -397,7 +397,7 @@ void main() {
       when(tokenStorage.getToken(scopes)).thenAnswer((_) async => tknResp);
       when(tokenStorage.deleteToken(scopes)).thenAnswer((_) async => true);
 
-      when(oauth2Client.revokeToken(tknResp, httpClient: httpClient))
+      when(oauth2Client.revokeToken(tknResp, clientId, httpClient: httpClient))
           .thenAnswer(
               (_) async => OAuth2Response.fromMap({'http_status_code': 200}));
 

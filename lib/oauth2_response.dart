@@ -30,7 +30,7 @@ class OAuth2Response {
     OAuth2Response resp;
 
     if (response.statusCode != 404) {
-      if(response.body != "") {
+      if(response.body != '') {
         resp = OAuth2Response.fromMap(jsonDecode(response.body));
       } else {
         resp = OAuth2Response();
