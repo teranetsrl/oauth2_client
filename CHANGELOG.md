@@ -1,5 +1,8 @@
+## [1.4.2] - 2020/06/27
+* Revocation token fixes
+
 ## [1.4.1] - 2020/06/19
-* Samll fixes
+* Small fixes
 
 ## [1.4.0] - 2020/06/15
 * scopes parameter become ooptional (as per the OAuth2 specs)
