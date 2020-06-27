@@ -191,12 +191,14 @@ class OAuth2Client {
 
   /// Revokes both the Access and the Refresh tokens in the provided [tknResp]
   Future<OAuth2Response> revokeToken(AccessTokenResponse tknResp,
-      {httpClient}) async {
-    var tokenRevocationResp =
-        await revokeAccessToken(tknResp, httpClient: httpClient);
+      {String clientId, String clientSecret, httpClient}) async {
+    var tokenRevocationResp = await revokeAccessToken(tknResp,
+        clientId: clientId, clientSecret: clientSecret, httpClient: httpClient);
     if (tokenRevocationResp.isValid()) {
-      tokenRevocationResp =
-          await revokeRefreshToken(tknResp, httpClient: httpClient);
+      tokenRevocationResp = await revokeRefreshToken(tknResp,
+          clientId: clientId,
+          clientSecret: clientSecret,
+          httpClient: httpClient);
     }
 
     return tokenRevocationResp;
@@ -204,16 +206,16 @@ class OAuth2Client {
 
   /// Revokes the Access Token in the provided [tknResp]
   Future<OAuth2Response> revokeAccessToken(AccessTokenResponse tknResp,
-      {httpClient}) async {
+      {String clientId, String clientSecret, httpClient}) async {
     return await _revokeTokenByType(tknResp, 'access_token',
-        httpClient: httpClient);
+        clientId: clientId, clientSecret: clientSecret, httpClient: httpClient);
   }
 
   /// Revokes the Refresh Token in the provided [tknResp]
   Future<OAuth2Response> revokeRefreshToken(AccessTokenResponse tknResp,
-      {httpClient}) async {
+      {String clientId, String clientSecret, httpClient}) async {
     return await _revokeTokenByType(tknResp, 'refresh_token',
-        httpClient: httpClient);
+        clientId: clientId, clientSecret: clientSecret, httpClient: httpClient);
   }
 
   /// Generates the url to be used for fetching the authorization code.
@@ -307,7 +309,7 @@ class OAuth2Client {
   /// Revokes the specified token [type] in the [tknResp]
   Future<OAuth2Response> _revokeTokenByType(
       AccessTokenResponse tknResp, String tokenType,
-      {httpClient}) async {
+      {String clientId, String clientSecret, httpClient}) async {
     var resp = OAuth2Response();
 
     if (revokeUrl == null) return resp;
@@ -319,9 +321,12 @@ class OAuth2Client {
         : tknResp.refreshToken;
 
     if (token != null) {
-      http.Response response = await httpClient.post(revokeUrl,
-          body: {'token': token, 'token_type_hint': tokenType},
-          headers: {'Authorization': 'Bearer ' + tknResp.accessToken});
+      var params = {'token': token, 'token_type_hint': tokenType};
+
+      if (clientId != null) params['client_id'] = clientId;
+      if (clientSecret != null) params['client_secret'] = clientSecret;
+
+      http.Response response = await httpClient.post(revokeUrl, body: params);
 
       resp = OAuth2Response.fromHttpResponse(response);
     }
