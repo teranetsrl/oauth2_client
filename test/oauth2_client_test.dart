@@ -521,9 +521,11 @@ void main() {
     test('Access token revocation', () async {
       final httpClient = HttpClientMock();
 
-      when(httpClient.post(revokeUrl,
-              body: {'token': accessToken, 'token_type_hint': 'access_token', 'client_id': clientId }))
-          .thenAnswer((_) async => http.Response('{}', 200));
+      when(httpClient.post(revokeUrl, body: {
+        'token': accessToken,
+        'token_type_hint': 'access_token',
+        'client_id': clientId
+      })).thenAnswer((_) async => http.Response('{}', 200));
 
       final respMap = <String, dynamic>{
         'access_token': accessToken,
@@ -536,8 +538,8 @@ void main() {
 
       final tknResp = AccessTokenResponse.fromMap(respMap);
 
-      final revokeResp =
-          await oauth2Client.revokeAccessToken(tknResp, clientId, httpClient: httpClient);
+      final revokeResp = await oauth2Client.revokeAccessToken(tknResp,
+          clientId: clientId, httpClient: httpClient);
 
       expect(revokeResp.isValid(), true);
     });
@@ -546,7 +548,11 @@ void main() {
       final httpClient = HttpClientMock();
 
       when(httpClient.post(revokeUrl,
-              body: {'token': refreshToken, 'token_type_hint': 'refresh_token', 'client_id': clientId},
+              body: {
+                'token': refreshToken,
+                'token_type_hint': 'refresh_token',
+                'client_id': clientId
+              },
               headers: anyNamed('headers')))
           .thenAnswer((_) async => http.Response('{}', 200));
 
@@ -562,8 +568,7 @@ void main() {
       final tknResp = AccessTokenResponse.fromMap(respMap);
 
       final revokeResp = await oauth2Client.revokeRefreshToken(tknResp,
-          clientId,
-          httpClient: httpClient);
+          clientId: clientId, httpClient: httpClient);
 
       expect(revokeResp.isValid(), true);
     });
@@ -572,12 +577,20 @@ void main() {
       final httpClient = HttpClientMock();
 
       when(httpClient.post(revokeUrl,
-              body: {'token': accessToken, 'token_type_hint': 'access_token', 'client_id': clientId},
+              body: {
+                'token': accessToken,
+                'token_type_hint': 'access_token',
+                'client_id': clientId
+              },
               headers: anyNamed('headers')))
           .thenAnswer((_) async => http.Response('{}', 200));
 
       when(httpClient.post(revokeUrl,
-              body: {'token': refreshToken, 'token_type_hint': 'refresh_token', 'client_id': clientId},
+              body: {
+                'token': refreshToken,
+                'token_type_hint': 'refresh_token',
+                'client_id': clientId
+              },
               headers: anyNamed('headers')))
           .thenAnswer((_) async => http.Response('{}', 200));
 
@@ -592,8 +605,8 @@ void main() {
 
       final tknResp = AccessTokenResponse.fromMap(respMap);
 
-      final revokeResp =
-          await oauth2Client.revokeToken(tknResp, clientId, httpClient: httpClient);
+      final revokeResp = await oauth2Client.revokeToken(tknResp,
+          clientId: clientId, httpClient: httpClient);
 
       expect(revokeResp.isValid(), true);
     });
@@ -602,13 +615,21 @@ void main() {
       final httpClient = HttpClientMock();
 
       when(httpClient.post(revokeUrl,
-              body: {'token': accessToken, 'token_type_hint': 'access_token', 'client_id': clientId},
+              body: {
+                'token': accessToken,
+                'token_type_hint': 'access_token',
+                'client_id': clientId
+              },
               headers: anyNamed('headers')))
           .thenAnswer((_) async =>
               http.Response('{"error": "access token revocation error"}', 404));
 
       when(httpClient.post(revokeUrl,
-              body: {'token': refreshToken, 'token_type_hint': 'refresh_token', 'client_id': clientId},
+              body: {
+                'token': refreshToken,
+                'token_type_hint': 'refresh_token',
+                'client_id': clientId
+              },
               headers: anyNamed('headers')))
           .thenAnswer((_) async => http.Response('{}', 200));
 
@@ -623,8 +644,8 @@ void main() {
 
       final tknResp = AccessTokenResponse.fromMap(respMap);
 
-      final revokeResp =
-          await oauth2Client.revokeToken(tknResp, clientId, httpClient: httpClient);
+      final revokeResp = await oauth2Client.revokeToken(tknResp,
+          clientId: clientId, httpClient: httpClient);
 
       expect(revokeResp.isValid(), false);
     });
@@ -633,12 +654,20 @@ void main() {
       final httpClient = HttpClientMock();
 
       when(httpClient.post(revokeUrl,
-              body: {'token': accessToken, 'token_type_hint': 'access_token', 'client_id': clientId},
+              body: {
+                'token': accessToken,
+                'token_type_hint': 'access_token',
+                'client_id': clientId
+              },
               headers: anyNamed('headers')))
           .thenAnswer((_) async => http.Response('{}', 200));
 
       when(httpClient.post(revokeUrl,
-              body: {'token': refreshToken, 'token_type_hint': 'refresh_token', 'client_id': clientId},
+              body: {
+                'token': refreshToken,
+                'token_type_hint': 'refresh_token',
+                'client_id': clientId
+              },
               headers: anyNamed('headers')))
           .thenAnswer(
               (_) async => http.Response('{"error": "generic error"}', 400));
@@ -654,8 +683,8 @@ void main() {
 
       final tknResp = AccessTokenResponse.fromMap(respMap);
 
-      final revokeResp =
-          await oauth2Client.revokeToken(tknResp, clientId, httpClient: httpClient);
+      final revokeResp = await oauth2Client.revokeToken(tknResp,
+          clientId: clientId, httpClient: httpClient);
 
       expect(revokeResp.isValid(), false);
     });

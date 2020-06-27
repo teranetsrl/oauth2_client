@@ -155,7 +155,10 @@ class OAuth2Helper {
 
     if (tknResp != null) {
       await tokenStorage.deleteToken(scopes);
-      return await client.revokeToken(tknResp, clientId, httpClient: httpClient);
+      return await client.revokeToken(tknResp,
+          clientId: clientId,
+          clientSecret: clientSecret,
+          httpClient: httpClient);
     } else {
       return OAuth2Response();
     }
