@@ -17,7 +17,6 @@ class TokenStorage {
 
     final serTokens = await storage.read(key);
     final scopeKey = getScopeKey(scopes);
-
     if (serTokens != null) {
       final Map<String, dynamic> tokens = jsonDecode(serTokens);
 
@@ -37,7 +36,6 @@ class TokenStorage {
   Future<Map<String, Map>> insertToken(AccessTokenResponse tknResp) async {
     final serTokens = await storage.read(key);
     final scopeKey = getScopeKey(tknResp.scope);
-
     var tokens = <String, Map>{};
 
     if (serTokens != null) {
@@ -68,11 +66,14 @@ class TokenStorage {
   String getScopeKey(List<String> scope) {
     var key = '_default_';
 
-    if (scope != null && scope.isNotEmpty) {
-      var sortedScopes = scope.toList()
-        ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+    if (scope != null) {
+      scope = scope.where((element) => element.trim().isNotEmpty).toList();
+      if (scope.isNotEmpty) {
+        var sortedScopes = scope.toList()
+          ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
 
-      key = sortedScopes.join('__');
+        key = sortedScopes.join('__');
+      }
     }
 
     return key;
