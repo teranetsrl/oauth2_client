@@ -1,3 +1,6 @@
+## [1.4.3] - 2020/07/09
+* Token storage fix when scopes are empty
+
 ## [1.4.2] - 2020/06/27
 * Revocation token fixes
 
