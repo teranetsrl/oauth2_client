@@ -66,7 +66,7 @@ import 'package:http/http.dart' as http;
 //Instantiate an OAuth2Client...
 GoogleOAuth2Client client = GoogleOAuth2Client(
 	customUriScheme: 'com.teranet.app' //Must correspond to the AndroidManifest's "android:scheme" attribute
-	redirectUri: 'com.teranet.app:/oauth2redirect', //Can be any URI, but the scheme part must correspond to the customeUriScheme
+	redirectUri: 'com.teranet.app://oauth2redirect', //Can be any URI, but the scheme part must correspond to the customeUriScheme
 );
 
 //Then, instantiate the helper passing the previously instantiated client
@@ -99,7 +99,7 @@ This way tokens won't be automatically stored, nor will be automatically refresh
 ```dart
 //Import the client you need (see later for available clients)...
 import 'myclient.dart'; //Not an actual client!
-import 'package:oauth2_client/access_token.dart';
+import 'package:oauth2_client/access_token_response.dart';
 
 ...
 
@@ -147,7 +147,7 @@ Then in your code:
 import 'package:oauth2_client/google_oauth2_client.dart';
 
 OAuth2Client googleClient = GoogleOAuth2Client(
-	redirectUri: 'com.teranet.app:/oauth2redirect',
+	redirectUri: 'com.teranet.app://oauth2redirect',
 	customUriScheme: 'com.teranet.app'
 );
 ```
@@ -164,7 +164,7 @@ Then in your code:
 import 'package:oauth2_client/facebook_oauth2_client.dart';
 
 OAuth2Client fbClient = FacebookOAuth2Client(
-	redirectUri: 'com.teranet.app:/oauth2redirect',
+	redirectUri: 'com.teranet.app://oauth2redirect',
 	customUriScheme: 'com.teranet.app'
 );
 ```
@@ -181,7 +181,7 @@ Then in your code:
 import 'package:oauth2_client/linkedin_oauth2_client.dart';
 
 OAuth2Client liClient = LinkedInOAuth2Client(
-	redirectUri: 'com.teranet.app:/oauth2redirect',
+	redirectUri: 'com.teranet.app://oauth2redirect',
 	customUriScheme: 'com.teranet.app'
 );
 ```
