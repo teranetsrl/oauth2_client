@@ -28,7 +28,7 @@ AndroidManifest.xml
 		<action android:name="android.intent.action.VIEW" />
 		<category android:name="android.intent.category.DEFAULT" />
 		<category android:name="android.intent.category.BROWSABLE" />
-		<data android:scheme="com.teranet.app" />
+		<data android:scheme="my.test.app" />
 	</intent-filter>
 </activity>
 ```
@@ -65,8 +65,8 @@ import 'package:http/http.dart' as http;
 
 //Instantiate an OAuth2Client...
 GoogleOAuth2Client client = GoogleOAuth2Client(
-	customUriScheme: 'com.teranet.app' //Must correspond to the AndroidManifest's "android:scheme" attribute
-	redirectUri: 'com.teranet.app://oauth2redirect', //Can be any URI, but the scheme part must correspond to the customeUriScheme
+	customUriScheme: 'my.test.app' //Must correspond to the AndroidManifest's "android:scheme" attribute
+	redirectUri: 'my.test.app://oauth2redirect', //Can be any URI, but the scheme part must correspond to the customeUriScheme
 );
 
 //Then, instantiate the helper passing the previously instantiated client
@@ -164,8 +164,8 @@ Then in your code:
 import 'package:oauth2_client/facebook_oauth2_client.dart';
 
 OAuth2Client fbClient = FacebookOAuth2Client(
-	redirectUri: 'com.teranet.app://oauth2redirect',
-	customUriScheme: 'com.teranet.app'
+	redirectUri: 'my.test.app://oauth2redirect',
+	customUriScheme: 'my.test.app'
 );
 ```
 
@@ -181,8 +181,8 @@ Then in your code:
 import 'package:oauth2_client/linkedin_oauth2_client.dart';
 
 OAuth2Client liClient = LinkedInOAuth2Client(
-	redirectUri: 'com.teranet.app://oauth2redirect',
-	customUriScheme: 'com.teranet.app'
+	redirectUri: 'my.test.app://oauth2redirect',
+	customUriScheme: 'my.test.app'
 );
 ```
 
@@ -198,8 +198,8 @@ Then in your code:
 import 'package:oauth2_client/github_oauth2_client.dart';
 
 OAuth2Client fbClient = GitHubOAuth2Client(
-	redirectUri: 'com.teranet.app://oauth2redirect',
-	customUriScheme: 'com.teranet.app'
+	redirectUri: 'my.test.app://oauth2redirect',
+	customUriScheme: 'my.test.app'
 );
 ```
 
