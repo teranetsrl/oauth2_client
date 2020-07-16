@@ -139,7 +139,7 @@ In order to use this client you need to first configure OAuth2 credentials in th
 First you need to create a new Project if it doesn't already exists, then you need to create the OAuth2 credentials ("OAuth Client ID").
 
 Select **iOS** as *Application Type*, specify a name for the client and in the *Bundle ID* field insert your custom uri scheme
-(for example 'com.example.app', but you can use whatever uri scheme you want).
+(for example 'my.test.app', but you can use whatever uri scheme you want).
 
 Then in your code:
 
@@ -147,8 +147,8 @@ Then in your code:
 import 'package:oauth2_client/google_oauth2_client.dart';
 
 OAuth2Client googleClient = GoogleOAuth2Client(
-	redirectUri: 'com.teranet.app://oauth2redirect',
-	customUriScheme: 'com.teranet.app'
+	redirectUri: 'my.test.app://oauth2redirect',
+	customUriScheme: 'my.test.app'
 );
 ```
 
