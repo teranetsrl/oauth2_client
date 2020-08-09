@@ -26,14 +26,14 @@ class AccessTokenResponse extends OAuth2Response {
       if (map.containsKey('scope')) {
         if (map['scope'] is List) {
           List scopesJson = map['scope'];
-          scope = scopesJson != null ? List.from(scopesJson) : null;
+          scope = List.from(scopesJson);
         } else {
           //The OAuth 2 standard suggests that the scopes should be a space-separated list,
           //but some providers (i.e. GitHub) return a comma-separated list
-          scope = map['scope'].split(RegExp(r'[\s,]'));
+          scope = map['scope']?.split(RegExp(r'[\s,]'));
         }
 
-        scope = scope.map((s) => s.trim()).toList();
+        scope = scope?.map((s) => s.trim())?.toList();
       }
 
       if (map.containsKey('expires_in')) expiresIn = map['expires_in'];
