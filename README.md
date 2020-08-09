@@ -73,6 +73,7 @@ GoogleOAuth2Client client = GoogleOAuth2Client(
 OAuth2Helper oauth2Helper = OAuth2Helper(client,
 	grantType: OAuth2Helper.AUTHORIZATION_CODE,
 	clientId: 'your_client_id',
+	clientSecret: 'your_client_secret',
 	scopes: ['https://www.googleapis.com/auth/drive.readonly']);
 
 ```
