@@ -45,7 +45,7 @@ Add the library to your *pubspec.yaml* file:
 
 ```dart
 dependencies:
-	oauth2_client: ^1.3.0
+	oauth2_client: ^1.4.4
 ```
 
 # Usage with the helper class #

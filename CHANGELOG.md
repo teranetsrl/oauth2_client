@@ -1,3 +1,6 @@
+## [1.4.4] - 2020/08/10
+* Bugfixes (add null-aware operators)
+
 ## [1.4.3] - 2020/07/09
 * Token storage fix when scopes are empty
 
