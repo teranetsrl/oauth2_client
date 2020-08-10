@@ -12,6 +12,7 @@ class Oauth2ClientExample {
     hlp.setAuthorizationParams(
         grantType: OAuth2Helper.AUTHORIZATION_CODE,
         clientId: 'XXX-XXX-XXX',
+        clientSecret: 'XXX-XXX-XXX',
         scopes: ['https://www.googleapis.com/auth/drive.readonly']);
 
     var resp =
