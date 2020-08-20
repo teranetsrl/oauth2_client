@@ -16,6 +16,7 @@ import 'package:oauth2_client/src/token_storage.dart';
 class OAuth2Helper {
   static const AUTHORIZATION_CODE = 1;
   static const CLIENT_CREDENTIALS = 2;
+  static const IMPLICIT_GRANT = 3;
 
   final OAuth2Client client;
   TokenStorage tokenStorage;
@@ -108,6 +109,9 @@ class OAuth2Helper {
     } else if (grantType == CLIENT_CREDENTIALS) {
       tknResp = await client.getTokenWithClientCredentialsFlow(
           clientId: clientId, clientSecret: clientSecret, scopes: scopes);
+    } else if (grantType == IMPLICIT_GRANT) {
+      tknResp = await client.getTokenWithImplicitGrantFlow(
+          clientId: clientId, scopes: scopes);
     }
 
     if (tknResp != null && tknResp.isValid()) {
