@@ -36,7 +36,18 @@ class AccessTokenResponse extends OAuth2Response {
         scope = scope?.map((s) => s.trim())?.toList();
       }
 
-      if (map.containsKey('expires_in')) expiresIn = map['expires_in'];
+      if (map.containsKey('expires_in')) {
+        try {
+          expiresIn = map['expires_in'] is String
+              ? int.parse(map['expires_in'])
+              : map['expires_in'];
+        } on FormatException {
+          //Provide a fallback value if the expires_in parameter is not an integer...
+          expiresIn = 60;
+          //...But rethrow the exception!
+          rethrow;
+        }
+      }
 
       expirationDate = null;
 
