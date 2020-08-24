@@ -152,4 +152,20 @@ void main() {
 
     expect(resp.toString(), 'HTTP 400 - generic_error error_desc');
   });
+
+  test('Valid response but expires_in param as string', () async {
+    final respMap = {
+      'access_token': accessToken,
+      'token_type': tokenType,
+      'refresh_token': refreshToken,
+      'scope': scopes,
+      'expires_in': '3600',
+      'http_status_code': 200
+    };
+
+    final resp = AccessTokenResponse.fromMap(respMap);
+
+    expect(resp.isValid(), true);
+    expect(resp.expiresIn, 3600);
+  });
 }
