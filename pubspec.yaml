@@ -1,6 +1,6 @@
 name: oauth2_client
 description: Flutter library for interacting with standard or custom OAuth 2 servers. Provides convenience classes for secure token storage and automatic token refeshing.
-version: 1.4.5
+version: 1.4.6
 # author: TeraNet srl<info@teranet.it>
 homepage: https://github.com/teranetsrl/oauth2_client
 repository: https://github.com/teranetsrl/oauth2_client
@@ -13,8 +13,7 @@ dependencies:
     sdk: flutter
   meta: ^1.1.8
   http: ^0.12.1
-  flutter_web_auth: #^0.2.4
-    git: 'https://github.com/okrad/flutter_web_auth.git'
+  flutter_web_auth: ^0.2.4
   random_string: ^2.0.1
   crypto: ^2.1.4
   flutter_secure_storage: ^3.3.3

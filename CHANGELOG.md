@@ -1,3 +1,9 @@
+## [1.4.6] - 2020/09/03
+* Allow disabling PKCE when using OAuth2Helper
+
+## [1.4.5] - 2020/08/23
+* Bugfixes (check "expires_in" parameter type)
+
 ## [1.4.4] - 2020/08/10
 * Bugfixes (add null-aware operators)
 
