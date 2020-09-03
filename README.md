@@ -198,7 +198,7 @@ Then in your code:
 ```dart
 import 'package:oauth2_client/github_oauth2_client.dart';
 
-OAuth2Client fbClient = GitHubOAuth2Client(
+OAuth2Client ghClient = GitHubOAuth2Client(
 	redirectUri: 'my.test.app://oauth2redirect',
 	customUriScheme: 'my.test.app'
 );
