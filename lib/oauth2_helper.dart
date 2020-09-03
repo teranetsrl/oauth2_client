@@ -24,6 +24,7 @@ class OAuth2Helper {
   String clientId;
   String clientSecret;
   List<String> scopes;
+  bool enablePKCE;
 
   Function afterAuthorizationCodeCb;
 
@@ -35,6 +36,7 @@ class OAuth2Helper {
       this.clientId,
       this.clientSecret,
       this.scopes,
+      this.enablePKCE,
       this.tokenStorage,
       this.afterAuthorizationCodeCb,
       this.authCodeParams,
@@ -50,12 +52,14 @@ class OAuth2Helper {
       String clientId,
       String clientSecret,
       List<String> scopes,
+      bool enablePKCE,
       Map<String, dynamic> authCodeParams,
       Map<String, dynamic> accessTokenParams}) {
     this.grantType = grantType;
     this.clientId = clientId;
     this.clientSecret = clientSecret;
     this.scopes = scopes;
+    this.enablePKCE = enablePKCE ?? true;
     this.authCodeParams = authCodeParams;
     this.accessTokenParams = accessTokenParams;
 
@@ -102,6 +106,7 @@ class OAuth2Helper {
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes,
+          enablePKCE: enablePKCE ?? true,
           authCodeParams: authCodeParams,
           accessTokenParams: accessTokenParams,
           afterAuthorizationCodeCb: afterAuthorizationCodeCb);

@@ -31,13 +31,6 @@ void main() {
   final OAuth2Client oauth2Client = OAuth2ClientMock();
   final httpClient = HttpClientMock();
 
-  // final String authorizeUrl = 'http://my.test.app/authorize';
-  // final String tokenUrl = 'http://my.test.app/token';
-  // final String revokeUrl = 'http://my.test.app/revoke';
-
-  // when(oauth2Client.tokenUrl).thenReturn('my:/token/url');
-  // when(oauth2Client.revokeUrl).thenReturn('my:/revoke/url');
-
   when(oauth2Client.tokenUrl).thenReturn('http://my.test.app/token');
   when(oauth2Client.revokeUrl).thenReturn('http://my.test.app/revoke');
 
@@ -202,7 +195,7 @@ void main() {
       expect(tknResp.accessToken, accessToken);
     });
 
-    test('Get request with refresh token expiration', () async {
+    test('GET request with refresh token expiration', () async {
       final tokenStorage =
           TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
 
@@ -415,23 +408,100 @@ void main() {
 
       expect(revokeResp.isValid(), true);
     });
-  });
 
-  test('Token revocation without a previously fetched token (fallback)',
-      () async {
-    final tokenStorage = TokenStorageMock();
-    when(tokenStorage.getToken(scopes)).thenAnswer((_) async => null);
+    test('Token revocation without a previously fetched token (fallback)',
+        () async {
+      final tokenStorage = TokenStorageMock();
+      when(tokenStorage.getToken(scopes)).thenAnswer((_) async => null);
 
-    final hlp = OAuth2Helper(oauth2Client,
-        tokenStorage: tokenStorage,
-        grantType: OAuth2Helper.CLIENT_CREDENTIALS,
+      final hlp = OAuth2Helper(oauth2Client,
+          tokenStorage: tokenStorage,
+          grantType: OAuth2Helper.CLIENT_CREDENTIALS,
+          clientId: clientId,
+          clientSecret: clientSecret,
+          scopes: scopes);
+
+      final revokeResp = await hlp.disconnect(httpClient: httpClient);
+
+      expect(revokeResp.isValid(), true);
+    });
+
+    test('Test PKCE param', () async {
+      final tokenStorage =
+          TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
+
+      var hlp = OAuth2Helper(oauth2Client, tokenStorage: tokenStorage);
+
+      //No PKCE param passed... Must default to true in the client instance
+      hlp.setAuthorizationParams(
+        grantType: OAuth2Helper.AUTHORIZATION_CODE,
         clientId: clientId,
         clientSecret: clientSecret,
-        scopes: scopes);
+        scopes: scopes,
+      );
 
-    final revokeResp = await hlp.disconnect(httpClient: httpClient);
+      await hlp.fetchToken();
 
-    expect(revokeResp.isValid(), true);
+      expect(
+          verify(oauth2Client.getTokenWithAuthCodeFlow(
+                  clientId: captureAnyNamed('clientId'),
+                  clientSecret: captureAnyNamed('clientSecret'),
+                  scopes: captureAnyNamed('scopes'),
+                  enablePKCE: captureAnyNamed('enablePKCE'),
+                  state: captureAnyNamed('state'),
+                  codeVerifier: captureAnyNamed('codeVerifier'),
+                  afterAuthorizationCodeCb:
+                      captureAnyNamed('afterAuthorizationCodeCb'),
+                  authCodeParams: captureAnyNamed('authCodeParams'),
+                  accessTokenParams: captureAnyNamed('accessTokenParams'),
+                  httpClient: captureAnyNamed('httpClient'),
+                  webAuthClient: captureAnyNamed('webAuthClient')))
+              .captured[3],
+          true);
+
+      hlp.enablePKCE = true;
+
+      await hlp.fetchToken();
+
+      expect(
+          verify(oauth2Client.getTokenWithAuthCodeFlow(
+                  clientId: captureAnyNamed('clientId'),
+                  clientSecret: captureAnyNamed('clientSecret'),
+                  scopes: captureAnyNamed('scopes'),
+                  enablePKCE: captureAnyNamed('enablePKCE'),
+                  state: captureAnyNamed('state'),
+                  codeVerifier: captureAnyNamed('codeVerifier'),
+                  afterAuthorizationCodeCb:
+                      captureAnyNamed('afterAuthorizationCodeCb'),
+                  authCodeParams: captureAnyNamed('authCodeParams'),
+                  accessTokenParams: captureAnyNamed('accessTokenParams'),
+                  httpClient: captureAnyNamed('httpClient'),
+                  webAuthClient: captureAnyNamed('webAuthClient')))
+              .captured[3],
+          true);
+
+      //enablePKCE param passed as false... Must be false in the client instance
+      hlp.enablePKCE = false;
+
+      await hlp.fetchToken();
+
+      expect(
+          verify(oauth2Client.getTokenWithAuthCodeFlow(
+                  clientId: captureAnyNamed('clientId'),
+                  clientSecret: captureAnyNamed('clientSecret'),
+                  scopes: captureAnyNamed('scopes'),
+                  enablePKCE: captureAnyNamed('enablePKCE'),
+                  state: captureAnyNamed('state'),
+                  codeVerifier: captureAnyNamed('codeVerifier'),
+                  afterAuthorizationCodeCb:
+                      captureAnyNamed('afterAuthorizationCodeCb'),
+                  authCodeParams: captureAnyNamed('authCodeParams'),
+                  accessTokenParams: captureAnyNamed('accessTokenParams'),
+                  httpClient: captureAnyNamed('httpClient'),
+                  webAuthClient: captureAnyNamed('webAuthClient')))
+              .captured[3],
+          false);
+    });
   });
 
   group('Client Credentials Grant.', () {
