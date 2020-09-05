@@ -7,6 +7,8 @@ Currently only **Authorization Code** and **Client Credentials** flows are imple
 
 # Prerequisites #
 
+Make sure when registering your application on the OAuth provider to **not use HTTP(S)** as the scheme part of the redirect uri, because in that case your application won't be able to intercept the server redirection, as it will be automatically handled by the system browser. Just use a custom scheme, such as "my.test.app" or any other scheme you want.
+
 ## Android ##
 
 If Android is one of your targets, you must first set the *minSdkVersion* in the *build.gradle* file:
