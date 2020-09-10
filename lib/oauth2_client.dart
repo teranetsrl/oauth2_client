@@ -7,6 +7,8 @@ import 'package:oauth2_client/src/oauth2_utils.dart';
 import 'package:oauth2_client/src/web_auth.dart';
 import 'package:random_string/random_string.dart';
 
+import 'access_token_response.dart';
+
 /// Base class that implements OAuth2 authorization flows.
 ///
 /// It currently supports the following grants:
@@ -48,6 +50,25 @@ class OAuth2Client {
       @required this.redirectUri,
       @required this.customUriScheme}) {
     webAuthClient = WebAuth();
+  }
+
+  Future<AccessTokenResponse> getTokenWithImplicitGrantFlow(
+      {@required String clientId, List<String> scopes, httpClient}) async {
+    httpClient ??= http.Client();
+
+    final authorizeUrl =
+        getAuthorizeUrl(clientId: clientId, responseType: 'token');
+
+    // Present the dialog to the user
+    final result = await webAuthClient.authenticate(
+        url: authorizeUrl, callbackUrlScheme: customUriScheme);
+    final fragment = Uri.splitQueryString(Uri.parse(result).fragment);
+
+    return AccessTokenResponse.fromMap({
+      'access_token': fragment['access_token'],
+      'token_type': fragment['token_type'],
+      'http_status_code': 200
+    });
   }
 
   /// Requests an Access Token to the OAuth2 endpoint using the Authorization Code Flow.
@@ -221,13 +242,14 @@ class OAuth2Client {
   /// Generates the url to be used for fetching the authorization code.
   String getAuthorizeUrl(
       {@required String clientId,
+      String responseType = 'code',
       String redirectUri,
       List<String> scopes,
       String state,
       String codeChallenge,
       Map<String, dynamic> customParams}) {
     final params = <String, dynamic>{
-      'response_type': 'code',
+      'response_type': responseType,
       'client_id': clientId
     };
 
