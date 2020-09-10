@@ -7,8 +7,6 @@ import 'package:oauth2_client/src/oauth2_utils.dart';
 import 'package:oauth2_client/src/web_auth.dart';
 import 'package:random_string/random_string.dart';
 
-import 'access_token_response.dart';
-
 /// Base class that implements OAuth2 authorization flows.
 ///
 /// It currently supports the following grants:
@@ -52,21 +50,34 @@ class OAuth2Client {
     webAuthClient = WebAuth();
   }
 
+  /// Requests an Access Token to the OAuth2 endpoint using the Implicit grant flow (https://tools.ietf.org/html/rfc6749#page-31)
   Future<AccessTokenResponse> getTokenWithImplicitGrantFlow(
-      {@required String clientId, List<String> scopes, httpClient}) async {
+      {@required String clientId,
+      List<String> scopes,
+      String state,
+      httpClient}) async {
     httpClient ??= http.Client();
 
-    final authorizeUrl =
-        getAuthorizeUrl(clientId: clientId, responseType: 'token');
+    state ??= randomAlphaNumeric(25);
+
+    final authorizeUrl = getAuthorizeUrl(
+        clientId: clientId,
+        responseType: 'token',
+        scopes: scopes,
+        state: state,
+        redirectUri: redirectUri);
 
     // Present the dialog to the user
     final result = await webAuthClient.authenticate(
         url: authorizeUrl, callbackUrlScheme: customUriScheme);
+
     final fragment = Uri.splitQueryString(Uri.parse(result).fragment);
 
     return AccessTokenResponse.fromMap({
       'access_token': fragment['access_token'],
       'token_type': fragment['token_type'],
+      'scope': fragment['scope'] ?? scopes,
+      'expires_in': fragment['expires_in'],
       'http_status_code': 200
     });
   }
