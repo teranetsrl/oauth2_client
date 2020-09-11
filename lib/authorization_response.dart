@@ -22,14 +22,17 @@ class AuthorizationResponse {
         throw Exception('Expected "code" parameter not found in response');
       }
 
-      state = getQueryParam('state');
-      if (state == null) {
-        throw Exception('Expected "state" parameter not found in response');
-      }
+      // Only validate the state if the checkState was actually supplied
+      if (checkState != null && checkState.isNotEmpty) {
+        state = getQueryParam('state');
+        if (state == null) {
+          throw Exception('Expected "state" parameter not found in response');
+        }
 
-      if (state != checkState) {
-        throw Exception(
-            '"state" parameter in response doesn\'t correspond to the expected value');
+        if (state != checkState) {
+          throw Exception(
+              '"state" parameter in response doesn\'t correspond to the expected value');
+        }
       }
     }
   }
