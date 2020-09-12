@@ -76,10 +76,10 @@ class OAuth2Helper {
     var tknResp = await getTokenFromStorage();
 
     if (tknResp != null) {
-      if (tknResp.refreshNeeded()) {
+      //if (tknResp.refreshNeeded()) {
         //The access token is expired
         tknResp = await refreshToken(tknResp.refreshToken);
-      }
+      //}
     } else {
       tknResp = await fetchToken();
     }
