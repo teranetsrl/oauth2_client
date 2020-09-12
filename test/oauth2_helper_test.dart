@@ -74,6 +74,25 @@ void main() {
         .thenAnswer((_) async => AccessTokenResponse.fromMap(accessTokenMap));
   }
 
+  void _mockGetTokenWithImplicitFlow(oauth2Client,
+      {Map<String, dynamic> respMap}) {
+    var accessTokenMap = <String, dynamic>{
+      'access_token': accessToken,
+      'token_type': tokenType,
+      'scope': scopes,
+      // 'expires_in': expiresIn,
+      'http_status_code': 200
+    };
+
+    if (respMap != null) {
+      respMap.forEach((k, v) => accessTokenMap[k] = v);
+    }
+
+    when(oauth2Client.getTokenWithImplicitGrantFlow(
+            clientId: clientId, scopes: scopes))
+        .thenAnswer((_) async => AccessTokenResponse.fromMap(accessTokenMap));
+  }
+
   void _mockRefreshToken(oauth2Client) {
     when(oauth2Client.refreshToken(refreshToken,
             clientId: clientId, clientSecret: clientSecret))
@@ -642,6 +661,27 @@ void main() {
 
       expect(tknResp.isValid(), true);
       expect(tknResp.refreshToken, refreshToken);
+    });
+  });
+
+  group('Implicit Grant.', () {
+    test('Implicit flow request', () async {
+      final tokenStorage =
+          TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
+
+      _mockGetTokenWithImplicitFlow(oauth2Client);
+
+      var hlp = OAuth2Helper(oauth2Client, tokenStorage: tokenStorage);
+
+      hlp.setAuthorizationParams(
+          grantType: OAuth2Helper.IMPLICIT_GRANT,
+          clientId: clientId,
+          scopes: scopes);
+
+      var tknResp = await hlp.getToken();
+
+      expect(tknResp.isValid(), true);
+      expect(tknResp.accessToken, accessToken);
     });
   });
 }

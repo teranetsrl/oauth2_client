@@ -260,6 +260,12 @@ class OAuth2Helper {
           throw Exception('Required "clientId" parameter not set');
         }
         break;
+
+      case IMPLICIT_GRANT:
+        if (clientId == null || clientId.isEmpty) {
+          throw Exception('Required "clientId" parameter not set');
+        }
+        break;
     }
   }
 }

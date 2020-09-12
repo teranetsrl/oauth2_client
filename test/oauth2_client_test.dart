@@ -13,11 +13,12 @@ class HttpClientMock extends Mock implements http.Client {}
 void main() {
   final webAuthClient = WebAuthMockClient();
 
-  final customUriScheme = 'myurlscheme:/';
+  // final customUriScheme = 'myurlscheme:/';
+  final customUriScheme = 'myurlscheme';
   final codeVerifier = '12345';
   final codeChallenge = OAuth2Utils.generateCodeChallenge(codeVerifier);
   final authCode = '12345';
-  final redirectUri = 'myurlscheme:/oauth2';
+  final redirectUri = 'myurlscheme://oauth2';
   final clientId = 'myclientid';
   final clientSecret = 'test_secret';
 
@@ -507,6 +508,47 @@ void main() {
           httpClient: httpClient);
 
       expect(tknResponse.isValid(), false);
+    });
+  });
+
+  group('Implicit flow Grant.', () {
+    final oauth2Client = OAuth2Client(
+        authorizeUrl: authorizeUrl,
+        tokenUrl: tokenUrl,
+        redirectUri: redirectUri,
+        customUriScheme: customUriScheme);
+
+    test('Get new token', () async {
+      final httpClient = HttpClientMock();
+
+      final accessToken = '12345';
+
+      final authParams = {
+        'response_type': 'token',
+        'client_id': clientId,
+        'redirect_uri': redirectUri,
+        'state': state,
+        // 'scope': scopes
+      };
+
+      when(webAuthClient.authenticate(
+              url: OAuth2Utils.addParamsToUrl(authorizeUrl, authParams),
+              callbackUrlScheme: customUriScheme))
+          .thenAnswer((_) async =>
+              redirectUri +
+              '#access_token=' +
+              accessToken +
+              '&token_type=bearer&state=' +
+              state);
+
+      final tknResponse = await oauth2Client.getTokenWithImplicitGrantFlow(
+          clientId: clientId,
+          state: state,
+          // List<String> scopes,
+          httpClient: httpClient,
+          webAuthClient: webAuthClient);
+
+      expect(tknResponse.accessToken, accessToken);
     });
   });
 

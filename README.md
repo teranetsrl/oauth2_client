@@ -3,7 +3,7 @@
 # oauth2_client
 Simple Flutter library for interacting with OAuth2 servers. It provides convenience classes for interacting with the "usual suspects" (Google, Facebook, LinkedIn, GitHub), but it's particularly suited for implementing clients for custom OAuth2 servers.
 
-Currently only **Authorization Code** and **Client Credentials** flows are implemented.
+The library handles **Authorization Code**, **Client Credentials** and **Implicit Grant** flows.
 
 # Prerequisites #
 If at all possible, when registering your application on the OAuth provider make sure to **not use HTTP(S)** as the scheme part of the redirect uri, because in that case your application won't intercept the server redirection, as it will be automatically handled by the system browser (at least on Android). Just use a custom scheme, such as "my.test.app" or any other scheme you want.
@@ -68,7 +68,7 @@ Add the library to your *pubspec.yaml* file:
 
 ```dart
 dependencies:
-	oauth2_client: ^1.4.6
+	oauth2_client: ^1.5.0
 ```
 
 # Usage with the helper class #
