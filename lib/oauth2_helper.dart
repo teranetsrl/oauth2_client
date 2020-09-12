@@ -130,8 +130,12 @@ class OAuth2Helper {
   Future<AccessTokenResponse> refreshToken(String refreshToken) async {
     var tknResp;
 
-    tknResp = await client.refreshToken(refreshToken,
-        clientId: clientId, clientSecret: clientSecret);
+    try {
+      tknResp = await client.refreshToken(refreshToken,
+          clientId: clientId, clientSecret: clientSecret);
+    } catch (_) {
+      return await fetchToken();
+    }
 
     if (tknResp == null) {
       throw OAuth2Exception('Unexpected error');
