@@ -6,8 +6,9 @@ Simple Flutter library for interacting with OAuth2 servers. It provides convenie
 Currently only **Authorization Code** and **Client Credentials** flows are implemented.
 
 # Prerequisites #
+If at all possible, when registering your application on the OAuth provider make sure to **not use HTTP(S)** as the scheme part of the redirect uri, because in that case your application won't intercept the server redirection, as it will be automatically handled by the system browser (at least on Android). Just use a custom scheme, such as "my.test.app" or any other scheme you want.
 
-Make sure when registering your application on the OAuth provider to **not use HTTP(S)** as the scheme part of the redirect uri, because in that case your application won't be able to intercept the server redirection, as it will be automatically handled by the system browser. Just use a custom scheme, such as "my.test.app" or any other scheme you want.
+If the OAuth2 server doesn't allow using custom uri schemes and you are developing an Android app, refer to the next section.
 
 ## Android ##
 
@@ -35,6 +36,26 @@ AndroidManifest.xml
 </activity>
 ```
 
+If you want to use an HTTPS url as the redirect uri, you must setup it as an [App Link](https://developer.android.com/training/app-links/index.html).
+First you need to specify both the android:host and android:pathPrefix attributes, as long as the _android:autoVerify="true"_ attribute on the intent-filter tag:
+
+```xml
+<activity android:name="com.linusu.flutter_web_auth.CallbackActivity" >
+	<intent-filter android:label="flutter_web_auth" android:autoVerify="true">
+		<action android:name="android.intent.action.VIEW" />
+		<category android:name="android.intent.category.DEFAULT" />
+		<category android:name="android.intent.category.BROWSABLE" />
+
+		<data android:scheme="https"
+				android:host="www.myapp.com"
+				android:pathPrefix="/oauth2redirect" />
+	</intent-filter>
+</activity>
+```
+
+Then you need to [prove ownership](https://developer.android.com/training/app-links/verify-site-associations) of the domain host by publishing a [Digital Asset Links](https://developers.google.com/digital-asset-links/v1/getting-started) JSON file on your website. This involves generating an [App signing key](https://developer.android.com/studio/publish/app-signing) and signing your app with it.
+
+
 ## iOS ##
 On iOS you need to set the *platform* in the *ios/Podfile* file:
 ```
@@ -47,7 +68,7 @@ Add the library to your *pubspec.yaml* file:
 
 ```dart
 dependencies:
-	oauth2_client: ^1.4.4
+	oauth2_client: ^1.4.6
 ```
 
 # Usage with the helper class #
