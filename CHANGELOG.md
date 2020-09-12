@@ -1,3 +1,6 @@
+## [1.5.0] - 2020/09/12
+* Add implicit grant flow
+
 ## [1.4.6] - 2020/09/03
 * Allow disabling PKCE when using OAuth2Helper
 
