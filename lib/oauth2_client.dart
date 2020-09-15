@@ -91,6 +91,7 @@ class OAuth2Client {
     List<String> scopes,
     String clientSecret,
     bool enablePKCE = true,
+    bool enableState = true,
     String state,
     String codeVerifier,
     Function afterAuthorizationCodeCb,
@@ -114,6 +115,7 @@ class OAuth2Client {
         clientId: clientId,
         scopes: scopes,
         codeChallenge: codeChallenge,
+        enableState: enableState,
         state: state,
         customParams: authCodeParams);
 
@@ -160,13 +162,16 @@ class OAuth2Client {
     @required String clientId,
     List<String> scopes,
     String codeChallenge,
+    bool enableState = true,
     String state,
     Map<String, dynamic> customParams,
     webAuthClient,
   }) async {
     webAuthClient ??= this.webAuthClient;
 
-    state ??= randomAlphaNumeric(25);
+    if (enableState) {
+      state ??= randomAlphaNumeric(25);
+    }
 
     final authorizeUrl = getAuthorizeUrl(
         clientId: clientId,
