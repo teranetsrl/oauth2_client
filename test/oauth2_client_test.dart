@@ -448,6 +448,31 @@ void main() {
             containsPair('accTknparm2', '5'),
           ]));
     });
+
+    test('Disabled state parameter', () async {
+      var authParams = {
+        'response_type': 'code',
+        'client_id': clientId,
+        'redirect_uri': redirectUri,
+        'scope': scopes,
+        'code_challenge': codeChallenge,
+        'code_challenge_method': 'S256'
+      };
+
+      when(webAuthClient.authenticate(
+              url: OAuth2Utils.addParamsToUrl(authorizeUrl, authParams),
+              callbackUrlScheme: customUriScheme))
+          .thenAnswer((_) async => redirectUri + '?code=' + authCode);
+
+      final authResponse = await oauth2Client.requestAuthorization(
+          webAuthClient: webAuthClient,
+          clientId: clientId,
+          scopes: scopes,
+          codeChallenge: codeChallenge,
+          enableState: false);
+
+      expect(authResponse.code, authCode);
+    });
   });
 
   group('Client Credentials Grant.', () {
