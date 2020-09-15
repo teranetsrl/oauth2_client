@@ -38,8 +38,8 @@ class OAuth2Helper {
       this.clientId,
       this.clientSecret,
       this.scopes,
-      this.enablePKCE,
-      this.enableState,
+      this.enablePKCE = true,
+      this.enableState = true,
       this.tokenStorage,
       this.afterAuthorizationCodeCb,
       this.authCodeParams,
@@ -121,7 +121,10 @@ class OAuth2Helper {
           clientId: clientId, clientSecret: clientSecret, scopes: scopes);
     } else if (grantType == IMPLICIT_GRANT) {
       tknResp = await client.getTokenWithImplicitGrantFlow(
-          clientId: clientId, scopes: scopes);
+        clientId: clientId,
+        scopes: scopes,
+        enableState: enableState ?? true,
+      );
     }
 
     if (tknResp != null && tknResp.isValid()) {

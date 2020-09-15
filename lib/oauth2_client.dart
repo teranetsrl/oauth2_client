@@ -54,6 +54,7 @@ class OAuth2Client {
   Future<AccessTokenResponse> getTokenWithImplicitGrantFlow({
     @required String clientId,
     List<String> scopes,
+    bool enableState = true,
     String state,
     httpClient,
     webAuthClient,
@@ -61,12 +62,13 @@ class OAuth2Client {
     httpClient ??= http.Client();
     webAuthClient ??= this.webAuthClient;
 
-    state ??= randomAlphaNumeric(25);
+    if (enableState) state ??= randomAlphaNumeric(25);
 
     final authorizeUrl = getAuthorizeUrl(
         clientId: clientId,
         responseType: 'token',
         scopes: scopes,
+        enableState: enableState,
         state: state,
         redirectUri: redirectUri);
 
@@ -75,6 +77,14 @@ class OAuth2Client {
         url: authorizeUrl, callbackUrlScheme: customUriScheme);
 
     final fragment = Uri.splitQueryString(Uri.parse(result).fragment);
+
+    if (enableState) {
+      final checkState = fragment['state'];
+      if (state != checkState) {
+        throw Exception(
+            '"state" parameter in response doesn\'t correspond to the expected value');
+      }
+    }
 
     return AccessTokenResponse.fromMap({
       'access_token': fragment['access_token'],
@@ -177,6 +187,7 @@ class OAuth2Client {
         clientId: clientId,
         redirectUri: redirectUri,
         scopes: scopes,
+        enableState: enableState,
         state: state,
         codeChallenge: codeChallenge,
         customParams: customParams);
@@ -264,6 +275,7 @@ class OAuth2Client {
       String responseType = 'code',
       String redirectUri,
       List<String> scopes,
+      bool enableState = true,
       String state,
       String codeChallenge,
       Map<String, dynamic> customParams}) {
@@ -278,7 +290,9 @@ class OAuth2Client {
 
     if (scopes != null && scopes.isNotEmpty) params['scope'] = scopes;
 
-    if (state != null && state.isNotEmpty) params['state'] = state;
+    if (enableState && state != null && state.isNotEmpty) {
+      params['state'] = state;
+    }
 
     if (codeChallenge != null && codeChallenge.isNotEmpty) {
       params['code_challenge'] = codeChallenge;
