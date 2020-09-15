@@ -1,3 +1,7 @@
+## [1.5.1] - 2020/09/15
+* Made "state" parameter optional
+* Fixes (refreshToken)
+
 ## [1.5.0] - 2020/09/12
 * Add implicit grant flow
 
