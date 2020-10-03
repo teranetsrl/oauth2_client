@@ -256,6 +256,41 @@ class OAuth2Helper {
     return resp;
   }
 
+  /// Performs a delete request to the specified [url], adding the authorization token.
+  ///
+  /// If no token already exists, or if it is exipired, a new one is requested.
+  Future<http.Response> delete(String url,
+      {Map<String, String> headers, httpClient}) async {
+    httpClient ??= http.Client();
+
+    headers ??= {};
+
+    http.Response resp;
+
+    var tknResp = await getToken();
+
+    try {
+      headers['Authorization'] = 'Bearer ' + tknResp.accessToken;
+      resp = await httpClient.delete(url, headers: headers);
+
+      if (resp.statusCode == 401) {
+        if (tknResp.hasRefreshToken()) {
+          tknResp = await refreshToken(tknResp.refreshToken);
+        } else {
+          tknResp = await fetchToken();
+        }
+
+        if (tknResp != null) {
+          headers['Authorization'] = 'Bearer ' + tknResp.accessToken;
+          resp = await httpClient.delete(url, headers: headers);
+        }
+      }
+    } catch (e) {
+      rethrow;
+    }
+    return resp;
+  }
+
   void _validateAuthorizationParams() {
     switch (grantType) {
       case AUTHORIZATION_CODE:
