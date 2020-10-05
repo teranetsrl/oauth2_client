@@ -262,7 +262,7 @@ print(tknResp.expirationDate);
 print(tknResp.scope);
 ```
 
-Apart from the order, the printed scopes should correspond **exactly** to the one you requestes.
+Apart from the order, the printed scopes should correspond **exactly** to the ones you requested.
 
 ### Can I use https instead of a custom scheme? ###
 
