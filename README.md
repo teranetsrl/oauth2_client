@@ -36,25 +36,7 @@ AndroidManifest.xml
 </activity>
 ```
 
-If you want to use an HTTPS url as the redirect uri, you must setup it as an [App Link](https://developer.android.com/training/app-links/index.html).
-First you need to specify both the android:host and android:pathPrefix attributes, as long as the _android:autoVerify="true"_ attribute on the intent-filter tag:
-
-```xml
-<activity android:name="com.linusu.flutter_web_auth.CallbackActivity" >
-	<intent-filter android:label="flutter_web_auth" android:autoVerify="true">
-		<action android:name="android.intent.action.VIEW" />
-		<category android:name="android.intent.category.DEFAULT" />
-		<category android:name="android.intent.category.BROWSABLE" />
-
-		<data android:scheme="https"
-				android:host="www.myapp.com"
-				android:pathPrefix="/oauth2redirect" />
-	</intent-filter>
-</activity>
-```
-
-Then you need to [prove ownership](https://developer.android.com/training/app-links/verify-site-associations) of the domain host by publishing a [Digital Asset Links](https://developers.google.com/digital-asset-links/v1/getting-started) JSON file on your website. This involves generating an [App signing key](https://developer.android.com/studio/publish/app-signing) and signing your app with it.
-
+See the [FAQ](#faq) section if you want to use an HTTPS url as the redirect uri.
 
 ## iOS ##
 On iOS you need to set the *platform* in the *ios/Podfile* file:
@@ -250,3 +232,57 @@ class MyOAuth2Client extends OAuth2Client {
 
 ## Open ID support ##
 Open ID Connect is currently in development. Stay tuned for updates!
+
+## <a name="faqe"></a>FAQ ##
+
+### Tokens are not getting stored! ###
+If when using the helper class the tokens seem to not getting stored, it could be that the requested scopes differs from those returned by the Authorization server.
+
+OAuth2 specs state that the server could optionally return the granted scopes. The OAuth2Helper, when storing an access token, keeps track of the scopes it has been granted for, so the next time a token is needed for one or more of those scopes, it will be readily available without performing another authorization flow.
+
+If the client requests an authorization grant for scopes "A" and "B", but the server for some reason returns a token valid for scope "A" only, that token will be stored along with scope "A", and not "B".
+This means that the next time the client will need a token for scopes "A" and "B", the helper will check its storage looking for a token for both "A" and "B", but will only find a token valid for "A", so it will start a new authorization process.
+
+To verify that the requested scopes are really the ones granted on the server, you can use something like the following:
+
+```dart
+this._oauth2Client = OAuth2Client(
+  authorizeUrl: <YOUR_AUTHORIZE_URL>,
+  tokenUrl: <YOUR_TOKEN_URL>,
+  redirectUri: <YOUR_REDIRECT_URI>,
+  customUriScheme: <YOUR_CUSTOM_SCHEME>);
+
+var tknResp = await client.getTokenWithAuthCodeFlow(
+  clientId: <YOUR_CLIENT_ID>,
+  scopes: [
+	  <LIST_OF_SCOPES>
+  ]);
+
+print(tknResp.httpStatusCode);
+print(tknResp.error);
+print(tknResp.expirationDate);
+print(tknResp.scope);
+```
+
+Apart from the order, the printed scopes should correspond **exactly** to the one you requestes.
+
+### Can I use https instead of a custom scheme? ###
+
+If you want to use an HTTPS url as the redirect uri, you must setup it as an [App Link](https://developer.android.com/training/app-links/index.html).
+First you need to specify both the android:host and android:pathPrefix attributes, as long as the _android:autoVerify="true"_ attribute in the intent-filter tag inside the _AndroidManifest.xml_:
+
+```xml
+<activity android:name="com.linusu.flutter_web_auth.CallbackActivity" >
+	<intent-filter android:label="flutter_web_auth" android:autoVerify="true">
+		<action android:name="android.intent.action.VIEW" />
+		<category android:name="android.intent.category.DEFAULT" />
+		<category android:name="android.intent.category.BROWSABLE" />
+
+		<data android:scheme="https"
+				android:host="www.myapp.com"
+				android:pathPrefix="/oauth2redirect" />
+	</intent-filter>
+</activity>
+```
+
+Then you need to [prove ownership](https://developer.android.com/training/app-links/verify-site-associations) of the domain host by publishing a [Digital Asset Links](https://developers.google.com/digital-asset-links/v1/getting-started) JSON file on your website. This involves generating an [App signing key](https://developer.android.com/studio/publish/app-signing) and signing your app with it.
