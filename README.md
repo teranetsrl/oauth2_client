@@ -6,9 +6,9 @@ Simple Flutter library for interacting with OAuth2 servers. It provides convenie
 The library handles **Authorization Code**, **Client Credentials** and **Implicit Grant** flows.
 
 # Prerequisites #
-If at all possible, when registering your application on the OAuth provider make sure to **not use HTTP(S)** as the scheme part of the redirect uri, because in that case your application won't intercept the server redirection, as it will be automatically handled by the system browser (at least on Android). Just use a custom scheme, such as "my.test.app" or any other scheme you want.
+If at all possible, when registering your application on the OAuth provider **try not to use HTTPS** as the scheme part of the redirect uri, because in that case your application won't intercept the server redirection, as it will be automatically handled by the system browser (at least on Android). Just use a custom scheme, such as "my.test.app" or any other scheme you want.
 
-If the OAuth2 server doesn't allow using custom uri schemes and you are developing an Android app, refer to the next section.
+If the OAuth2 server **allows only HTTPS** uri schemes and you are developing an Android app, refer to the [FAQ](#faq) section.
 
 ## Android ##
 
@@ -35,8 +35,6 @@ AndroidManifest.xml
 	</intent-filter>
 </activity>
 ```
-
-See the [FAQ](#faq) section if you want to use an HTTPS url as the redirect uri.
 
 ## iOS ##
 On iOS you need to set the *platform* in the *ios/Podfile* file:
@@ -246,7 +244,7 @@ This means that the next time the client will need a token for scopes "A" and "B
 To verify that the requested scopes are really the ones granted on the server, you can use something like the following:
 
 ```dart
-this._oauth2Client = OAuth2Client(
+var client = OAuth2Client(
   authorizeUrl: <YOUR_AUTHORIZE_URL>,
   tokenUrl: <YOUR_TOKEN_URL>,
   redirectUri: <YOUR_REDIRECT_URI>,
