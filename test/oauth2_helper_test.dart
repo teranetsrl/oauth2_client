@@ -395,6 +395,69 @@ void main() {
           {'Authorization': 'Bearer test_token_renewed'});
     });
 
+    test('Test DELETE method with custom headers', () async {
+      final tokenStorage =
+          TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
+
+      _mockGetTokenWithAuthCodeFlow(oauth2Client);
+      _mockRefreshToken(oauth2Client);
+
+      clearInteractions(httpClient);
+
+      when(httpClient.delete('https://my.test.url',
+              headers: captureAnyNamed('headers')))
+          .thenAnswer(
+              (_) async => http.Response('{"error": "invalid_token"}', 401));
+
+      var hlp = OAuth2Helper(oauth2Client, tokenStorage: tokenStorage);
+
+      hlp.setAuthorizationParams(
+          grantType: OAuth2Helper.AUTHORIZATION_CODE,
+          clientId: clientId,
+          clientSecret: clientSecret,
+          scopes: scopes);
+
+      await hlp.delete('https://my.test.url',
+          httpClient: httpClient, headers: {'TestHeader': 'test'});
+
+      expect(
+          verify(httpClient.delete('https://my.test.url',
+                  headers: captureAnyNamed('headers')))
+              .captured[0],
+          {'TestHeader': 'test', 'Authorization': 'Bearer test_token_renewed'});
+    });
+
+    test('Test POST method without custom headers', () async {
+      final tokenStorage =
+          TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
+
+      _mockGetTokenWithAuthCodeFlow(oauth2Client);
+      _mockRefreshToken(oauth2Client);
+
+      clearInteractions(httpClient);
+
+      when(httpClient.delete('https://my.test.url',
+              headers: captureAnyNamed('headers')))
+          .thenAnswer(
+              (_) async => http.Response('{"error": "invalid_token"}', 401));
+
+      var hlp = OAuth2Helper(oauth2Client, tokenStorage: tokenStorage);
+
+      hlp.setAuthorizationParams(
+          grantType: OAuth2Helper.AUTHORIZATION_CODE,
+          clientId: clientId,
+          clientSecret: clientSecret,
+          scopes: scopes);
+
+      await hlp.delete('https://my.test.url', httpClient: httpClient);
+
+      expect(
+          verify(httpClient.delete('https://my.test.url',
+                  headers: captureAnyNamed('headers')))
+              .captured[0],
+          {'Authorization': 'Bearer test_token_renewed'});
+    });
+
     test('Token revocation', () async {
       final tknResp = AccessTokenResponse.fromMap({
         'access_token': accessToken,
