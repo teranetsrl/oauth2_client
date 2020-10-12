@@ -80,11 +80,10 @@ void main() {
         'redirect_uri': redirectUri,
         'client_id': clientId,
         'code_verifier': codeVerifier,
-        // 'client_secret': clientSecret
       };
 
-      when(httpClient.post(tokenUrl, body: tokenParams))
-          // body: captureAnyNamed('body'))) //tokenParams))
+      when(httpClient.post(tokenUrl,
+              body: tokenParams, headers: captureAnyNamed('headers')))
           .thenAnswer((_) async => http.Response(
               '{"access_token": "' +
                   accessToken +
@@ -97,10 +96,58 @@ void main() {
           httpClient: httpClient,
           code: authCode,
           clientId: clientId,
-          // clientSecret: clientSecret,
           codeVerifier: codeVerifier);
 
+      expect(
+          verify(httpClient.post(tokenUrl,
+                  body: tokenParams, headers: captureAnyNamed('headers')))
+              .captured[0],
+          {});
+
       expect(tknResponse.accessToken, accessToken);
+    });
+
+    test('Fetch Access Token with custom headers', () async {
+      final httpClient = HttpClientMock();
+
+      oauth2Client.accessTokenRequestHeaders = {'test': '42'};
+
+      final accessToken = '12345';
+      final refreshToken = '54321';
+
+      var tokenParams = {
+        'grant_type': 'authorization_code',
+        'code': authCode,
+        'redirect_uri': redirectUri,
+        'client_id': clientId,
+        'code_verifier': codeVerifier,
+      };
+
+      when(httpClient.post(tokenUrl,
+              body: tokenParams, headers: captureAnyNamed('headers')))
+          .thenAnswer((_) async => http.Response(
+              '{"access_token": "' +
+                  accessToken +
+                  '", "token_type": "Bearer", "refresh_token": "' +
+                  refreshToken +
+                  '", "expires_in": 3600}',
+              200));
+
+      final tknResponse = await oauth2Client.requestAccessToken(
+          httpClient: httpClient,
+          code: authCode,
+          clientId: clientId,
+          codeVerifier: codeVerifier);
+
+      expect(
+          verify(httpClient.post(tokenUrl,
+                  body: tokenParams, headers: captureAnyNamed('headers')))
+              .captured[0],
+          {'test': '42'});
+
+      expect(tknResponse.accessToken, accessToken);
+
+      oauth2Client.accessTokenRequestHeaders = {};
     });
 
     test('Error fetching Access Token', () async {
@@ -115,7 +162,8 @@ void main() {
         // 'client_secret': clientSecret
       };
 
-      when(httpClient.post(tokenUrl, body: tokenParams))
+      when(httpClient.post(tokenUrl,
+              body: tokenParams, headers: captureAnyNamed('headers')))
           .thenAnswer((_) async => http.Response('', 404));
 
       final tknResponse = await oauth2Client.requestAccessToken(
@@ -154,8 +202,9 @@ void main() {
         // 'client_secret': clientSecret
       };
 
-      when(httpClient.post(tokenUrl, body: tokenParams)).thenAnswer((_) async =>
-          http.Response(
+      when(httpClient.post(tokenUrl,
+              body: tokenParams, headers: captureAnyNamed('headers')))
+          .thenAnswer((_) async => http.Response(
               '{"access_token": "' +
                   accessToken +
                   '", "token_type": "Bearer", "refresh_token": "' +
@@ -206,7 +255,8 @@ void main() {
         // 'client_secret': clientSecret
       };
 
-      when(httpClient.post('https://test.token.url', body: tokenParams))
+      when(httpClient.post('https://test.token.url',
+              body: tokenParams, headers: captureAnyNamed('headers')))
           .thenAnswer((_) async => http.Response(
               '{"access_token": "' +
                   accessToken +
@@ -240,23 +290,31 @@ void main() {
     test('Refresh token', () async {
       final httpClient = HttpClientMock();
 
-      when(httpClient.post(tokenUrl, body: {
-        'grant_type': 'refresh_token',
-        'refresh_token': refreshToken,
-        'client_id': clientId,
-        'client_secret': clientSecret
-      })).thenAnswer((_) async => http.Response(
-          '{"access_token": "' +
-              accessToken +
-              '", "token_type": "Bearer", "refresh_token": "' +
-              refreshToken +
-              '", "expires_in": 3600}',
-          200));
+      when(httpClient.post(tokenUrl,
+              body: {
+                'grant_type': 'refresh_token',
+                'refresh_token': refreshToken,
+              },
+              headers: captureAnyNamed('headers')))
+          .thenAnswer((_) async => http.Response(
+              '{"access_token": "' +
+                  accessToken +
+                  '", "token_type": "Bearer", "refresh_token": "' +
+                  refreshToken +
+                  '", "expires_in": 3600}',
+              200));
 
       var resp = await oauth2Client.refreshToken(refreshToken,
           clientId: clientId,
           clientSecret: clientSecret,
           httpClient: httpClient);
+
+      expect(
+          verify(httpClient.post(tokenUrl,
+                  body: captureAnyNamed('body'),
+                  headers: captureAnyNamed('headers')))
+              .captured[1],
+          {'Authorization': 'Basic bXljbGllbnRpZDp0ZXN0X3NlY3JldA=='});
 
       expect(resp.isValid(), true);
       expect(resp.accessToken, accessToken);
@@ -265,17 +323,25 @@ void main() {
     test('Error in refreshing token', () async {
       final httpClient = HttpClientMock();
 
-      when(httpClient.post(tokenUrl, body: {
-        'grant_type': 'refresh_token',
-        'refresh_token': refreshToken,
-        'client_id': clientId,
-        'client_secret': clientSecret
-      })).thenAnswer((_) async => http.Response('', 404));
+      when(httpClient.post(tokenUrl,
+              body: {
+                'grant_type': 'refresh_token',
+                'refresh_token': refreshToken,
+              },
+              headers: captureAnyNamed('headers')))
+          .thenAnswer((_) async => http.Response('', 404));
 
       var resp = await oauth2Client.refreshToken(refreshToken,
           clientId: clientId,
           clientSecret: clientSecret,
           httpClient: httpClient);
+
+      expect(
+          verify(httpClient.post(tokenUrl,
+                  body: captureAnyNamed('body'),
+                  headers: captureAnyNamed('headers')))
+              .captured[1],
+          {'Authorization': 'Basic bXljbGllbnRpZDp0ZXN0X3NlY3JldA=='});
 
       expect(resp.isValid(), false);
     });
@@ -393,25 +459,19 @@ void main() {
 
     test('Token url params (3/5)', () {
       final params = oauth2Client.getTokenUrlParams(
-          code: authorizationCode,
-          redirectUri: redirectUri,
-          clientId: clientId);
+          code: authorizationCode, redirectUri: redirectUri);
 
       expect(
           params,
           allOf(
               containsPair('grant_type', 'authorization_code'),
               containsPair('code', authorizationCode),
-              containsPair('redirect_uri', redirectUri),
-              containsPair('client_id', clientId)));
+              containsPair('redirect_uri', redirectUri)));
     });
 
     test('Token url params (4/5)', () {
       final params = oauth2Client.getTokenUrlParams(
-          code: authorizationCode,
-          redirectUri: redirectUri,
-          clientId: clientId,
-          clientSecret: clientSecret);
+          code: authorizationCode, redirectUri: redirectUri);
 
       expect(
           params,
@@ -419,8 +479,6 @@ void main() {
             containsPair('grant_type', 'authorization_code'),
             containsPair('code', authorizationCode),
             containsPair('redirect_uri', redirectUri),
-            containsPair('client_id', clientId),
-            containsPair('client_secret', clientSecret),
           ));
     });
 
@@ -430,8 +488,6 @@ void main() {
       final params = oauth2Client.getTokenUrlParams(
           code: authorizationCode,
           redirectUri: redirectUri,
-          clientId: clientId,
-          clientSecret: clientSecret,
           codeVerifier: verifier,
           customParams: {'accTknparm1': 'test1', 'accTknparm2': '5'});
 
@@ -441,8 +497,8 @@ void main() {
             containsPair('grant_type', 'authorization_code'),
             containsPair('code', authorizationCode),
             containsPair('redirect_uri', redirectUri),
-            containsPair('client_id', clientId),
-            containsPair('client_secret', clientSecret),
+            // containsPair('client_id', clientId),
+            // containsPair('client_secret', clientSecret),
             containsPair('code_verifier', verifier),
             containsPair('accTknparm1', 'test1'),
             containsPair('accTknparm2', '5'),
@@ -490,13 +546,12 @@ void main() {
 
       final authParams = {
         'grant_type': 'client_credentials',
-        'client_id': clientId,
-        'client_secret': clientSecret,
         // 'scope': scopes
       };
 
-      when(httpClient.post(tokenUrl, body: authParams)).thenAnswer((_) async =>
-          http.Response(
+      when(httpClient.post(tokenUrl,
+              body: authParams, headers: captureAnyNamed('headers')))
+          .thenAnswer((_) async => http.Response(
               '{"access_token": "' +
                   accessToken +
                   '", "token_type": "Bearer", "refresh_token": "' +
@@ -510,6 +565,13 @@ void main() {
           // List<String> scopes,
           httpClient: httpClient);
 
+      expect(
+          verify(httpClient.post(tokenUrl,
+                  body: captureAnyNamed('body'),
+                  headers: captureAnyNamed('headers')))
+              .captured[1],
+          {'Authorization': 'Basic bXljbGllbnRpZDp0ZXN0X3NlY3JldA=='});
+
       expect(tknResponse.accessToken, accessToken);
     });
 
@@ -518,12 +580,11 @@ void main() {
 
       final authParams = {
         'grant_type': 'client_credentials',
-        'client_id': clientId,
-        'client_secret': clientSecret,
         // 'scope': scopes
       };
 
-      when(httpClient.post(tokenUrl, body: authParams))
+      when(httpClient.post(tokenUrl,
+              body: authParams, headers: captureAnyNamed('headers')))
           .thenAnswer((_) async => http.Response('', 404));
 
       final tknResponse = await oauth2Client.getTokenWithClientCredentialsFlow(
@@ -531,6 +592,13 @@ void main() {
           clientSecret: clientSecret,
           // List<String> scopes,
           httpClient: httpClient);
+
+      expect(
+          verify(httpClient.post(tokenUrl,
+                  body: captureAnyNamed('body'),
+                  headers: captureAnyNamed('headers')))
+              .captured[1],
+          {'Authorization': 'Basic bXljbGllbnRpZDp0ZXN0X3NlY3JldA=='});
 
       expect(tknResponse.isValid(), false);
     });

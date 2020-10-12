@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 import 'package:oauth2_client/access_token_response.dart';
 import 'package:oauth2_client/authorization_response.dart';
@@ -151,17 +153,16 @@ class OAuth2Client {
       @required String clientSecret,
       List<String> scopes,
       httpClient}) async {
-    httpClient ??= http.Client();
-
-    var params = <String, String>{
-      'grant_type': 'client_credentials',
-      'client_id': clientId,
-      'client_secret': clientSecret
-    };
+    var params = <String, String>{'grant_type': 'client_credentials'};
 
     if (scopes != null) params['scope'] = scopes.map((s) => s.trim()).join('+');
 
-    http.Response response = await httpClient.post(tokenUrl, body: params);
+    var response = await _performAuthorizedRequest(
+        url: tokenUrl,
+        clientId: clientId,
+        clientSecret: clientSecret,
+        params: params,
+        httpClient: httpClient);
 
     return AccessTokenResponse.fromHttpResponse(response,
         requestedScopes: scopes);
@@ -208,18 +209,20 @@ class OAuth2Client {
       List<String> scopes,
       Map<String, dynamic> customParams,
       httpClient}) async {
-    httpClient ??= http.Client();
-
-    final body = getTokenUrlParams(
+    final params = getTokenUrlParams(
         code: code,
         redirectUri: redirectUri,
-        clientId: clientId,
-        clientSecret: clientSecret,
         codeVerifier: codeVerifier,
         customParams: customParams);
 
-    var response = await httpClient.post(tokenUrl,
-        body: body, headers: _accessTokenRequestHeaders);
+    var response = await _performAuthorizedRequest(
+        url: tokenUrl,
+        clientId: clientId,
+        clientSecret: clientSecret,
+        params: params,
+        headers: _accessTokenRequestHeaders,
+        httpClient: httpClient);
+
     return AccessTokenResponse.fromHttpResponse(response,
         requestedScopes: scopes);
   }
@@ -227,15 +230,14 @@ class OAuth2Client {
   /// Refreshes an Access Token issuing a refresh_token grant to the OAuth2 server.
   Future<AccessTokenResponse> refreshToken(String refreshToken,
       {httpClient, String clientId, String clientSecret}) async {
-    httpClient ??= http.Client();
+    final Map params = getRefreshUrlParams(refreshToken: refreshToken);
 
-    final Map body = getRefreshUrlParams(
-        refreshToken: refreshToken,
+    var response = await _performAuthorizedRequest(
+        url: _getRefreshUrl(),
         clientId: clientId,
-        clientSecret: clientSecret);
-
-    http.Response response =
-        await httpClient.post(_getRefreshUrl(), body: body);
+        clientSecret: clientSecret,
+        params: params,
+        httpClient: httpClient);
 
     return AccessTokenResponse.fromHttpResponse(response);
   }
@@ -310,8 +312,6 @@ class OAuth2Client {
   Map<String, dynamic> getTokenUrlParams(
       {@required String code,
       String redirectUri,
-      String clientId,
-      String clientSecret,
       String codeVerifier,
       Map<String, dynamic> customParams}) {
     final params = <String, dynamic>{
@@ -323,13 +323,14 @@ class OAuth2Client {
       params['redirect_uri'] = redirectUri;
     }
 
-    if (clientId != null && clientId.isNotEmpty) {
-      params['client_id'] = clientId;
+/*
+    //If a client secret has been specified, it will be sent in the "Authorization" header instead of a body parameter...
+    if (clientSecret == null || clientSecret.isEmpty) {
+      if (clientId != null && clientId.isNotEmpty) {
+        params['client_id'] = clientId;
+      }
     }
-
-    if (clientSecret != null && clientSecret.isNotEmpty) {
-      params['client_secret'] = clientSecret;
-    }
+*/
 
     if (codeVerifier != null && codeVerifier.isNotEmpty) {
       params['code_verifier'] = codeVerifier;
@@ -342,6 +343,50 @@ class OAuth2Client {
     return params;
   }
 
+  /// Performs a post request to the specified [url],
+  /// adding authentication credentials as described here: https://tools.ietf.org/html/rfc6749#section-2.3
+  Future<http.Response> _performAuthorizedRequest(
+      {@required String url,
+      @required String clientId,
+      String clientSecret,
+      Map params,
+      Map<String, String> headers,
+      httpClient}) async {
+    httpClient ??= http.Client();
+
+    headers ??= {};
+
+    //If a client secret has been specified, it will be sent in the "Authorization" header instead of a body parameter...
+    if (clientSecret == null || clientSecret.isEmpty) {
+      if (clientId != null && clientId.isNotEmpty) {
+        params['client_id'] = clientId;
+      }
+    } else {
+      var authHeaders = getAuthorizationHeader(
+          clientId: clientId, clientSecret: clientSecret);
+      headers.addAll(authHeaders);
+    }
+
+    var response = await httpClient.post(url, body: params, headers: headers);
+
+    return response;
+  }
+
+  Map<String, String> getAuthorizationHeader(
+      {String clientId, String clientSecret}) {
+    var headers = <String, String>{};
+
+    if ((clientId != null && clientId.isNotEmpty) &&
+        (clientSecret != null && clientSecret.isNotEmpty)) {
+      var credentials =
+          base64.encode(utf8.encode(clientId + ':' + clientSecret));
+
+      headers['Authorization'] = 'Basic ' + credentials;
+    }
+
+    return headers;
+  }
+
   /// Returns the parameters needed for the refresh token request
   Map<String, String> getRefreshUrlParams(
       {@required String refreshToken, String clientId, String clientSecret}) {
@@ -350,6 +395,12 @@ class OAuth2Client {
       'refresh_token': refreshToken
     };
 
+/*
+    if (clientSecret == null || clientSecret.isEmpty) {
+      if (clientId != null && clientId.isNotEmpty) {
+        params['client_id'] = clientId;
+      }
+    }
     if (clientId != null && clientId.isNotEmpty) {
       params['client_id'] = clientId;
     }
@@ -357,6 +408,7 @@ class OAuth2Client {
     if (clientSecret != null && clientSecret.isNotEmpty) {
       params['client_secret'] = clientSecret;
     }
+*/
 
     return params;
   }
