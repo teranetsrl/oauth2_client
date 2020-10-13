@@ -20,7 +20,9 @@ class AccessTokenResponse extends OAuth2Response {
   AccessTokenResponse.fromMap(Map<String, dynamic> map) : super.fromMap(map) {
     if (isValid()) {
       accessToken = map['access_token'];
-      tokenType = map['token_type'];
+      //Some providers (e.g. Slack) don't return the token_type parameter, even if it's required...
+      //In those cases, fallback to "bearer"
+      tokenType = map['token_type'] ?? 'Bearer';
       if (map.containsKey('refresh_token')) refreshToken = map['refresh_token'];
 
       if (map.containsKey('scope')) {
