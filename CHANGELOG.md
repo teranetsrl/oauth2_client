@@ -1,3 +1,8 @@
+## [1.6.0] - 2020/10/13
+* Added "delete" request method to helper class
+* OAuth requests refactorization
+* Fixes (fallback token_type parameter value)
+
 ## [1.5.1] - 2020/09/15
 * Made "state" parameter optional
 * Fixes (refreshToken)
