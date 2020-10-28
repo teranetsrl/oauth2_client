@@ -56,6 +56,207 @@ void main() {
       expect(tknResp.isValid(), true);
     });
 
+    test('Get token with a subset of scopes (1)', () async {
+      final Storage secStorage = SecureStorageMock();
+      final storage = TokenStorage('my_token_url', storage: secStorage);
+
+      var tokens = <String, Map>{
+        'scope1': {
+          'access_token': '1234567890',
+          'token_type': 'Bearer',
+          'expires_in': 3600,
+          'refresh_token': '0987654321',
+          'scope': ['scope1', 'scope2'],
+          'http_status_code': 200
+        }
+      };
+
+      when(secStorage.read('my_token_url'))
+          .thenAnswer((_) async => jsonEncode(tokens));
+
+      var tknResp = await storage.getToken(['scope1']);
+      expect(tknResp.isValid(), true);
+    });
+
+    test('Get token with a subset of scopes (2)', () async {
+      final Storage secStorage = SecureStorageMock();
+      final storage = TokenStorage('my_token_url', storage: secStorage);
+
+      var tokens = <String, Map>{
+        'scope1': {
+          'access_token': '1234567890',
+          'token_type': 'Bearer',
+          'expires_in': 3600,
+          'refresh_token': '0987654321',
+          'scope': ['scope1', 'scope2'],
+          'http_status_code': 200
+        }
+      };
+
+      when(secStorage.read('my_token_url'))
+          .thenAnswer((_) async => jsonEncode(tokens));
+
+      var tknResp2 = await storage.getToken(['scope2']);
+      expect(tknResp2.isValid(), true);
+    });
+
+    test('Get token with a subset of scopes (3)', () async {
+      final Storage secStorage = SecureStorageMock();
+      final storage = TokenStorage('my_token_url', storage: secStorage);
+
+      var tokens = <String, Map>{
+        'scope1': {
+          'access_token': '1234567890',
+          'token_type': 'Bearer',
+          'expires_in': 3600,
+          'refresh_token': '0987654321',
+          'scope': ['scope1', 'scope2'],
+          'http_status_code': 200
+        }
+      };
+
+      when(secStorage.read('my_token_url'))
+          .thenAnswer((_) async => jsonEncode(tokens));
+
+      var tknResp3 = await storage.getToken(['scope1', 'scope2']);
+      expect(tknResp3.isValid(), true);
+    });
+
+    test('Get token with a subset of scopes (4)', () async {
+      final Storage secStorage = SecureStorageMock();
+      final storage = TokenStorage('my_token_url', storage: secStorage);
+
+      var tokens = <String, Map>{
+        'scope1': {
+          'access_token': '1234567890',
+          'token_type': 'Bearer',
+          'expires_in': 3600,
+          'refresh_token': '0987654321',
+          'scope': ['scope1', 'scope2'],
+          'http_status_code': 200
+        }
+      };
+
+      when(secStorage.read('my_token_url'))
+          .thenAnswer((_) async => jsonEncode(tokens));
+
+      var tknResp4 = await storage.getToken(['scope2', 'scope1']);
+      expect(tknResp4.isValid(), true);
+    });
+
+    test('Get token with a subset of scopes (5)', () async {
+      final Storage secStorage = SecureStorageMock();
+      final storage = TokenStorage('my_token_url', storage: secStorage);
+
+      var tokens = <String, Map>{
+        'scope1': {
+          'access_token': '1234567890',
+          'token_type': 'Bearer',
+          'expires_in': 3600,
+          'refresh_token': '0987654321',
+          'scope': ['scope1', 'scope2'],
+          'http_status_code': 200
+        }
+      };
+
+      when(secStorage.read('my_token_url'))
+          .thenAnswer((_) async => jsonEncode(tokens));
+
+      var tknResp4 = await storage.getToken(['scope2', 'scope1', 'scope3']);
+      expect(tknResp4, null);
+    });
+
+    test('Get token with a subset of scopes (6)', () async {
+      final Storage secStorage = SecureStorageMock();
+      final storage = TokenStorage('my_token_url', storage: secStorage);
+
+      var tokens = <String, Map>{
+        'scope1': {
+          'access_token': '1234567890',
+          'token_type': 'Bearer',
+          'expires_in': 3600,
+          'refresh_token': '0987654321',
+          'scope': ['scope1', 'scope2'],
+          'http_status_code': 200
+        }
+      };
+
+      when(secStorage.read('my_token_url'))
+          .thenAnswer((_) async => jsonEncode(tokens));
+
+      var tknResp4 = await storage.getToken(['scope3']);
+      expect(tknResp4, null);
+    });
+
+    test('Get token with a subset of scopes (7)', () async {
+      final Storage secStorage = SecureStorageMock();
+      final storage = TokenStorage('my_token_url', storage: secStorage);
+
+      var tokens = <String, Map>{
+        'scope1': {
+          'access_token': '1234567890',
+          'token_type': 'Bearer',
+          'expires_in': 3600,
+          'refresh_token': '0987654321',
+          'scope': ['scope1', 'scope2'],
+          'http_status_code': 200
+        }
+      };
+
+      when(secStorage.read('my_token_url'))
+          .thenAnswer((_) async => jsonEncode(tokens));
+
+      var tknResp = await storage.getToken(null);
+      expect(tknResp, null);
+
+      var tknResp2 = await storage.getToken([]);
+      expect(tknResp2, null);
+    });
+
+    test('Get token with a subset of scopes (8)', () async {
+      final Storage secStorage = SecureStorageMock();
+      final storage = TokenStorage('my_token_url', storage: secStorage);
+
+      var tokens = <String, Map>{
+        'scope1': {
+          'access_token': '1234567890',
+          'token_type': 'Bearer',
+          'expires_in': 3600,
+          'refresh_token': '0987654321',
+          'scope': null,
+          'http_status_code': 200
+        }
+      };
+
+      when(secStorage.read('my_token_url'))
+          .thenAnswer((_) async => jsonEncode(tokens));
+
+      var tknResp = await storage.getToken(null);
+      expect(tknResp.isValid(), true);
+    });
+
+    test('Get token with a subset of scopes (8)', () async {
+      final Storage secStorage = SecureStorageMock();
+      final storage = TokenStorage('my_token_url', storage: secStorage);
+
+      var tokens = <String, Map>{
+        'scope1': {
+          'access_token': '1234567890',
+          'token_type': 'Bearer',
+          'expires_in': 3600,
+          'refresh_token': '0987654321',
+          'scope': [],
+          'http_status_code': 200
+        }
+      };
+
+      when(secStorage.read('my_token_url'))
+          .thenAnswer((_) async => jsonEncode(tokens));
+
+      var tknResp = await storage.getToken(null);
+      expect(tknResp.isValid(), true);
+    });
+
     test('Insert token', () async {
       final Storage secStorage = SecureStorageMock();
       final storage = TokenStorage('my_token_url', storage: secStorage);

@@ -12,17 +12,40 @@ class TokenStorage {
     storage ??= SecureStorage();
   }
 
+  /// Looks for a token in the storage that matches the required [scopes].
+  /// If a token in the storage has been generated for a superset of the requested scopes, it is considered valid.
   Future<AccessTokenResponse> getToken(List<String> scopes) async {
     AccessTokenResponse tknResp;
 
-    final serTokens = await storage.read(key);
-    final scopeKey = getScopeKey(scopes);
-    if (serTokens != null) {
-      final Map<String, dynamic> tokens = jsonDecode(serTokens);
+    final serializedStoredTokens = await storage.read(key);
 
-      if (tokens.containsKey(scopeKey)) {
-        tknResp = AccessTokenResponse.fromMap(tokens[scopeKey]);
-      }
+    if (serializedStoredTokens != null) {
+      final Map<String, dynamic> storedTokens =
+          jsonDecode(serializedStoredTokens);
+
+      final cleanScopes = clearScopes(scopes);
+
+      var tknMap = storedTokens.values.firstWhere((tkn) {
+        var found = false;
+
+        if (cleanScopes == null || cleanScopes.isEmpty) {
+          //If the scopes are empty, onlty tokens granted to empty scopes are considered valid...
+          found = (tkn['scope'] == null || tkn['scope'].isEmpty);
+        } else {
+          //...Otherwise look for a token granted to a superset of the requested scopes
+          final tknCleanScopes = clearScopes(tkn['scope'].cast<String>());
+
+          if (tknCleanScopes != null) {
+            var s1 = Set.from(tknCleanScopes);
+            var s2 = Set.from(cleanScopes);
+            found = s1.intersection(s2).length == cleanScopes.length;
+          }
+        }
+
+        return found;
+      }, orElse: () => null);
+
+      if (tknMap != null) tknResp = AccessTokenResponse.fromMap(tknMap);
     }
 
     return tknResp;
@@ -63,17 +86,29 @@ class TokenStorage {
     return true;
   }
 
+  List clearScopes(List<String> scopes) {
+    return scopes?.where((element) => element.trim().isNotEmpty)?.toList();
+  }
+
+  List getSortedScopes(List<String> scopes) {
+    var sortedScopes = [];
+
+    var cleanScopes = clearScopes(scopes);
+
+    if (cleanScopes != null) {
+      sortedScopes = cleanScopes.toList()
+        ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+    }
+
+    return sortedScopes;
+  }
+
   String getScopeKey(List<String> scope) {
     var key = '_default_';
 
-    if (scope != null) {
-      scope = scope.where((element) => element.trim().isNotEmpty).toList();
-      if (scope.isNotEmpty) {
-        var sortedScopes = scope.toList()
-          ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
-
-        key = sortedScopes.join('__');
-      }
+    var sortedScopes = getSortedScopes(scope);
+    if (sortedScopes.isNotEmpty) {
+      key = sortedScopes.join('__');
     }
 
     return key;
