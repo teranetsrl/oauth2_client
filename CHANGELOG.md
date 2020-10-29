@@ -1,3 +1,6 @@
+## [1.6.1] - 2020/10/29
+* Changed helper's token retrieval method
+
 ## [1.6.0] - 2020/10/13
 * Added "delete" request method to helper class
 * OAuth requests refactorization
