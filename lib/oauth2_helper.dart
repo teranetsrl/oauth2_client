@@ -13,7 +13,7 @@ import 'package:oauth2_client/src/token_storage.dart';
 /// Moreover it provides methods to perform http post/get calls with automatic Access Token injection in the requests header
 ///
 ///
-class OAuth2Helper {
+class OAuth2Helper extends http.BaseClient {
   static const AUTHORIZATION_CODE = 1;
   static const CLIENT_CREDENTIALS = 2;
   static const IMPLICIT_GRANT = 3;
@@ -32,19 +32,24 @@ class OAuth2Helper {
 
   Map<String, dynamic> authCodeParams;
   Map<String, dynamic> accessTokenParams;
+  http.Client httpClient = http.Client();
 
-  OAuth2Helper(this.client,
-      {this.grantType = AUTHORIZATION_CODE,
-      this.clientId,
-      this.clientSecret,
-      this.scopes,
-      this.enablePKCE = true,
-      this.enableState = true,
-      this.tokenStorage,
-      this.afterAuthorizationCodeCb,
-      this.authCodeParams,
-      this.accessTokenParams}) {
+  OAuth2Helper(
+    this.client, {
+    this.grantType = AUTHORIZATION_CODE,
+    this.clientId,
+    this.clientSecret,
+    this.scopes,
+    this.enablePKCE = true,
+    this.enableState = true,
+    this.tokenStorage,
+    this.afterAuthorizationCodeCb,
+    this.authCodeParams,
+    this.accessTokenParams,
+    this.httpClient,
+  }) {
     tokenStorage ??= TokenStorage(client.tokenUrl);
+    httpClient ??= http.Client();
   }
 
   /// Sets the proper parameters for requesting an authorization token.
@@ -185,112 +190,6 @@ class OAuth2Helper {
     }
   }
 
-  /// Performs a post request to the specified [url], adding the authorization token.
-  ///
-  /// If no token already exists, or if it is exipired, a new one is requested.
-  Future<http.Response> post(String url,
-      {Map<String, String> headers, dynamic body, httpClient}) async {
-    httpClient ??= http.Client();
-
-    headers ??= {};
-
-    http.Response resp;
-
-    var tknResp = await getToken();
-
-    try {
-      headers['Authorization'] = 'Bearer ' + tknResp.accessToken;
-      resp = await httpClient.post(url, body: body, headers: headers);
-
-      if (resp.statusCode == 401) {
-        if (tknResp.hasRefreshToken()) {
-          tknResp = await refreshToken(tknResp.refreshToken);
-        } else {
-          tknResp = await fetchToken();
-        }
-
-        if (tknResp != null) {
-          headers['Authorization'] = 'Bearer ' + tknResp.accessToken;
-          resp = await httpClient.post(url, body: body, headers: headers);
-        }
-      }
-    } catch (e) {
-      rethrow;
-    }
-    return resp;
-  }
-
-  /// Performs a get request to the specified [url], adding the authorization token.
-  ///
-  /// If no token already exists, or if it is exipired, a new one is requested.
-  Future<http.Response> get(String url,
-      {Map<String, String> headers, httpClient}) async {
-    httpClient ??= http.Client();
-
-    headers ??= {};
-
-    http.Response resp;
-
-    var tknResp = await getToken();
-
-    try {
-      headers['Authorization'] = 'Bearer ' + tknResp.accessToken;
-      resp = await httpClient.get(url, headers: headers);
-
-      if (resp.statusCode == 401) {
-        if (tknResp.hasRefreshToken()) {
-          tknResp = await refreshToken(tknResp.refreshToken);
-        } else {
-          tknResp = await fetchToken();
-        }
-
-        if (tknResp != null) {
-          headers['Authorization'] = 'Bearer ' + tknResp.accessToken;
-          resp = await httpClient.get(url, headers: headers);
-        }
-      }
-    } catch (e) {
-      rethrow;
-    }
-
-    return resp;
-  }
-
-  /// Performs a delete request to the specified [url], adding the authorization token.
-  ///
-  /// If no token already exists, or if it is exipired, a new one is requested.
-  Future<http.Response> delete(String url,
-      {Map<String, String> headers, httpClient}) async {
-    httpClient ??= http.Client();
-
-    headers ??= {};
-
-    http.Response resp;
-
-    var tknResp = await getToken();
-
-    try {
-      headers['Authorization'] = 'Bearer ' + tknResp.accessToken;
-      resp = await httpClient.delete(url, headers: headers);
-
-      if (resp.statusCode == 401) {
-        if (tknResp.hasRefreshToken()) {
-          tknResp = await refreshToken(tknResp.refreshToken);
-        } else {
-          tknResp = await fetchToken();
-        }
-
-        if (tknResp != null) {
-          headers['Authorization'] = 'Bearer ' + tknResp.accessToken;
-          resp = await httpClient.delete(url, headers: headers);
-        }
-      }
-    } catch (e) {
-      rethrow;
-    }
-    return resp;
-  }
-
   void _validateAuthorizationParams() {
     switch (grantType) {
       case AUTHORIZATION_CODE:
@@ -314,5 +213,33 @@ class OAuth2Helper {
         }
         break;
     }
+  }
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    var tokenResponse = await getToken();
+
+    request.headers['Authorization'] = 'Bearer ' + tokenResponse.accessToken;
+    var httpResponse = await httpClient.send(request);
+
+    if (httpResponse.statusCode == 401) {
+      if (tokenResponse.hasRefreshToken()) {
+        tokenResponse = await refreshToken(tokenResponse.refreshToken);
+      } else {
+        tokenResponse = await fetchToken();
+      }
+
+      if (tokenResponse != null && request is http.Request) {
+        final clone = http.Request(request.method, request.url);
+        clone.body = request.body;
+        clone.headers.addAll(request.headers);
+        clone.headers['Authorization'] = 'Bearer ' + tokenResponse.accessToken;
+        clone.encoding = request.encoding;
+
+        httpResponse = await httpClient.send(request);
+      }
+    }
+
+    return httpResponse;
   }
 }
