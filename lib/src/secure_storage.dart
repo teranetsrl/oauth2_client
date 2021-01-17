@@ -8,11 +8,13 @@ class SecureStorage extends Storage {
 
   @override
   Future<String> read(String key) async {
-    return await storage.read(key: key);
+    final options = IOSOptions(accessibility: IOSAccessibility.first_unlock);
+    return await storage.read(key: key, iOptions: options);
   }
 
   @override
   Future<void> write(String key, String value) async {
-    return await storage.write(key: key, value: value);
+    final options = IOSOptions(accessibility: IOSAccessibility.first_unlock);
+    return await storage.write(key: key, value: value, iOptions: options);
   }
 }
