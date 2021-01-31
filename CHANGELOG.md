@@ -1,3 +1,7 @@
+## [1.6.2] - 2021/01/31
+* Allows iOS token reading from storage when invoked in background task
+* Small fixes
+
 ## [1.6.1] - 2020/10/29
 * Changed helper's token retrieval method
 
