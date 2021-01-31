@@ -88,8 +88,9 @@ class OAuth2Helper {
       tknResp = await fetchToken();
     }
 
-    if (tknResp != null && tknResp.httpStatusCode != 200) {
-      throw Exception('Provider error ${tknResp.httpStatusCode}: ${tknResp.error}: ${tknResp.errorDescription}');
+    if (tknResp != null && !tknResp.isValid()) {
+      throw Exception(
+          'Provider error ${tknResp.httpStatusCode}: ${tknResp.error}: ${tknResp.errorDescription}');
     }
 
     if (tknResp != null && !tknResp.isBearer()) {
