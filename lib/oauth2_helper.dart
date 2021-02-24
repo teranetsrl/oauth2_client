@@ -190,95 +190,106 @@ class OAuth2Helper {
     }
   }
 
-  /// Performs a post request to the specified [url], adding the authorization token.
+  /// Performs a POST request to the specified [url], adding the authorization token.
   ///
-  /// If no token already exists, or if it is exipired, a new one is requested.
+  /// If no token already exists, or if it is expired, a new one is requested.
   Future<http.Response> post(String url,
-      {Map<String, String> headers, dynamic body, httpClient}) async {
-    httpClient ??= http.Client();
-
-    headers ??= {};
-
-    http.Response resp;
-
-    var tknResp = await getToken();
-
-    try {
-      headers['Authorization'] = 'Bearer ' + tknResp.accessToken;
-      resp = await httpClient.post(url, body: body, headers: headers);
-
-      if (resp.statusCode == 401) {
-        if (tknResp.hasRefreshToken()) {
-          tknResp = await refreshToken(tknResp.refreshToken);
-        } else {
-          tknResp = await fetchToken();
-        }
-
-        if (tknResp != null) {
-          headers['Authorization'] = 'Bearer ' + tknResp.accessToken;
-          resp = await httpClient.post(url, body: body, headers: headers);
-        }
-      }
-    } catch (e) {
-      rethrow;
-    }
-    return resp;
+      {Map<String, String> headers,
+      dynamic body,
+      http.Client httpClient}) async {
+    return _request('POST', url,
+        headers: headers, body: body, httpClient: httpClient);
   }
 
-  /// Performs a get request to the specified [url], adding the authorization token.
+  /// Performs a PUT request to the specified [url], adding the authorization token.
   ///
-  /// If no token already exists, or if it is exipired, a new one is requested.
+  /// If no token already exists, or if it is expired, a new one is requested.
+  Future<http.Response> put(String url,
+      {Map<String, String> headers,
+      dynamic body,
+      http.Client httpClient}) async {
+    return _request('PUT', url,
+        headers: headers, body: body, httpClient: httpClient);
+  }
+
+  /// Performs a PATCH request to the specified [url], adding the authorization token.
+  ///
+  /// If no token already exists, or if it is expired, a new one is requested.
+  Future<http.Response> patch(String url,
+      {Map<String, String> headers,
+      dynamic body,
+      http.Client httpClient}) async {
+    return _request('PATCH', url,
+        headers: headers, body: body, httpClient: httpClient);
+  }
+
+  /// Performs a GET request to the specified [url], adding the authorization token.
+  ///
+  /// If no token already exists, or if it is expired, a new one is requested.
   Future<http.Response> get(String url,
-      {Map<String, String> headers, httpClient}) async {
-    httpClient ??= http.Client();
-
-    headers ??= {};
-
-    http.Response resp;
-
-    var tknResp = await getToken();
-
-    try {
-      headers['Authorization'] = 'Bearer ' + tknResp.accessToken;
-      resp = await httpClient.get(url, headers: headers);
-
-      if (resp.statusCode == 401) {
-        if (tknResp.hasRefreshToken()) {
-          tknResp = await refreshToken(tknResp.refreshToken);
-        } else {
-          tknResp = await fetchToken();
-        }
-
-        if (tknResp != null) {
-          headers['Authorization'] = 'Bearer ' + tknResp.accessToken;
-          resp = await httpClient.get(url, headers: headers);
-        }
-      }
-    } catch (e) {
-      rethrow;
-    }
-
-    return resp;
+      {Map<String, String> headers, http.Client httpClient}) async {
+    return _request('GET', url, headers: headers, httpClient: httpClient);
   }
 
-  /// Performs a delete request to the specified [url], adding the authorization token.
+  /// Performs a DELETE request to the specified [url], adding the authorization token.
   ///
-  /// If no token already exists, or if it is exipired, a new one is requested.
+  /// If no token already exists, or if it is expired, a new one is requested.
   Future<http.Response> delete(String url,
-      {Map<String, String> headers, httpClient}) async {
-    httpClient ??= http.Client();
+      {Map<String, String> headers, http.Client httpClient}) async {
+    return _request('DELETE', url, headers: headers, httpClient: httpClient);
+  }
 
+  /// Performs a HEAD request to the specified [url], adding the authorization token.
+  ///
+  /// If no token already exists, or if it is expired, a new one is requested.
+  Future<http.Response> head(String url,
+      {Map<String, String> headers,
+      dynamic body,
+      http.Client httpClient}) async {
+    return _request('HEAD', url, headers: headers, httpClient: httpClient);
+  }
+
+  /// Common method for making http requests
+  /// Tries to use a previously fetched token, otherwise fetches a new token by means of a refresh flow or by issuing a new authorization flow
+  Future<http.Response> _request(String method, String url,
+      {Map<String, String> headers,
+      dynamic body,
+      http.Client httpClient}) async {
     headers ??= {};
+
+    var sendRequest = (accessToken) async {
+      var resp;
+
+      headers['Authorization'] = 'Bearer ' + accessToken;
+
+      if (method == 'POST') {
+        resp = await httpClient.post(url, body: body, headers: headers);
+      } else if (method == 'PUT') {
+        resp = await httpClient.put(url, body: body, headers: headers);
+      } else if (method == 'PATCH') {
+        resp = await httpClient.patch(url, body: body, headers: headers);
+      } else if (method == 'GET') {
+        resp = await httpClient.get(url, headers: headers);
+      } else if (method == 'DELETE') {
+        resp = await httpClient.delete(url, headers: headers);
+      } else if (method == 'HEAD') {
+        resp = await httpClient.head(url, headers: headers);
+      }
+
+      return resp;
+    };
 
     http.Response resp;
 
+    //Retrieve the current token, or fetches a new one if it is expired
     var tknResp = await getToken();
 
     try {
-      headers['Authorization'] = 'Bearer ' + tknResp.accessToken;
-      resp = await httpClient.delete(url, headers: headers);
+      resp = await sendRequest(tknResp.accessToken);
 
       if (resp.statusCode == 401) {
+        //The token could have been invalidated on the server side
+        //Try to fetch a new token...
         if (tknResp.hasRefreshToken()) {
           tknResp = await refreshToken(tknResp.refreshToken);
         } else {
@@ -286,8 +297,7 @@ class OAuth2Helper {
         }
 
         if (tknResp != null) {
-          headers['Authorization'] = 'Bearer ' + tknResp.accessToken;
-          resp = await httpClient.delete(url, headers: headers);
+          resp = await sendRequest(tknResp.accessToken);
         }
       }
     } catch (e) {

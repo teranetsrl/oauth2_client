@@ -395,6 +395,68 @@ void main() {
           {'Authorization': 'Bearer test_token_renewed'});
     });
 
+    test('Test PUT method', () async {
+      final tokenStorage =
+          TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
+
+      _mockGetTokenWithAuthCodeFlow(oauth2Client);
+      _mockRefreshToken(oauth2Client);
+
+      clearInteractions(httpClient);
+
+      when(httpClient.put('https://my.test.url',
+              headers: captureAnyNamed('headers')))
+          .thenAnswer(
+              (_) async => http.Response('{"error": "invalid_token"}', 401));
+
+      var hlp = OAuth2Helper(oauth2Client, tokenStorage: tokenStorage);
+
+      hlp.setAuthorizationParams(
+          grantType: OAuth2Helper.AUTHORIZATION_CODE,
+          clientId: clientId,
+          clientSecret: clientSecret,
+          scopes: scopes);
+
+      await hlp.put('https://my.test.url', httpClient: httpClient);
+
+      expect(
+          verify(httpClient.put('https://my.test.url',
+                  headers: captureAnyNamed('headers')))
+              .captured[0],
+          {'Authorization': 'Bearer test_token_renewed'});
+    });
+
+    test('Test PATCH method', () async {
+      final tokenStorage =
+          TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
+
+      _mockGetTokenWithAuthCodeFlow(oauth2Client);
+      _mockRefreshToken(oauth2Client);
+
+      clearInteractions(httpClient);
+
+      when(httpClient.patch('https://my.test.url',
+              headers: captureAnyNamed('headers')))
+          .thenAnswer(
+              (_) async => http.Response('{"error": "invalid_token"}', 401));
+
+      var hlp = OAuth2Helper(oauth2Client, tokenStorage: tokenStorage);
+
+      hlp.setAuthorizationParams(
+          grantType: OAuth2Helper.AUTHORIZATION_CODE,
+          clientId: clientId,
+          clientSecret: clientSecret,
+          scopes: scopes);
+
+      await hlp.patch('https://my.test.url', httpClient: httpClient);
+
+      expect(
+          verify(httpClient.patch('https://my.test.url',
+                  headers: captureAnyNamed('headers')))
+              .captured[0],
+          {'Authorization': 'Bearer test_token_renewed'});
+    });
+
     test('Test DELETE method with custom headers', () async {
       final tokenStorage =
           TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
@@ -427,7 +489,7 @@ void main() {
           {'TestHeader': 'test', 'Authorization': 'Bearer test_token_renewed'});
     });
 
-    test('Test POST method without custom headers', () async {
+    test('Test DELETE method without custom headers', () async {
       final tokenStorage =
           TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
 
@@ -453,6 +515,37 @@ void main() {
 
       expect(
           verify(httpClient.delete('https://my.test.url',
+                  headers: captureAnyNamed('headers')))
+              .captured[0],
+          {'Authorization': 'Bearer test_token_renewed'});
+    });
+
+    test('Test HEAD method', () async {
+      final tokenStorage =
+          TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
+
+      _mockGetTokenWithAuthCodeFlow(oauth2Client);
+      _mockRefreshToken(oauth2Client);
+
+      clearInteractions(httpClient);
+
+      when(httpClient.head('https://my.test.url',
+              headers: captureAnyNamed('headers')))
+          .thenAnswer(
+              (_) async => http.Response('{"error": "invalid_token"}', 401));
+
+      var hlp = OAuth2Helper(oauth2Client, tokenStorage: tokenStorage);
+
+      hlp.setAuthorizationParams(
+          grantType: OAuth2Helper.AUTHORIZATION_CODE,
+          clientId: clientId,
+          clientSecret: clientSecret,
+          scopes: scopes);
+
+      await hlp.head('https://my.test.url', httpClient: httpClient);
+
+      expect(
+          verify(httpClient.head('https://my.test.url',
                   headers: captureAnyNamed('headers')))
               .captured[0],
           {'Authorization': 'Bearer test_token_renewed'});
