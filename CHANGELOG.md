@@ -1,3 +1,5 @@
+## [1.7.0] - 2021/02/24
+* Added PUT, PATCH and HEAD methods to the OAuth2Helper class
 ## [1.6.2] - 2021/01/31
 * Allows iOS token reading from storage when invoked in background task
 * Small fixes
