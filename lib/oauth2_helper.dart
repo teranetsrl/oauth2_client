@@ -255,6 +255,8 @@ class OAuth2Helper {
       {Map<String, String> headers,
       dynamic body,
       http.Client httpClient}) async {
+    httpClient ??= http.Client();
+
     headers ??= {};
 
     var sendRequest = (accessToken) async {
