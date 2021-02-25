@@ -74,8 +74,10 @@ class AccessTokenResponse extends OAuth2Response {
       Map respMap = jsonDecode(response.body);
       //From Section 4.2.2. (Access Token Response) of OAuth2 rfc, the "scope" parameter in the Access Token Response is
       //"OPTIONAL, if identical to the scope requested by the client; otherwise, REQUIRED."
-      if ((!respMap.containsKey('scope') || respMap['scope'] == null
-          || respMap['scope'].isEmpty) && requestedScopes != null) {
+      if ((!respMap.containsKey('scope') ||
+              respMap['scope'] == null ||
+              respMap['scope'].isEmpty) &&
+          requestedScopes != null) {
         respMap['scope'] = requestedScopes;
       }
       respMap['http_status_code'] = response.statusCode;
