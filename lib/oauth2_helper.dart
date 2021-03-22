@@ -190,6 +190,10 @@ class OAuth2Helper {
     }
   }
 
+  Future removeAllTokens() async {
+    await tokenStorage.deleteAllTokens();
+  }
+
   /// Performs a POST request to the specified [url], adding the authorization token.
   ///
   /// If no token already exists, or if it is expired, a new one is requested.
