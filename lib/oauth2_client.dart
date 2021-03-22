@@ -367,7 +367,8 @@ class OAuth2Client {
       headers.addAll(authHeaders);
     }
 
-    var response = await httpClient.post(url, body: params, headers: headers);
+    var response =
+        await httpClient.post(Uri.parse(url), body: params, headers: headers);
 
     return response;
   }
@@ -433,7 +434,8 @@ class OAuth2Client {
       if (clientId != null) params['client_id'] = clientId;
       if (clientSecret != null) params['client_secret'] = clientSecret;
 
-      http.Response response = await httpClient.post(revokeUrl, body: params);
+      http.Response response =
+          await httpClient.post(Uri.parse(revokeUrl), body: params);
 
       resp = OAuth2Response.fromHttpResponse(response);
     }

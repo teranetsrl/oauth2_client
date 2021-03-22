@@ -47,7 +47,7 @@ packages:
       name: flutter_secure_storage
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.3.3"
+    version: "3.3.5"
   flutter_web_auth:
     dependency: "direct main"
     description:
@@ -61,7 +61,7 @@ packages:
       name: http
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.12.1"
+    version: "0.12.2"
   http_parser:
     dependency: transitive
     description:
@@ -82,7 +82,7 @@ packages:
       name: oauth2_client
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.2.4"
+    version: "1.7.1"
   path:
     dependency: transitive
     description:
@@ -96,14 +96,14 @@ packages:
       name: pedantic
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.9.0"
+    version: "1.9.2"
   random_string:
     dependency: "direct main"
     description:
       name: random_string
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.1"
+    version: "2.1.0"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -146,3 +146,4 @@ packages:
     version: "2.1.0"
 sdks:
   dart: ">=2.12.0-0 <3.0.0"
+  flutter: ">=1.20.0"
