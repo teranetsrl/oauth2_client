@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import 'oauth2_client.dart';
 
+/// For usage with the [OAuth2Helper] you have to set [useAuthorizationHeader] to [false]
 class ShopifyOAuth2Client extends OAuth2Client {
   ShopifyOAuth2Client({
     @required String shop,
