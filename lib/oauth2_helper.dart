@@ -27,6 +27,7 @@ class OAuth2Helper {
   List<String> scopes;
   bool enablePKCE;
   bool enableState;
+  bool useAuthorizationHeader;
 
   Function afterAuthorizationCodeCb;
 
@@ -43,7 +44,9 @@ class OAuth2Helper {
       this.tokenStorage,
       this.afterAuthorizationCodeCb,
       this.authCodeParams,
-      this.accessTokenParams}) {
+      this.accessTokenParams,
+      this.useAuthorizationHeader = true,
+      }) {
     tokenStorage ??= TokenStorage(client.tokenUrl);
   }
 
@@ -58,7 +61,9 @@ class OAuth2Helper {
       bool enablePKCE,
       bool enableState,
       Map<String, dynamic> authCodeParams,
-      Map<String, dynamic> accessTokenParams}) {
+      Map<String, dynamic> accessTokenParams,
+      bool useAuthorizationHeader,
+      }) {
     this.grantType = grantType;
     this.clientId = clientId;
     this.clientSecret = clientSecret;
@@ -67,6 +72,7 @@ class OAuth2Helper {
     this.enableState = enableState ?? true;
     this.authCodeParams = authCodeParams;
     this.accessTokenParams = accessTokenParams;
+    this.useAuthorizationHeader = useAuthorizationHeader;
 
     _validateAuthorizationParams();
   }
@@ -120,10 +126,14 @@ class OAuth2Helper {
           enableState: enableState ?? true,
           authCodeParams: authCodeParams,
           accessTokenParams: accessTokenParams,
-          afterAuthorizationCodeCb: afterAuthorizationCodeCb);
+          afterAuthorizationCodeCb: afterAuthorizationCodeCb,
+          useAuthorizationHeader: useAuthorizationHeader,
+      );
     } else if (grantType == CLIENT_CREDENTIALS) {
       tknResp = await client.getTokenWithClientCredentialsFlow(
-          clientId: clientId, clientSecret: clientSecret, scopes: scopes);
+          clientId: clientId, clientSecret: clientSecret, scopes: scopes,
+          useAuthorizationHeader: useAuthorizationHeader,
+      );
     } else if (grantType == IMPLICIT_GRANT) {
       tknResp = await client.getTokenWithImplicitGrantFlow(
         clientId: clientId,
@@ -145,7 +155,9 @@ class OAuth2Helper {
 
     try {
       tknResp = await client.refreshToken(refreshToken,
-          clientId: clientId, clientSecret: clientSecret);
+          clientId: clientId, clientSecret: clientSecret,
+          useAuthorizationHeader: useAuthorizationHeader,
+      );
     } catch (_) {
       return await fetchToken();
     }

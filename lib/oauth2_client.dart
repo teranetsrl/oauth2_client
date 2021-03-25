@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:meta/meta.dart';
 import 'package:oauth2_client/access_token_response.dart';
 import 'package:oauth2_client/authorization_response.dart';
-import 'package:meta/meta.dart';
 import 'package:oauth2_client/oauth2_response.dart';
 import 'package:oauth2_client/src/oauth2_utils.dart';
 import 'package:oauth2_client/src/web_auth.dart';
@@ -109,6 +109,7 @@ class OAuth2Client {
     Function afterAuthorizationCodeCb,
     Map<String, dynamic> authCodeParams,
     Map<String, dynamic> accessTokenParams,
+    bool useAuthorizationHeader = true,
     httpClient,
     webAuthClient,
   }) async {
@@ -141,7 +142,9 @@ class OAuth2Client {
           scopes: scopes,
           clientSecret: clientSecret,
           codeVerifier: codeVerifier,
-          customParams: accessTokenParams);
+          customParams: accessTokenParams,
+          useAuthorizationHeader: useAuthorizationHeader,
+      );
     }
 
     return tknResp;
@@ -152,6 +155,7 @@ class OAuth2Client {
       {@required String clientId,
       @required String clientSecret,
       List<String> scopes,
+      bool useAuthorizationHeader,
       httpClient}) async {
     var params = <String, String>{'grant_type': 'client_credentials'};
 
@@ -162,6 +166,7 @@ class OAuth2Client {
         clientId: clientId,
         clientSecret: clientSecret,
         params: params,
+        useAuthorizationHeader: useAuthorizationHeader,
         httpClient: httpClient);
 
     return AccessTokenResponse.fromHttpResponse(response,
@@ -208,6 +213,7 @@ class OAuth2Client {
       String codeVerifier,
       List<String> scopes,
       Map<String, dynamic> customParams,
+      bool useAuthorizationHeader,
       httpClient}) async {
     final params = getTokenUrlParams(
         code: code,
@@ -221,6 +227,7 @@ class OAuth2Client {
         clientSecret: clientSecret,
         params: params,
         headers: _accessTokenRequestHeaders,
+        useAuthorizationHeader: useAuthorizationHeader,
         httpClient: httpClient);
 
     return AccessTokenResponse.fromHttpResponse(response,
@@ -229,7 +236,7 @@ class OAuth2Client {
 
   /// Refreshes an Access Token issuing a refresh_token grant to the OAuth2 server.
   Future<AccessTokenResponse> refreshToken(String refreshToken,
-      {httpClient, String clientId, String clientSecret}) async {
+      {httpClient, String clientId, String clientSecret, bool useAuthorizationHeader,}) async {
     final Map params = getRefreshUrlParams(refreshToken: refreshToken);
 
     var response = await _performAuthorizedRequest(
@@ -237,6 +244,7 @@ class OAuth2Client {
         clientId: clientId,
         clientSecret: clientSecret,
         params: params,
+        useAuthorizationHeader: useAuthorizationHeader,
         httpClient: httpClient);
 
     return AccessTokenResponse.fromHttpResponse(response);
@@ -351,6 +359,7 @@ class OAuth2Client {
       String clientSecret,
       Map params,
       Map<String, String> headers,
+      bool useAuthorizationHeader,
       httpClient}) async {
     httpClient ??= http.Client();
 
@@ -362,9 +371,17 @@ class OAuth2Client {
         params['client_id'] = clientId;
       }
     } else {
-      var authHeaders = getAuthorizationHeader(
-          clientId: clientId, clientSecret: clientSecret);
-      headers.addAll(authHeaders);
+      if (useAuthorizationHeader) {
+        headers.addAll(getAuthorizationHeader(
+          clientId: clientId,
+          clientSecret: clientSecret,
+        ));
+      } else {
+        headers.addAll({
+          'client_id': clientId,
+          'client_secret': clientSecret,
+        });
+      }
     }
 
     var response =
