@@ -377,10 +377,8 @@ class OAuth2Client {
           clientSecret: clientSecret,
         ));
       } else {
-        params.addAll({
-          'client_id': clientId,
-          'client_secret': clientSecret,
-        });
+        params['client_id'] = clientId;
+        params['client_secret'] = clientSecret;
       }
     }
 
