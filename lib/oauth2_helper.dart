@@ -190,6 +190,10 @@ class OAuth2Helper {
     }
   }
 
+  Future removeAllTokens() async {
+    await tokenStorage.deleteAllTokens();
+  }
+
   /// Performs a POST request to the specified [url], adding the authorization token.
   ///
   /// If no token already exists, or if it is expired, a new one is requested.
@@ -265,17 +269,20 @@ class OAuth2Helper {
       headers['Authorization'] = 'Bearer ' + accessToken;
 
       if (method == 'POST') {
-        resp = await httpClient.post(url, body: body, headers: headers);
+        resp =
+            await httpClient.post(Uri.parse(url), body: body, headers: headers);
       } else if (method == 'PUT') {
-        resp = await httpClient.put(url, body: body, headers: headers);
+        resp =
+            await httpClient.put(Uri.parse(url), body: body, headers: headers);
       } else if (method == 'PATCH') {
-        resp = await httpClient.patch(url, body: body, headers: headers);
+        resp = await httpClient.patch(Uri.parse(url),
+            body: body, headers: headers);
       } else if (method == 'GET') {
-        resp = await httpClient.get(url, headers: headers);
+        resp = await httpClient.get(Uri.parse(url), headers: headers);
       } else if (method == 'DELETE') {
-        resp = await httpClient.delete(url, headers: headers);
+        resp = await httpClient.delete(Uri.parse(url), headers: headers);
       } else if (method == 'HEAD') {
-        resp = await httpClient.head(url, headers: headers);
+        resp = await httpClient.head(Uri.parse(url), headers: headers);
       }
 
       return resp;

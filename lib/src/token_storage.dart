@@ -90,6 +90,16 @@ class TokenStorage {
     return true;
   }
 
+  Future<bool> deleteAllTokens() async {
+    final serTokens = await storage.read(key);
+
+    if (serTokens != null) {
+      await storage.write(key, '{}');
+    }
+
+    return true;
+  }
+
   List clearScopes(List<String> scopes) {
     return scopes?.where((element) => element.trim().isNotEmpty)?.toList();
   }
