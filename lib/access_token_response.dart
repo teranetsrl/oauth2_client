@@ -71,16 +71,9 @@ class AccessTokenResponse extends OAuth2Response {
     AccessTokenResponse resp;
 
     if (response.statusCode != 404) {
-      Map respMap = jsonDecode(response.body);
-      //From Section 4.2.2. (Access Token Response) of OAuth2 rfc, the "scope" parameter in the Access Token Response is
-      //"OPTIONAL, if identical to the scope requested by the client; otherwise, REQUIRED."
-      if ((!respMap.containsKey('scope') ||
-              respMap['scope'] == null ||
-              respMap['scope'].isEmpty) &&
-          requestedScopes != null) {
-        respMap['scope'] = requestedScopes;
-      }
-      respMap['http_status_code'] = response.statusCode;
+      Map respMap = decodeHttpResponse(response, requestedScopes: requestedScopes);
+
+      setHttpStatusCode(respMap, response);
 
       resp = AccessTokenResponse.fromMap(respMap);
     } else {
@@ -89,6 +82,27 @@ class AccessTokenResponse extends OAuth2Response {
     }
 
     return resp;
+  }
+
+  static Map<String, dynamic> decodeHttpResponse(http.Response response, {requestedScopes}) {
+    Map respMap = jsonDecode(response.body);
+    //From Section 4.2.2. (Access Token Response) of OAuth2 rfc, the "scope" parameter in the Access Token Response is
+    //"OPTIONAL, if identical to the scope requested by the client; otherwise, REQUIRED."
+    if ((!respMap.containsKey('scope') ||
+        respMap['scope'] == null ||
+        respMap['scope'].isEmpty) &&
+        requestedScopes != null) {
+      respMap['scope'] = requestedScopes;
+    }
+    return respMap;
+  }
+
+  static void setHttpStatusCode(Map<String, dynamic> respMap, http.Response response) {
+    respMap['http_status_code'] = response.statusCode;
+  }
+
+  static AccessTokenResponse constructTokenResponse(Map<String, dynamic> respMap) {
+    return AccessTokenResponse.fromMap(respMap);
   }
 
   @override

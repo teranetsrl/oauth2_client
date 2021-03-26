@@ -45,10 +45,14 @@ class TokenStorage {
         return found;
       }, orElse: () => null);
 
-      if (tknMap != null) tknResp = AccessTokenResponse.fromMap(tknMap);
+      if (tknMap != null) tknResp = constructTokenResponse(tknMap);
     }
 
     return tknResp;
+  }
+  
+  AccessTokenResponse constructTokenResponse(tknMap) {
+    return AccessTokenResponse.fromMap(tknMap);
   }
 
   Future<void> addToken(AccessTokenResponse tknResp) async {

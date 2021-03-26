@@ -223,8 +223,12 @@ class OAuth2Client {
         headers: _accessTokenRequestHeaders,
         httpClient: httpClient);
 
+    return constructAccessTokenResponse(response, requestedScopes: scopes);
+  }
+
+  AccessTokenResponse constructAccessTokenResponse(http.Response response, {requestedScopes}) {
     return AccessTokenResponse.fromHttpResponse(response,
-        requestedScopes: scopes);
+        requestedScopes: requestedScopes);
   }
 
   /// Refreshes an Access Token issuing a refresh_token grant to the OAuth2 server.
@@ -239,7 +243,7 @@ class OAuth2Client {
         params: params,
         httpClient: httpClient);
 
-    return AccessTokenResponse.fromHttpResponse(response);
+    return constructAccessTokenResponse(response);
   }
 
   /// Revokes both the Access and the Refresh tokens in the provided [tknResp]
@@ -290,7 +294,6 @@ class OAuth2Client {
       params['redirect_uri'] = redirectUri;
     }
 
-    if (scopes != null && scopes.isNotEmpty) params['scope'] = scopes;
 
     if (enableState && state != null && state.isNotEmpty) {
       params['state'] = state;
@@ -305,7 +308,13 @@ class OAuth2Client {
       params.addAll(customParams);
     }
 
+    handleScopes(params, scopes);
+
     return OAuth2Utils.addParamsToUrl(authorizeUrl, params);
+  }
+
+  void handleScopes(Map<String, dynamic> params, List<String> scopes) {
+    if (scopes != null && scopes.isNotEmpty) params['scope'] = scopes;
   }
 
   /// Returns the parameters needed for the authorization code request
