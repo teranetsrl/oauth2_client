@@ -294,6 +294,7 @@ class OAuth2Client {
       params['redirect_uri'] = redirectUri;
     }
 
+    handleScopes(params, scopes);
 
     if (enableState && state != null && state.isNotEmpty) {
       params['state'] = state;
@@ -307,8 +308,6 @@ class OAuth2Client {
     if (customParams != null && customParams is Map) {
       params.addAll(customParams);
     }
-
-    handleScopes(params, scopes);
 
     return OAuth2Utils.addParamsToUrl(authorizeUrl, params);
   }
