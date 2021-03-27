@@ -10,10 +10,7 @@ import 'package:oauth2_client/src/web_auth.dart';
 import 'package:random_string/random_string.dart';
 
 
-enum CredentialsLocation {
-  CREDENTIALS_LOCATION_HEADER,
-  CREDENTIALS_LOCATION_BODY
-}
+enum CredentialsLocation { HEADER, BODY }
 
 /// Base class that implements OAuth2 authorization flows.
 ///
@@ -47,8 +44,7 @@ class OAuth2Client {
   Map<String, String> _accessTokenRequestHeaders;
 
   WebAuth webAuthClient;
-  CredentialsLocation credentialsLocation =
-      CredentialsLocation.CREDENTIALS_LOCATION_HEADER;
+  CredentialsLocation credentialsLocation = CredentialsLocation.HEADER;
 
   OAuth2Client(
       {@required this.authorizeUrl,
@@ -151,8 +147,7 @@ class OAuth2Client {
           scopes: scopes,
           clientSecret: clientSecret,
           codeVerifier: codeVerifier,
-          customParams: accessTokenParams,
-      );
+          customParams: accessTokenParams);
     }
 
     return tknResp;
@@ -240,7 +235,7 @@ class OAuth2Client {
 
   /// Refreshes an Access Token issuing a refresh_token grant to the OAuth2 server.
   Future<AccessTokenResponse> refreshToken(String refreshToken,
-      {httpClient, String clientId, String clientSecret,}) async {
+      {httpClient, String clientId, String clientSecret}) async {
     final Map params = getRefreshUrlParams(refreshToken: refreshToken);
 
     var response = await _performAuthorizedRequest(
@@ -374,13 +369,13 @@ class OAuth2Client {
       }
     } else {
       switch (credentialsLocation) {
-        case CredentialsLocation.CREDENTIALS_LOCATION_HEADER:
+        case CredentialsLocation.HEADER:
           headers.addAll(getAuthorizationHeader(
             clientId: clientId,
             clientSecret: clientSecret,
           ));
           break;
-        case CredentialsLocation.CREDENTIALS_LOCATION_BODY:
+        case CredentialsLocation.BODY:
           params['client_id'] = clientId;
           params['client_secret'] = clientSecret;
           break;

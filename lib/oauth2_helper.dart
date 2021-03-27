@@ -43,8 +43,7 @@ class OAuth2Helper {
       this.tokenStorage,
       this.afterAuthorizationCodeCb,
       this.authCodeParams,
-      this.accessTokenParams,
-      }) {
+      this.accessTokenParams}) {
     tokenStorage ??= TokenStorage(client.tokenUrl);
   }
 
@@ -122,12 +121,10 @@ class OAuth2Helper {
           enableState: enableState ?? true,
           authCodeParams: authCodeParams,
           accessTokenParams: accessTokenParams,
-          afterAuthorizationCodeCb: afterAuthorizationCodeCb,
-      );
+          afterAuthorizationCodeCb: afterAuthorizationCodeCb);
     } else if (grantType == CLIENT_CREDENTIALS) {
       tknResp = await client.getTokenWithClientCredentialsFlow(
-          clientId: clientId, clientSecret: clientSecret, scopes: scopes,
-      );
+          clientId: clientId, clientSecret: clientSecret, scopes: scopes);
     } else if (grantType == IMPLICIT_GRANT) {
       tknResp = await client.getTokenWithImplicitGrantFlow(
         clientId: clientId,
@@ -149,8 +146,7 @@ class OAuth2Helper {
 
     try {
       tknResp = await client.refreshToken(refreshToken,
-          clientId: clientId, clientSecret: clientSecret,
-      );
+          clientId: clientId, clientSecret: clientSecret);
     } catch (_) {
       return await fetchToken();
     }
