@@ -44,7 +44,7 @@ class OAuth2Client {
   Map<String, String> _accessTokenRequestHeaders;
 
   WebAuth webAuthClient;
-  CredentialsLocation credentialsLocation = CredentialsLocation.HEADER;
+  CredentialsLocation credentialsLocation;
 
   OAuth2Client(
       {@required this.authorizeUrl,
@@ -53,7 +53,7 @@ class OAuth2Client {
       this.revokeUrl,
       @required this.redirectUri,
       @required this.customUriScheme,
-      this.credentialsLocation,
+      this.credentialsLocation = CredentialsLocation.HEADER,
       }) {
     webAuthClient = WebAuth();
   }
