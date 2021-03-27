@@ -58,8 +58,7 @@ class OAuth2Helper {
       bool enablePKCE,
       bool enableState,
       Map<String, dynamic> authCodeParams,
-      Map<String, dynamic> accessTokenParams,
-      }) {
+      Map<String, dynamic> accessTokenParams}) {
     this.grantType = grantType;
     this.clientId = clientId;
     this.clientSecret = clientSecret;
