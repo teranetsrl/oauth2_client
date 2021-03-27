@@ -2,7 +2,12 @@ import 'package:meta/meta.dart';
 
 import 'oauth2_client.dart';
 
-/// For usage with the [OAuth2Helper] you have to set [useAuthorizationHeader] to [false]
+/// Implements an OAuth2 client that uses Shopify services to authorize requests.
+///
+/// You can get the access token for using it with the graphql or rest APIS via
+/// ```dart
+/// oauth2Helper.getToken()
+/// ```
 class ShopifyOAuth2Client extends OAuth2Client {
   ShopifyOAuth2Client({
     @required String shop,
@@ -13,5 +18,6 @@ class ShopifyOAuth2Client extends OAuth2Client {
           tokenUrl: 'https://$shop.myshopify.com/admin/oauth/access_token',
           redirectUri: redirectUri,
           customUriScheme: customUriScheme,
+          credentialsLocation: CredentialsLocation.CREDENTIALS_LOCATION_BODY,
         );
 }

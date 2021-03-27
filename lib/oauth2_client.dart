@@ -9,6 +9,12 @@ import 'package:oauth2_client/src/oauth2_utils.dart';
 import 'package:oauth2_client/src/web_auth.dart';
 import 'package:random_string/random_string.dart';
 
+
+enum CredentialsLocation {
+  CREDENTIALS_LOCATION_HEADER,
+  CREDENTIALS_LOCATION_BODY
+}
+
 /// Base class that implements OAuth2 authorization flows.
 ///
 /// It currently supports the following grants:
@@ -41,6 +47,8 @@ class OAuth2Client {
   Map<String, String> _accessTokenRequestHeaders;
 
   WebAuth webAuthClient;
+  CredentialsLocation credentialsLocation =
+      CredentialsLocation.CREDENTIALS_LOCATION_HEADER;
 
   OAuth2Client(
       {@required this.authorizeUrl,
@@ -48,7 +56,9 @@ class OAuth2Client {
       this.refreshUrl,
       this.revokeUrl,
       @required this.redirectUri,
-      @required this.customUriScheme}) {
+      @required this.customUriScheme,
+      this.credentialsLocation,
+      }) {
     webAuthClient = WebAuth();
   }
 
@@ -109,7 +119,6 @@ class OAuth2Client {
     Function afterAuthorizationCodeCb,
     Map<String, dynamic> authCodeParams,
     Map<String, dynamic> accessTokenParams,
-    bool useAuthorizationHeader = true,
     httpClient,
     webAuthClient,
   }) async {
@@ -143,7 +152,6 @@ class OAuth2Client {
           clientSecret: clientSecret,
           codeVerifier: codeVerifier,
           customParams: accessTokenParams,
-          useAuthorizationHeader: useAuthorizationHeader,
       );
     }
 
@@ -155,7 +163,6 @@ class OAuth2Client {
       {@required String clientId,
       @required String clientSecret,
       List<String> scopes,
-      bool useAuthorizationHeader,
       httpClient}) async {
     var params = <String, String>{'grant_type': 'client_credentials'};
 
@@ -166,7 +173,6 @@ class OAuth2Client {
         clientId: clientId,
         clientSecret: clientSecret,
         params: params,
-        useAuthorizationHeader: useAuthorizationHeader,
         httpClient: httpClient);
 
     return AccessTokenResponse.fromHttpResponse(response,
@@ -213,7 +219,6 @@ class OAuth2Client {
       String codeVerifier,
       List<String> scopes,
       Map<String, dynamic> customParams,
-      bool useAuthorizationHeader,
       httpClient}) async {
     final params = getTokenUrlParams(
         code: code,
@@ -227,7 +232,6 @@ class OAuth2Client {
         clientSecret: clientSecret,
         params: params,
         headers: _accessTokenRequestHeaders,
-        useAuthorizationHeader: useAuthorizationHeader,
         httpClient: httpClient);
 
     return AccessTokenResponse.fromHttpResponse(response,
@@ -236,7 +240,7 @@ class OAuth2Client {
 
   /// Refreshes an Access Token issuing a refresh_token grant to the OAuth2 server.
   Future<AccessTokenResponse> refreshToken(String refreshToken,
-      {httpClient, String clientId, String clientSecret, bool useAuthorizationHeader,}) async {
+      {httpClient, String clientId, String clientSecret,}) async {
     final Map params = getRefreshUrlParams(refreshToken: refreshToken);
 
     var response = await _performAuthorizedRequest(
@@ -244,7 +248,6 @@ class OAuth2Client {
         clientId: clientId,
         clientSecret: clientSecret,
         params: params,
-        useAuthorizationHeader: useAuthorizationHeader,
         httpClient: httpClient);
 
     return AccessTokenResponse.fromHttpResponse(response);
@@ -359,7 +362,6 @@ class OAuth2Client {
       String clientSecret,
       Map params,
       Map<String, String> headers,
-      bool useAuthorizationHeader,
       httpClient}) async {
     httpClient ??= http.Client();
 
@@ -371,14 +373,17 @@ class OAuth2Client {
         params['client_id'] = clientId;
       }
     } else {
-      if (useAuthorizationHeader) {
-        headers.addAll(getAuthorizationHeader(
-          clientId: clientId,
-          clientSecret: clientSecret,
-        ));
-      } else {
-        params['client_id'] = clientId;
-        params['client_secret'] = clientSecret;
+      switch (credentialsLocation) {
+        case CredentialsLocation.CREDENTIALS_LOCATION_HEADER:
+          headers.addAll(getAuthorizationHeader(
+            clientId: clientId,
+            clientSecret: clientSecret,
+          ));
+          break;
+        case CredentialsLocation.CREDENTIALS_LOCATION_BODY:
+          params['client_id'] = clientId;
+          params['client_secret'] = clientSecret;
+          break;
       }
     }
 
