@@ -8,6 +8,7 @@ import 'oauth2_client.dart';
 /// ```dart
 /// oauth2Helper.getToken()
 /// ```
+/// Note that shopify only http and https as scheme
 class ShopifyOAuth2Client extends OAuth2Client {
   ShopifyOAuth2Client({
     @required String shop,

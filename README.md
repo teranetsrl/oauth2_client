@@ -135,6 +135,7 @@ The library implements clients for the following services/organizations:
  - Facebook
  - LinkedIn
  - GitHub
+ - Shopify
 
 ## Google client ##
 
