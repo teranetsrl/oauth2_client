@@ -604,6 +604,110 @@ void main() {
     });
   });
 
+  group('Client Credentials Grant with CredentialsLocation BODY.', () {
+    final oauth2Client = OAuth2Client(
+      authorizeUrl: authorizeUrl,
+      tokenUrl: tokenUrl,
+      redirectUri: redirectUri,
+      customUriScheme: customUriScheme,
+      credentialsLocation: CredentialsLocation.BODY,
+    );
+
+    test('Get new token', () async {
+      final httpClient = HttpClientMock();
+
+      final accessToken = '12345';
+      final refreshToken = '54321';
+
+      final authParams = {
+        'grant_type': 'client_credentials',
+        // 'scope': scopes
+      };
+
+      when(
+        httpClient.post(
+          Uri.parse(tokenUrl),
+          body: authParams,
+          headers: captureAnyNamed('headers'),
+        ),
+      ).thenAnswer(
+        (_) async => http.Response(
+          '{"access_token": "' +
+              accessToken +
+              '", "token_type": "Bearer", "refresh_token": "' +
+              refreshToken +
+              '", "expires_in": 3600}',
+          200,
+        ),
+      );
+
+      final tknResponse = await oauth2Client.getTokenWithClientCredentialsFlow(
+        clientId: clientId,
+        clientSecret: clientSecret,
+        // List<String> scopes,
+        httpClient: httpClient,
+      );
+
+      expect(
+        verify(
+          httpClient.post(
+            Uri.parse(tokenUrl),
+            body: captureAnyNamed('body'),
+            headers: captureAnyNamed('headers'),
+          ),
+        ).captured[0],
+        {
+          'client_id': clientId,
+          'client_secret': clientSecret,
+        },
+      );
+
+      expect(tknResponse.accessToken, accessToken);
+    });
+
+    test('Error in getting new token', () async {
+      final httpClient = HttpClientMock();
+
+      final authParams = {
+        'grant_type': 'client_credentials',
+        // 'scope': scopes
+      };
+
+      when(
+        httpClient.post(
+          Uri.parse(tokenUrl),
+          body: authParams,
+          headers: captureAnyNamed('headers'),
+        ),
+      ).thenAnswer(
+        (_) async => http.Response('', 404),
+      );
+
+      final tknResponse = await oauth2Client.getTokenWithClientCredentialsFlow(
+        clientId: clientId,
+        clientSecret: clientSecret,
+        // List<String> scopes,
+        httpClient: httpClient,
+      );
+
+      expect(
+        verify(
+          httpClient.post(
+            Uri.parse(tokenUrl),
+            body: captureAnyNamed('body'),
+            headers: captureAnyNamed('headers'),
+          ),
+        ).captured[0],
+        {
+          'client_id': clientId,
+          'client_secret': clientSecret,
+        },
+      );
+
+      expect(tknResponse.isValid(), false);
+    });
+  });
+
   group('Implicit flow Grant.', () {
     final oauth2Client = OAuth2Client(
         authorizeUrl: authorizeUrl,
