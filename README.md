@@ -216,10 +216,9 @@ In the majority of cases you only need to extend the base *OAuth2Client* class a
 
 ```dart
 import 'package:oauth2_client/oauth2_client.dart';
-import 'package:meta/meta.dart';
 
 class MyOAuth2Client extends OAuth2Client {
-  MyOAuth2Client({@required String redirectUri, @required String customUriScheme}): super(
+  MyOAuth2Client({required String redirectUri, required String customUriScheme}): super(
     authorizeUrl: 'https://...', //Your service's authorization url
     tokenUrl: 'https://...', //Your service access token url
     redirectUri: redirectUri,

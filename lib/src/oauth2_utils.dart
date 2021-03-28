@@ -40,7 +40,7 @@ class OAuth2Utils {
   static String addParamsToUrl(String url, Map params) {
     var qs = params2qs(params);
 
-    if (qs != null && qs.isNotEmpty) url = url + '?' + qs;
+    if (qs.isNotEmpty) url = url + '?' + qs;
 
     return url;
   }

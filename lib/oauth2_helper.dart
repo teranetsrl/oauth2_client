@@ -2,7 +2,6 @@ import 'package:oauth2_client/access_token_response.dart';
 import 'package:oauth2_client/oauth2_exception.dart';
 import 'package:oauth2_client/oauth2_client.dart';
 import 'package:http/http.dart' as http;
-import 'package:meta/meta.dart';
 import 'package:oauth2_client/oauth2_response.dart';
 import 'package:oauth2_client/src/token_storage.dart';
 
@@ -19,46 +18,47 @@ class OAuth2Helper {
   static const IMPLICIT_GRANT = 3;
 
   final OAuth2Client client;
-  TokenStorage tokenStorage;
+  late TokenStorage tokenStorage;
 
   int grantType;
   String clientId;
-  String clientSecret;
-  List<String> scopes;
+  String? clientSecret;
+  List<String>? scopes;
   bool enablePKCE;
   bool enableState;
 
-  Function afterAuthorizationCodeCb;
+  Function? afterAuthorizationCodeCb;
 
-  Map<String, dynamic> authCodeParams;
-  Map<String, dynamic> accessTokenParams;
+  Map<String, dynamic>? authCodeParams;
+  Map<String, dynamic>? accessTokenParams;
 
   OAuth2Helper(this.client,
       {this.grantType = AUTHORIZATION_CODE,
-      this.clientId,
+      required this.clientId,
       this.clientSecret,
       this.scopes,
       this.enablePKCE = true,
       this.enableState = true,
-      this.tokenStorage,
+      tokenStorage,
       this.afterAuthorizationCodeCb,
       this.authCodeParams,
       this.accessTokenParams}) {
-    tokenStorage ??= TokenStorage(client.tokenUrl);
+    this.tokenStorage = tokenStorage ?? TokenStorage(client.tokenUrl);
   }
 
   /// Sets the proper parameters for requesting an authorization token.
   ///
   /// The parameters are validated depending on the [grantType].
+  @deprecated
   void setAuthorizationParams(
-      {@required int grantType,
-      String clientId,
-      String clientSecret,
-      List<String> scopes,
-      bool enablePKCE,
-      bool enableState,
-      Map<String, dynamic> authCodeParams,
-      Map<String, dynamic> accessTokenParams}) {
+      {required int grantType,
+      required String clientId,
+      String? clientSecret,
+      List<String>? scopes,
+      bool? enablePKCE,
+      bool? enableState,
+      Map<String, dynamic>? authCodeParams,
+      Map<String, dynamic>? accessTokenParams}) {
     this.grantType = grantType;
     this.clientId = clientId;
     this.clientSecret = clientSecret;
@@ -74,26 +74,26 @@ class OAuth2Helper {
   /// Returns a previously required token, if any, or requires a new one.
   ///
   /// If a token already exists but is expired, a new token is generated through the refresh_token grant.
-  Future<AccessTokenResponse> getToken() async {
+  Future<AccessTokenResponse?> getToken() async {
     _validateAuthorizationParams();
 
     var tknResp = await getTokenFromStorage();
 
     if (tknResp != null) {
-      if (tknResp.refreshNeeded()) {
+      if (tknResp.refreshNeeded() && tknResp.refreshToken != null) {
         //The access token is expired
-        tknResp = await refreshToken(tknResp.refreshToken);
+        tknResp = await refreshToken(tknResp.refreshToken!);
       }
     } else {
       tknResp = await fetchToken();
     }
 
-    if (tknResp != null && !tknResp.isValid()) {
+    if (!tknResp.isValid()) {
       throw Exception(
           'Provider error ${tknResp.httpStatusCode}: ${tknResp.error}: ${tknResp.errorDescription}');
     }
 
-    if (tknResp != null && !tknResp.isBearer()) {
+    if (!tknResp.isBearer()) {
       throw Exception('Only Bearer tokens are currently supported');
     }
 
@@ -101,8 +101,8 @@ class OAuth2Helper {
   }
 
   /// Returns the previously stored Access Token from the storage, if any
-  Future<AccessTokenResponse> getTokenFromStorage() async {
-    return await tokenStorage.getToken(scopes);
+  Future<AccessTokenResponse?> getTokenFromStorage() async {
+    return await tokenStorage.getToken(scopes ?? []);
   }
 
   /// Fetches a new token and saves it in the storage
@@ -116,23 +116,28 @@ class OAuth2Helper {
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes,
-          enablePKCE: enablePKCE ?? true,
-          enableState: enableState ?? true,
+          enablePKCE: enablePKCE,
+          enableState: enableState,
           authCodeParams: authCodeParams,
           accessTokenParams: accessTokenParams,
           afterAuthorizationCodeCb: afterAuthorizationCodeCb);
     } else if (grantType == CLIENT_CREDENTIALS) {
       tknResp = await client.getTokenWithClientCredentialsFlow(
-          clientId: clientId, clientSecret: clientSecret, scopes: scopes);
+          clientId: clientId,
+          //The clientSecret param can't be null at this point... It has been validated by the above _validateAuthorizationParams call...
+          clientSecret: clientSecret!,
+          scopes: scopes);
     } else if (grantType == IMPLICIT_GRANT) {
       tknResp = await client.getTokenWithImplicitGrantFlow(
         clientId: clientId,
         scopes: scopes,
-        enableState: enableState ?? true,
+        enableState: enableState,
       );
+    } else {
+      tknResp = AccessTokenResponse.errorResponse();
     }
 
-    if (tknResp != null && tknResp.isValid()) {
+    if (tknResp.isValid()) {
       await tokenStorage.addToken(tknResp);
     }
 
@@ -161,7 +166,7 @@ class OAuth2Helper {
     } else {
       if (tknResp.error == 'invalid_grant') {
         //The refresh token is expired too
-        await tokenStorage.deleteToken(scopes);
+        await tokenStorage.deleteToken(scopes ?? []);
         //Fetch another access token
         tknResp = await getToken();
       } else {
@@ -177,10 +182,10 @@ class OAuth2Helper {
   Future<OAuth2Response> disconnect({httpClient}) async {
     httpClient ??= http.Client();
 
-    final tknResp = await tokenStorage.getToken(scopes);
+    final tknResp = await tokenStorage.getToken(scopes ?? []);
 
     if (tknResp != null) {
-      await tokenStorage.deleteToken(scopes);
+      await tokenStorage.deleteToken(scopes ?? []);
       return await client.revokeToken(tknResp,
           clientId: clientId,
           clientSecret: clientSecret,
@@ -198,9 +203,9 @@ class OAuth2Helper {
   ///
   /// If no token already exists, or if it is expired, a new one is requested.
   Future<http.Response> post(String url,
-      {Map<String, String> headers,
+      {Map<String, String>? headers,
       dynamic body,
-      http.Client httpClient}) async {
+      http.Client? httpClient}) async {
     return _request('POST', url,
         headers: headers, body: body, httpClient: httpClient);
   }
@@ -209,9 +214,9 @@ class OAuth2Helper {
   ///
   /// If no token already exists, or if it is expired, a new one is requested.
   Future<http.Response> put(String url,
-      {Map<String, String> headers,
+      {Map<String, String>? headers,
       dynamic body,
-      http.Client httpClient}) async {
+      http.Client? httpClient}) async {
     return _request('PUT', url,
         headers: headers, body: body, httpClient: httpClient);
   }
@@ -220,9 +225,9 @@ class OAuth2Helper {
   ///
   /// If no token already exists, or if it is expired, a new one is requested.
   Future<http.Response> patch(String url,
-      {Map<String, String> headers,
+      {Map<String, String>? headers,
       dynamic body,
-      http.Client httpClient}) async {
+      http.Client? httpClient}) async {
     return _request('PATCH', url,
         headers: headers, body: body, httpClient: httpClient);
   }
@@ -231,7 +236,7 @@ class OAuth2Helper {
   ///
   /// If no token already exists, or if it is expired, a new one is requested.
   Future<http.Response> get(String url,
-      {Map<String, String> headers, http.Client httpClient}) async {
+      {Map<String, String>? headers, http.Client? httpClient}) async {
     return _request('GET', url, headers: headers, httpClient: httpClient);
   }
 
@@ -239,7 +244,7 @@ class OAuth2Helper {
   ///
   /// If no token already exists, or if it is expired, a new one is requested.
   Future<http.Response> delete(String url,
-      {Map<String, String> headers, http.Client httpClient}) async {
+      {Map<String, String>? headers, http.Client? httpClient}) async {
     return _request('DELETE', url, headers: headers, httpClient: httpClient);
   }
 
@@ -247,18 +252,18 @@ class OAuth2Helper {
   ///
   /// If no token already exists, or if it is expired, a new one is requested.
   Future<http.Response> head(String url,
-      {Map<String, String> headers,
+      {Map<String, String>? headers,
       dynamic body,
-      http.Client httpClient}) async {
+      http.Client? httpClient}) async {
     return _request('HEAD', url, headers: headers, httpClient: httpClient);
   }
 
   /// Common method for making http requests
   /// Tries to use a previously fetched token, otherwise fetches a new token by means of a refresh flow or by issuing a new authorization flow
   Future<http.Response> _request(String method, String url,
-      {Map<String, String> headers,
+      {Map<String, String>? headers,
       dynamic body,
-      http.Client httpClient}) async {
+      http.Client? httpClient}) async {
     httpClient ??= http.Client();
 
     headers ??= {};
@@ -266,23 +271,23 @@ class OAuth2Helper {
     var sendRequest = (accessToken) async {
       var resp;
 
-      headers['Authorization'] = 'Bearer ' + accessToken;
+      headers!['Authorization'] = 'Bearer ' + accessToken;
 
       if (method == 'POST') {
-        resp =
-            await httpClient.post(Uri.parse(url), body: body, headers: headers);
+        resp = await httpClient!
+            .post(Uri.parse(url), body: body, headers: headers);
       } else if (method == 'PUT') {
         resp =
-            await httpClient.put(Uri.parse(url), body: body, headers: headers);
+            await httpClient!.put(Uri.parse(url), body: body, headers: headers);
       } else if (method == 'PATCH') {
-        resp = await httpClient.patch(Uri.parse(url),
-            body: body, headers: headers);
+        resp = await httpClient!
+            .patch(Uri.parse(url), body: body, headers: headers);
       } else if (method == 'GET') {
-        resp = await httpClient.get(Uri.parse(url), headers: headers);
+        resp = await httpClient!.get(Uri.parse(url), headers: headers);
       } else if (method == 'DELETE') {
-        resp = await httpClient.delete(Uri.parse(url), headers: headers);
+        resp = await httpClient!.delete(Uri.parse(url), headers: headers);
       } else if (method == 'HEAD') {
-        resp = await httpClient.head(Uri.parse(url), headers: headers);
+        resp = await httpClient!.head(Uri.parse(url), headers: headers);
       }
 
       return resp;
@@ -294,18 +299,18 @@ class OAuth2Helper {
     var tknResp = await getToken();
 
     try {
-      resp = await sendRequest(tknResp.accessToken);
+      resp = await sendRequest(tknResp!.accessToken);
 
       if (resp.statusCode == 401) {
         //The token could have been invalidated on the server side
         //Try to fetch a new token...
         if (tknResp.hasRefreshToken()) {
-          tknResp = await refreshToken(tknResp.refreshToken);
+          tknResp = await refreshToken(tknResp.refreshToken!);
         } else {
           tknResp = await fetchToken();
         }
 
-        if (tknResp != null) {
+        if (tknResp.isValid()) {
           resp = await sendRequest(tknResp.accessToken);
         }
       }
@@ -316,27 +321,13 @@ class OAuth2Helper {
   }
 
   void _validateAuthorizationParams() {
-    switch (grantType) {
-      case AUTHORIZATION_CODE:
-        if (clientId == null || clientId.isEmpty) {
-          throw Exception('Required "clientId" parameter not set');
-        }
-        break;
+    if (clientId.isEmpty) {
+      throw Exception('Required "clientId" parameter not set');
+    }
 
-      case CLIENT_CREDENTIALS:
-        if (clientSecret == null || clientSecret.isEmpty) {
-          throw Exception('Required "clientSecret" parameter not set');
-        }
-        if (clientId == null || clientId.isEmpty) {
-          throw Exception('Required "clientId" parameter not set');
-        }
-        break;
-
-      case IMPLICIT_GRANT:
-        if (clientId == null || clientId.isEmpty) {
-          throw Exception('Required "clientId" parameter not set');
-        }
-        break;
+    if (grantType == CLIENT_CREDENTIALS &&
+        (clientSecret == null || clientSecret!.isEmpty)) {
+      throw Exception('Required "clientSecret" parameter not set');
     }
   }
 }

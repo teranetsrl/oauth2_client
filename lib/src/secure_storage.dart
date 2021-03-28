@@ -7,7 +7,7 @@ class SecureStorage extends Storage {
   SecureStorage();
 
   @override
-  Future<String> read(String key) async {
+  Future<String?> read(String key) async {
     final options = IOSOptions(accessibility: IOSAccessibility.first_unlock);
     return await storage.read(key: key, iOptions: options);
   }

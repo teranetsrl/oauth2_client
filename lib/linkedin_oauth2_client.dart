@@ -1,5 +1,4 @@
 import 'package:oauth2_client/oauth2_client.dart';
-import 'package:meta/meta.dart';
 
 /// Implements an OAuth2 client to access the Linkedin API.
 ///
@@ -7,7 +6,7 @@ import 'package:meta/meta.dart';
 ///
 class LinkedInOAuth2Client extends OAuth2Client {
   LinkedInOAuth2Client(
-      {@required String redirectUri, @required String customUriScheme})
+      {required String redirectUri, required String customUriScheme})
       : super(
             authorizeUrl: 'https://www.linkedin.com/oauth/v2/authorization',
             tokenUrl: 'https://www.linkedin.com/oauth/v2/accessToken',

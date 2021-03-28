@@ -1,5 +1,4 @@
 import 'package:oauth2_client/oauth2_client.dart';
-import 'package:meta/meta.dart';
 
 /// Implements an OAuth2 client that uses Facebook services to authorize requests.
 ///
@@ -7,7 +6,7 @@ import 'package:meta/meta.dart';
 ///
 class FacebookOAuth2Client extends OAuth2Client {
   FacebookOAuth2Client(
-      {@required String redirectUri, @required String customUriScheme})
+      {required String redirectUri, required String customUriScheme})
       : super(
             authorizeUrl: 'https://www.facebook.com/v5.0/dialog/oauth',
             tokenUrl: 'https://graph.facebook.com/oauth/access_token',

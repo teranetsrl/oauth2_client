@@ -1,5 +1,4 @@
 import 'package:oauth2_client/oauth2_client.dart';
-import 'package:meta/meta.dart';
 
 /// Implements an OAuth2 client that uses Google services to authorize requests.
 ///
@@ -10,7 +9,7 @@ import 'package:meta/meta.dart';
 ///
 class GoogleOAuth2Client extends OAuth2Client {
   GoogleOAuth2Client(
-      {@required String redirectUri, @required String customUriScheme})
+      {required String redirectUri, required String customUriScheme})
       : super(
             authorizeUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
             tokenUrl: 'https://oauth2.googleapis.com/token',

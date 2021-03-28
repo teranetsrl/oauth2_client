@@ -7,15 +7,16 @@ import 'package:oauth2_client/oauth2_response.dart';
 /// see https://tools.ietf.org/html/rfc6749#section-5.2
 
 class AccessTokenResponse extends OAuth2Response {
-  String accessToken;
-  String tokenType;
-  int expiresIn;
-  String refreshToken;
-  List<String> scope;
+  String? accessToken;
+  String? tokenType;
+  int? expiresIn;
+  String? refreshToken;
+  List<String>? scope;
 
-  DateTime expirationDate;
+  DateTime? expirationDate;
 
-  AccessTokenResponse();
+  AccessTokenResponse() : super();
+  AccessTokenResponse.errorResponse() : super.errorResponse();
 
   AccessTokenResponse.fromMap(Map<String, dynamic> map) : super.fromMap(map) {
     if (isValid()) {
@@ -35,7 +36,7 @@ class AccessTokenResponse extends OAuth2Response {
           scope = map['scope']?.split(RegExp(r'[\s,]'));
         }
 
-        scope = scope?.map((s) => s.trim())?.toList();
+        scope = scope?.map((s) => s.trim()).toList();
       }
 
       if (map.containsKey('expires_in')) {
@@ -60,7 +61,7 @@ class AccessTokenResponse extends OAuth2Response {
       } else {
         if (expiresIn != null) {
           var now = DateTime.now();
-          expirationDate = now.add(Duration(seconds: expiresIn));
+          expirationDate = now.add(Duration(seconds: expiresIn!));
         }
       }
     }
@@ -71,7 +72,7 @@ class AccessTokenResponse extends OAuth2Response {
     AccessTokenResponse resp;
 
     if (response.statusCode != 404) {
-      Map respMap = jsonDecode(response.body);
+      Map<String, dynamic> respMap = jsonDecode(response.body);
       //From Section 4.2.2. (Access Token Response) of OAuth2 rfc, the "scope" parameter in the Access Token Response is
       //"OPTIONAL, if identical to the scope requested by the client; otherwise, REQUIRED."
       if ((!respMap.containsKey('scope') ||
@@ -101,11 +102,8 @@ class AccessTokenResponse extends OAuth2Response {
       'token_type': tokenType,
       'refresh_token': refreshToken,
       'scope': scope,
-      'expires_in': expirationDate != null
-          ? expirationDate.difference(now).inSeconds
-          : null,
-      'expiration_date':
-          expirationDate != null ? expirationDate.millisecondsSinceEpoch : null,
+      'expires_in': expirationDate?.difference(now).inSeconds,
+      'expiration_date': expirationDate?.millisecondsSinceEpoch,
       'error': error,
       'errorDescription': errorDescription,
       'errorUri': errorUri
@@ -118,7 +116,7 @@ class AccessTokenResponse extends OAuth2Response {
 
     if (expirationDate != null) {
       var now = DateTime.now();
-      expired = expirationDate.difference(now).inSeconds < 0;
+      expired = expirationDate!.difference(now).inSeconds < 0;
     }
 
     return expired;
@@ -131,7 +129,7 @@ class AccessTokenResponse extends OAuth2Response {
     if (expirationDate != null) {
       var now = DateTime.now();
       needsRefresh =
-          expirationDate.difference(now).inSeconds < secondsToExpiration;
+          expirationDate!.difference(now).inSeconds < secondsToExpiration;
     }
 
     return needsRefresh;
@@ -144,13 +142,13 @@ class AccessTokenResponse extends OAuth2Response {
 
   ///Checks if the token is a "Bearer" token
   bool isBearer() {
-    return tokenType.toLowerCase() == 'bearer';
+    return tokenType?.toLowerCase() == 'bearer';
   }
 
   @override
   String toString() {
     if (httpStatusCode == 200) {
-      return 'Access Token: ' + accessToken;
+      return 'Access Token: ' + (accessToken ?? 'n.a.');
     } else {
       return 'HTTP ' +
           httpStatusCode.toString() +
