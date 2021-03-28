@@ -9,7 +9,6 @@ import 'package:oauth2_client/src/oauth2_utils.dart';
 import 'package:oauth2_client/src/web_auth.dart';
 import 'package:random_string/random_string.dart';
 
-
 enum CredentialsLocation { HEADER, BODY }
 
 /// Base class that implements OAuth2 authorization flows.
@@ -46,15 +45,15 @@ class OAuth2Client {
   WebAuth webAuthClient;
   CredentialsLocation credentialsLocation;
 
-  OAuth2Client(
-      {@required this.authorizeUrl,
-      @required this.tokenUrl,
-      this.refreshUrl,
-      this.revokeUrl,
-      @required this.redirectUri,
-      @required this.customUriScheme,
-      this.credentialsLocation = CredentialsLocation.HEADER,
-      }) {
+  OAuth2Client({
+    @required this.authorizeUrl,
+    @required this.tokenUrl,
+    this.refreshUrl,
+    this.revokeUrl,
+    @required this.redirectUri,
+    @required this.customUriScheme,
+    this.credentialsLocation = CredentialsLocation.HEADER,
+  }) {
     webAuthClient = WebAuth();
   }
 
