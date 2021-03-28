@@ -1,3 +1,8 @@
+## [1.8.0] - 2021/03/28
+* Add compatibility with http 0.13 (thanks @bangfalse)
+* Allow passing credentials location in request body or header (thanks @sbu-WBT)
+* Added Shopify client (thanks @sbu-WBT)
+
 ## [1.7.1] - 2021/02/25
 * Fixes (make httpClient optional again in OAuth2Helper)
 
