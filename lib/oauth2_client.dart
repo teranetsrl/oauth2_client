@@ -8,6 +8,8 @@ import 'package:oauth2_client/src/oauth2_utils.dart';
 import 'package:oauth2_client/src/web_auth.dart';
 import 'package:random_string/random_string.dart';
 
+enum CredentialsLocation { HEADER, BODY }
+
 /// Base class that implements OAuth2 authorization flows.
 ///
 /// It currently supports the following grants:
@@ -40,14 +42,17 @@ class OAuth2Client {
   Map<String, String> _accessTokenRequestHeaders = {};
 
   late WebAuth webAuthClient;
+  CredentialsLocation credentialsLocation;
 
-  OAuth2Client(
-      {required this.authorizeUrl,
-      required this.tokenUrl,
-      this.refreshUrl,
-      this.revokeUrl,
-      required this.redirectUri,
-      required this.customUriScheme}) {
+  OAuth2Client({
+    required this.authorizeUrl,
+    required this.tokenUrl,
+    this.refreshUrl,
+    this.revokeUrl,
+    required this.redirectUri,
+    required this.customUriScheme,
+    this.credentialsLocation = CredentialsLocation.HEADER,
+  }) {
     webAuthClient = WebAuth();
   }
 
@@ -366,9 +371,18 @@ class OAuth2Client {
         params['client_id'] = clientId;
       }
     } else {
-      var authHeaders = getAuthorizationHeader(
-          clientId: clientId, clientSecret: clientSecret);
-      headers.addAll(authHeaders);
+      switch (credentialsLocation) {
+        case CredentialsLocation.HEADER:
+          headers.addAll(getAuthorizationHeader(
+            clientId: clientId,
+            clientSecret: clientSecret,
+          ));
+          break;
+        case CredentialsLocation.BODY:
+          params['client_id'] = clientId;
+          params['client_secret'] = clientSecret;
+          break;
+      }
     }
 
     var response =

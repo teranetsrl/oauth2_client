@@ -604,6 +604,138 @@ void main() {
     });
   });
 
+  group('Credentials location', () {
+    test('Credentials in BODY', () async {
+      var oauth2Client = OAuth2Client(
+        authorizeUrl: authorizeUrl,
+        tokenUrl: tokenUrl,
+        redirectUri: redirectUri,
+        customUriScheme: customUriScheme,
+        credentialsLocation: CredentialsLocation.BODY,
+      );
+
+      final httpClient = HttpClientMock();
+
+      final authParams = {
+        'grant_type': 'client_credentials',
+        'client_id': clientId,
+        'client_secret': clientSecret
+      };
+
+      when(httpClient.post(Uri.parse(tokenUrl),
+              body: authParams, headers: captureAnyNamed('headers')))
+          .thenAnswer((_) async => http.Response('', 404));
+
+      await oauth2Client.getTokenWithClientCredentialsFlow(
+          clientId: clientId,
+          clientSecret: clientSecret,
+          httpClient: httpClient);
+
+      expect(
+          verify(httpClient.post(Uri.parse(tokenUrl),
+                  body: captureAnyNamed('body'),
+                  headers: captureAnyNamed('headers')))
+              .captured[0],
+          {
+            'grant_type': 'client_credentials',
+            'client_id': clientId,
+            'client_secret': clientSecret
+          });
+    });
+
+    test('Credentials in HEADER (explicit)', () async {
+      var oauth2Client = OAuth2Client(
+        authorizeUrl: authorizeUrl,
+        tokenUrl: tokenUrl,
+        redirectUri: redirectUri,
+        customUriScheme: customUriScheme,
+        credentialsLocation: CredentialsLocation.HEADER,
+      );
+
+      final httpClient = HttpClientMock();
+
+      final authParams = {'grant_type': 'client_credentials'};
+
+      when(httpClient.post(Uri.parse(tokenUrl),
+              body: authParams, headers: captureAnyNamed('headers')))
+          .thenAnswer((_) async => http.Response('', 404));
+
+      await oauth2Client.getTokenWithClientCredentialsFlow(
+          clientId: clientId,
+          clientSecret: clientSecret,
+          httpClient: httpClient);
+
+      expect(
+          verify(httpClient.post(Uri.parse(tokenUrl),
+                  body: captureAnyNamed('body'),
+                  headers: captureAnyNamed('headers')))
+              .captured[1],
+          {'Authorization': 'Basic bXljbGllbnRpZDp0ZXN0X3NlY3JldA=='});
+
+      await oauth2Client.getTokenWithClientCredentialsFlow(
+          clientId: clientId,
+          clientSecret: clientSecret,
+          httpClient: httpClient);
+
+      expect(
+          verify(httpClient.post(Uri.parse(tokenUrl),
+                  body: captureAnyNamed('body'),
+                  headers: captureAnyNamed('headers')))
+              .captured[0],
+          isNot({
+            'grant_type': 'client_credentials',
+            'client_id': clientId,
+            'client_secret': clientSecret
+          }));
+    });
+    test('Credentials in HEADER (default behaviour)', () async {
+      //This is an exact copy of the previous method, except for the client initialization...
+      //It tests the default credentials location.
+      var oauth2Client = OAuth2Client(
+        authorizeUrl: authorizeUrl,
+        tokenUrl: tokenUrl,
+        redirectUri: redirectUri,
+        customUriScheme: customUriScheme,
+      );
+
+      final httpClient = HttpClientMock();
+
+      final authParams = {'grant_type': 'client_credentials'};
+
+      when(httpClient.post(Uri.parse(tokenUrl),
+              body: authParams, headers: captureAnyNamed('headers')))
+          .thenAnswer((_) async => http.Response('', 404));
+
+      await oauth2Client.getTokenWithClientCredentialsFlow(
+          clientId: clientId,
+          clientSecret: clientSecret,
+          httpClient: httpClient);
+
+      expect(
+          verify(httpClient.post(Uri.parse(tokenUrl),
+                  body: captureAnyNamed('body'),
+                  headers: captureAnyNamed('headers')))
+              .captured[1],
+          {'Authorization': 'Basic bXljbGllbnRpZDp0ZXN0X3NlY3JldA=='});
+
+      await oauth2Client.getTokenWithClientCredentialsFlow(
+          clientId: clientId,
+          clientSecret: clientSecret,
+          httpClient: httpClient);
+
+      expect(
+          verify(httpClient.post(Uri.parse(tokenUrl),
+                  body: captureAnyNamed('body'),
+                  headers: captureAnyNamed('headers')))
+              .captured[0],
+          isNot({
+            'grant_type': 'client_credentials',
+            'client_id': clientId,
+            'client_secret': clientSecret
+          }));
+    });
+  });
+
   group('Implicit flow Grant.', () {
     final oauth2Client = OAuth2Client(
         authorizeUrl: authorizeUrl,
