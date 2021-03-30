@@ -1,5 +1,6 @@
 ## [2.0.0-nullsafety] - 2021/03/30
 * Migration to null safety
+* Deprecated OAuth2Helper.setAuthorizationParams method
 ## [1.8.0] - 2021/03/28
 * Add compatibility with http 0.13 (thanks [bangfalse](https://github.com/bangfalse))
 * Allow passing credentials location in request body or header (thanks [sbu-WBT](https://github.com/wbt-solutions))
