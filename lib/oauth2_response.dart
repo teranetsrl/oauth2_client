@@ -15,7 +15,7 @@ class OAuth2Response {
   }
 
   OAuth2Response.fromMap(Map<String, dynamic> map) {
-    httpStatusCode = map['http_status_code'];
+    httpStatusCode = map['http_status_code'] ?? 200;
 
     if (map.containsKey('error') && map['error'] != null) {
       error = map['error'];
@@ -23,6 +23,7 @@ class OAuth2Response {
           ? map['error_description']
           : null;
       errorUri = map.containsKey('errorUri') ? map['errorUri'] : null;
+      httpStatusCode = 400;
     }
   }
 
