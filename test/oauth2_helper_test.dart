@@ -13,11 +13,9 @@ import 'package:http/http.dart' as http;
 import 'oauth2_helper_test.mocks.dart';
 
 @GenerateMocks([OAuth2Client])
-class TokenStorageMock extends Mock implements TokenStorage {}
-
+@GenerateMocks([http.Client])
+@GenerateMocks([TokenStorage])
 class SecureStorageMock extends Mock implements SecureStorage {}
-
-class HttpClientMock extends Mock implements http.Client {}
 
 void main() {
   final clientId = 'test_client';
@@ -30,7 +28,7 @@ void main() {
   final expiresIn = 3600;
 
   final oauth2Client = MockOAuth2Client();
-  final httpClient = HttpClientMock();
+  final httpClient = MockClient();
 
   when(oauth2Client.tokenUrl).thenReturn('http://my.test.app/token');
   when(oauth2Client.revokeUrl).thenReturn('http://my.test.app/revoke');
@@ -160,10 +158,16 @@ void main() {
       final tokenStorage =
           TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
 
+      when(httpClient.post(Uri.parse('https://my.test.url'),
+              // headers: {'Authorization': 'Bearer ' + accessToken},
+              headers: captureAnyNamed('headers'),
+              body: null,
+              encoding: null))
+          .thenAnswer(
+              (_) async => http.Response('{"error": "invalid_token"}', 401));
+
       _mockGetTokenWithAuthCodeFlow(oauth2Client);
       _mockRefreshToken(oauth2Client);
-
-      // var hlp = OAuth2Helper(oauth2Client, tokenStorage: tokenStorage);
 
       var hlp = OAuth2Helper(oauth2Client,
           grantType: OAuth2Helper.AUTHORIZATION_CODE,
@@ -171,11 +175,6 @@ void main() {
           clientSecret: clientSecret,
           scopes: scopes,
           tokenStorage: tokenStorage);
-
-      when(httpClient.post(Uri.parse('https://my.test.url'),
-              body: null, headers: {'Authorization': 'Bearer ' + accessToken}))
-          .thenAnswer(
-              (_) async => http.Response('{"error": "invalid_token"}', 401));
 
       var tknResp = await hlp.getToken();
 
@@ -228,7 +227,7 @@ void main() {
           tokenStorage: tokenStorage);
 
       when(httpClient.get(Uri.parse('https://my.test.url'),
-              headers: {'Authorization': 'Bearer ' + accessToken}))
+              headers: captureAnyNamed('headers')))
           .thenAnswer(
               (_) async => http.Response('{"error": "invalid_token"}', 401));
 
@@ -549,7 +548,7 @@ void main() {
         'http_status_code': 200
       });
 
-      final tokenStorage = TokenStorageMock();
+      final tokenStorage = MockTokenStorage();
       when(tokenStorage.getToken(scopes)).thenAnswer((_) async => tknResp);
       when(tokenStorage.deleteToken(scopes)).thenAnswer((_) async => true);
 
@@ -574,7 +573,7 @@ void main() {
 
     test('Token revocation without a previously fetched token (fallback)',
         () async {
-      final tokenStorage = TokenStorageMock();
+      final tokenStorage = MockTokenStorage();
       when(tokenStorage.getToken(scopes)).thenAnswer((_) async => null);
 
       final hlp = OAuth2Helper(oauth2Client,

@@ -6,7 +6,7 @@ class VolatileStorage extends Storage {
   VolatileStorage();
 
   @override
-  Future<String> read(String key) async {
+  Future<String?> read(String key) async {
     return Future.value(storage.containsKey(key) ? storage[key] : null);
   }
 

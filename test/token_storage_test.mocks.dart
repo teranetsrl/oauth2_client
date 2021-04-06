@@ -19,7 +19,7 @@ class MockSecureStorage extends _i1.Mock implements _i2.SecureStorage {
   }
 
   @override
-  _i3.Future<String?> read(String key) =>
+  _i3.Future<String?> read(String? key) =>
       (super.noSuchMethod(Invocation.method(#read, [key]),
           returnValue: Future.value('')) as _i3.Future<String?>);
   @override

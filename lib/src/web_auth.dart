@@ -1,4 +1,4 @@
-import 'package:flutter_web_auth/flutter_web_auth.dart'; // ignore: import_of_legacy_library_into_null_safe
+import 'package:flutter_web_auth/flutter_web_auth.dart';
 
 class WebAuth {
   Future<String> authenticate(
