@@ -37,7 +37,7 @@ void main() {
         resp.toMap(),
         allOf(
             containsPair('error', 'generic_error'),
-            containsPair('errorDescription', 'err_desc'),
+            containsPair('error_description', 'err_desc'),
             containsPair('http_status_code', 400)));
   });
 

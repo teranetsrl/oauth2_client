@@ -38,11 +38,11 @@ void main() {
         'refresh_token': refreshToken,
         'scope': scopes,
         'expires_in': 1,
-        'http_status_code': 200
+        'http_status_code': 200,
+        'expiration_date': DateTime.now().add(Duration(seconds: 1))
       };
 
       final resp = AccessTokenResponse.fromMap(respMap);
-
       await Future.delayed(const Duration(seconds: 2), () => 'X');
 
       expect(resp.isExpired(), true);
@@ -50,13 +50,7 @@ void main() {
     });
 
     test('Error response', () async {
-      final respMap = {
-        'error': 'ERROR',
-        'error_description': 'ERROR_DESC',
-      };
-
-      final resp = AccessTokenResponse.fromMap(respMap);
-
+      final resp = AccessTokenResponse.errorResponse();
       expect(resp.isValid(), false);
     });
 
@@ -78,12 +72,12 @@ void main() {
       expect(
           resp.toMap(),
           allOf(
+              containsPair('http_status_code', 200),
               containsPair('access_token', accessToken),
               containsPair('token_type', tokenType),
               containsPair('refresh_token', refreshToken),
               containsPair('scope', scopes),
-              containsPair(
-                  'expiration_date', expirationDate.millisecondsSinceEpoch)));
+              containsPair('expires_in', expiresIn)));
     });
   });
 
