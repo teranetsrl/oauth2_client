@@ -1,17 +1,17 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:http/http.dart' as http;
+import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:http/http.dart' as http;
 import 'package:oauth2_client/access_token_response.dart';
 import 'package:oauth2_client/oauth2_client.dart';
 import 'package:oauth2_client/src/oauth2_utils.dart';
 import 'package:oauth2_client/src/web_auth.dart';
+import 'oauth2_client_test.mocks.dart';
 
-class WebAuthMockClient extends Mock implements WebAuth {}
-
-class HttpClientMock extends Mock implements http.Client {}
-
+@GenerateMocks([WebAuth])
+@GenerateMocks([http.Client])
 void main() {
-  final webAuthClient = WebAuthMockClient();
+  final webAuthClient = MockWebAuth();
 
   // final customUriScheme = 'myurlscheme:/';
   final customUriScheme = 'myurlscheme';
@@ -69,7 +69,7 @@ void main() {
     });
 
     test('Fetch Access Token', () async {
-      final httpClient = HttpClientMock();
+      final httpClient = MockClient();
 
       final accessToken = '12345';
       final refreshToken = '54321';
@@ -108,7 +108,7 @@ void main() {
     });
 
     test('Fetch Access Token with custom headers', () async {
-      final httpClient = HttpClientMock();
+      final httpClient = MockClient();
 
       oauth2Client.accessTokenRequestHeaders = {'test': '42'};
 
@@ -151,7 +151,7 @@ void main() {
     });
 
     test('Error fetching Access Token', () async {
-      final httpClient = HttpClientMock();
+      final httpClient = MockClient();
 
       var tokenParams = {
         'grant_type': 'authorization_code',
@@ -188,7 +188,7 @@ void main() {
         'testParam': 'testVal'
       };
 
-      final httpClient = HttpClientMock();
+      final httpClient = MockClient();
 
       final accessToken = '12345';
       final refreshToken = '54321';
@@ -241,7 +241,7 @@ void main() {
         'code_challenge_method': 'S256'
       };
 
-      final httpClient = HttpClientMock();
+      final httpClient = MockClient();
 
       final accessToken = '12345';
       final refreshToken = '54321';
@@ -288,7 +288,7 @@ void main() {
     });
 
     test('Refresh token', () async {
-      final httpClient = HttpClientMock();
+      final httpClient = MockClient();
 
       when(httpClient.post(Uri.parse(tokenUrl),
               body: {
@@ -321,7 +321,7 @@ void main() {
     });
 
     test('Error in refreshing token', () async {
-      final httpClient = HttpClientMock();
+      final httpClient = MockClient();
 
       when(httpClient.post(Uri.parse(tokenUrl),
               body: {
@@ -539,7 +539,7 @@ void main() {
         customUriScheme: customUriScheme);
 
     test('Get new token', () async {
-      final httpClient = HttpClientMock();
+      final httpClient = MockClient();
 
       final accessToken = '12345';
       final refreshToken = '54321';
@@ -576,7 +576,7 @@ void main() {
     });
 
     test('Error in getting new token', () async {
-      final httpClient = HttpClientMock();
+      final httpClient = MockClient();
 
       final authParams = {
         'grant_type': 'client_credentials',
@@ -614,7 +614,7 @@ void main() {
         credentialsLocation: CredentialsLocation.BODY,
       );
 
-      final httpClient = HttpClientMock();
+      final httpClient = MockClient();
 
       final authParams = {
         'grant_type': 'client_credentials',
@@ -652,7 +652,7 @@ void main() {
         credentialsLocation: CredentialsLocation.HEADER,
       );
 
-      final httpClient = HttpClientMock();
+      final httpClient = MockClient();
 
       final authParams = {'grant_type': 'client_credentials'};
 
@@ -698,7 +698,7 @@ void main() {
         customUriScheme: customUriScheme,
       );
 
-      final httpClient = HttpClientMock();
+      final httpClient = MockClient();
 
       final authParams = {'grant_type': 'client_credentials'};
 
@@ -744,7 +744,7 @@ void main() {
         customUriScheme: customUriScheme);
 
     test('Get new token', () async {
-      final httpClient = HttpClientMock();
+      final httpClient = MockClient();
 
       final accessToken = '12345';
 
@@ -786,7 +786,7 @@ void main() {
         customUriScheme: customUriScheme);
 
     test('Access token revocation', () async {
-      final httpClient = HttpClientMock();
+      final httpClient = MockClient();
 
       when(httpClient.post(Uri.parse(revokeUrl), body: {
         'token': accessToken,
@@ -812,7 +812,7 @@ void main() {
     });
 
     test('Refresh token revocation', () async {
-      final httpClient = HttpClientMock();
+      final httpClient = MockClient();
 
       when(httpClient.post(Uri.parse(revokeUrl),
               body: {
@@ -841,7 +841,7 @@ void main() {
     });
 
     test('Revoke both Access and Refresh token', () async {
-      final httpClient = HttpClientMock();
+      final httpClient = MockClient();
 
       when(httpClient.post(Uri.parse(revokeUrl),
               body: {
@@ -879,7 +879,7 @@ void main() {
     });
 
     test('Error in token revocation(1)', () async {
-      final httpClient = HttpClientMock();
+      final httpClient = MockClient();
 
       when(httpClient.post(Uri.parse(revokeUrl),
               body: {
@@ -918,7 +918,7 @@ void main() {
     });
 
     test('Error in token revocation(2)', () async {
-      final httpClient = HttpClientMock();
+      final httpClient = MockClient();
 
       when(httpClient.post(Uri.parse(revokeUrl),
               body: {
