@@ -34,7 +34,7 @@ jobs:
 
     - run: flutter analyze
 
-    - run: flutter test --no-sound-null-safety --coverage
+    - run: flutter test --coverage
 
     - uses: codecov/codecov-action@v1.3.1
 
