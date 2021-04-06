@@ -1,3 +1,6 @@
+## [2.0.1] - 2021/04/06
+* Complete migration to sound null safety
+* Updated dependencies
 ## [2.0.0-nullsafety] - 2021/03/30
 * Migration to null safety
 * Deprecated OAuth2Helper.setAuthorizationParams method
