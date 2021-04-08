@@ -69,7 +69,7 @@ import 'package:http/http.dart' as http;
 //Instantiate an OAuth2Client...
 GoogleOAuth2Client client = GoogleOAuth2Client(
 	customUriScheme: 'my.test.app' //Must correspond to the AndroidManifest's "android:scheme" attribute
-	redirectUri: 'my.test.app://oauth2redirect', //Can be any URI, but the scheme part must correspond to the customeUriScheme
+	redirectUri: 'my.test.app:/oauth2redirect', //Can be any URI, but the scheme part must correspond to the customeUriScheme
 );
 
 //Then, instantiate the helper passing the previously instantiated client
@@ -81,6 +81,8 @@ OAuth2Helper oauth2Helper = OAuth2Helper(client,
 
 ```
 In the example we used the Google client, but you can use any other provided client or implement your own (see below).
+
+_Note that the redirect uri has just one slash. This is [required per  Google specs](https://developers.google.com/identity/protocols/oauth2/native-app#step-2:-send-a-request-to-googles-oauth-2.0-server). Other providers could require double slash!_
 
 Now you can use the helper class to perform HTTP requests to the server.
 
@@ -111,21 +113,21 @@ import 'package:oauth2_client/access_token_response.dart';
 client = MyClient(...);
 
 //Request a token using the Authorization Code flow...
-AccessToken token = client.getTokenWithAuthCodeFlow(
+AccessTokenResponse tknResp = await client.getTokenWithAuthCodeFlow(
 	clientId: 'your_client_id',
 	scopes: ['scope1', 'scope2', ...]
 );
 
 //Request a token using the Client Credentials flow...
-AccessToken token = client.getTokenWithClientCredentialsFlow(
+AccessTokenResponse tknResp = await client.getTokenWithClientCredentialsFlow(
 	clientId: 'XXX', //Your client id
 	clientSecret: 'XXX', //Your client secret
 	scopes: ['scope1', 'scope2', ...] //Optional
 );
 
 //Or, if you already have a token, check if it is expired and in case refresh it...
-if(token.isExpired()) {
-	token = client.refreshToken(token.refreshToken);
+if(tknResp.isExpired()) {
+	tknResp = client.refreshToken(tknResp.refreshToken);
 }
 ```
 # Predefined clients #
@@ -152,7 +154,7 @@ Then in your code:
 import 'package:oauth2_client/google_oauth2_client.dart';
 
 OAuth2Client googleClient = GoogleOAuth2Client(
-	redirectUri: 'my.test.app://oauth2redirect',
+	redirectUri: 'my.test.app:/oauth2redirect', //Just one slash, required by Google specs
 	customUriScheme: 'my.test.app'
 );
 ```
