@@ -172,8 +172,7 @@ class OAuth2Client {
         params: params,
         httpClient: httpClient);
 
-    return AccessTokenResponse.fromHttpResponse(response,
-        requestedScopes: scopes);
+    return http2TokenResponse(response, requestedScopes: scopes);
   }
 
   /// Requests an Authorization Code to be used in the Authorization Code grant.
@@ -231,8 +230,7 @@ class OAuth2Client {
         headers: _accessTokenRequestHeaders,
         httpClient: httpClient);
 
-    return AccessTokenResponse.fromHttpResponse(response,
-        requestedScopes: scopes);
+    return http2TokenResponse(response, requestedScopes: scopes);
   }
 
   /// Refreshes an Access Token issuing a refresh_token grant to the OAuth2 server.
@@ -247,7 +245,7 @@ class OAuth2Client {
         params: params,
         httpClient: httpClient);
 
-    return AccessTokenResponse.fromHttpResponse(response);
+    return http2TokenResponse(response);
   }
 
   /// Revokes both the Access and the Refresh tokens in the provided [tknResp]
@@ -416,6 +414,12 @@ class OAuth2Client {
     return params;
   }
 
+  AccessTokenResponse http2TokenResponse(http.Response response,
+      {List<String>? requestedScopes}) {
+    return AccessTokenResponse.fromHttpResponse(response,
+        requestedScopes: requestedScopes);
+  }
+
   /// Revokes the specified token [type] in the [tknResp]
   Future<OAuth2Response> _revokeTokenByType(
       AccessTokenResponse tknResp, String tokenType,
@@ -439,7 +443,7 @@ class OAuth2Client {
       http.Response response =
           await httpClient.post(Uri.parse(revokeUrl!), body: params);
 
-      resp = OAuth2Response.fromHttpResponse(response);
+      resp = http2TokenResponse(response);
     }
 
     return resp;
