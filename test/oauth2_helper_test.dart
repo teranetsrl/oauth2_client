@@ -68,6 +68,10 @@ void main() {
       respMap.forEach((k, v) => accessTokenMap[k] = v);
     }
 
+    accessTokenMap['expiration_date'] = DateTime.now()
+        .add(Duration(seconds: accessTokenMap['expires_in']))
+        .millisecondsSinceEpoch;
+
     when(oauth2Client.getTokenWithClientCredentialsFlow(
             clientId: clientId, clientSecret: clientSecret, scopes: scopes))
         .thenAnswer((_) async => AccessTokenResponse.fromMap(accessTokenMap));
@@ -129,7 +133,11 @@ void main() {
       final tokenStorage =
           TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
 
-      _mockGetTokenWithAuthCodeFlow(oauth2Client, respMap: {'expires_in': 1});
+      _mockGetTokenWithAuthCodeFlow(oauth2Client, respMap: {
+        'expires_in': 1,
+        'expiration_date':
+            DateTime.now().add(Duration(seconds: 1)).millisecondsSinceEpoch
+      });
 
       _mockRefreshToken(oauth2Client);
 
@@ -141,7 +149,6 @@ void main() {
           tokenStorage: tokenStorage);
 
       var tknResp = await hlp.getToken();
-
       expect(tknResp?.isValid(), true);
       expect(tknResp?.accessToken, accessToken);
 
@@ -790,6 +797,9 @@ void main() {
                 'access_token': accessToken,
                 'token_type': tokenType,
                 'expires_in': expiresIn,
+                'expiration_date': DateTime.now()
+                    .add(Duration(seconds: expiresIn))
+                    .millisecondsSinceEpoch,
                 'http_status_code': 200
               }));
 

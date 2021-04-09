@@ -39,7 +39,8 @@ void main() {
         'scope': scopes,
         'expires_in': 1,
         'http_status_code': 200,
-        'expiration_date': DateTime.now().add(Duration(seconds: 1))
+        'expiration_date':
+            DateTime.now().add(Duration(seconds: 1)).millisecondsSinceEpoch
       };
 
       final resp = AccessTokenResponse.fromMap(respMap);
@@ -161,5 +162,17 @@ void main() {
 
     expect(resp.isValid(), true);
     expect(resp.expiresIn, 3600);
+  });
+
+  test('Fetch non standard response field', () async {
+    final respMap = {
+      'token_type': tokenType,
+      'http_status_code': 200,
+      'custom_param': 'custom_val'
+    };
+
+    final resp = AccessTokenResponse.fromMap(respMap);
+
+    expect(resp.getRespField('custom_param'), 'custom_val');
   });
 }
