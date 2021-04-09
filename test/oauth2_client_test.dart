@@ -956,4 +956,28 @@ void main() {
       expect(revokeResp.isValid(), false);
     });
   });
+
+  group('Non standard providers.', () {
+    test('Standard scope separator', () async {
+      var oauth2Client = OAuth2Client(
+          authorizeUrl: authorizeUrl,
+          tokenUrl: tokenUrl,
+          revokeUrl: revokeUrl,
+          redirectUri: redirectUri,
+          customUriScheme: customUriScheme);
+
+      expect(oauth2Client.serializeScopes(scopes), 'scope1+scope2');
+    });
+    test('Custom scope separator', () async {
+      var oauth2Client = OAuth2Client(
+          authorizeUrl: authorizeUrl,
+          tokenUrl: tokenUrl,
+          revokeUrl: revokeUrl,
+          redirectUri: redirectUri,
+          customUriScheme: customUriScheme,
+          scopeSeparator: '_');
+
+      expect(oauth2Client.serializeScopes(scopes), 'scope1_scope2');
+    });
+  });
 }
