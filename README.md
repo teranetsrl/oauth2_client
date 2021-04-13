@@ -266,10 +266,27 @@ print(tknResp.scope);
 
 Apart from the order, the printed scopes should correspond **exactly** to the ones you requested.
 
+### I get an error *PlatformException(CANCELED, User canceled login, null, null)* on Android ###
+Please make sure you modified the *AndroidManifest.xml* file adding the  ```flutter_web_auth.CallbackActivity``` and the intent filter needed to open the browser window for the authorization workflow.
+Besides, make sure the ```android:scheme``` attribute value corresponds to the scheme used in the redirect uri.
+
+The AndroidManifest.xml file should contain an activity similar to this:
+
+```xml
+<activity android:name="com.linusu.flutter_web_auth.CallbackActivity" >
+	<intent-filter android:label="flutter_web_auth">
+		<action android:name="android.intent.action.VIEW" />
+		<category android:name="android.intent.category.DEFAULT" />
+		<category android:name="android.intent.category.BROWSABLE" />
+		<data android:scheme="my.test.app" />
+	</intent-filter>
+</activity>
+```
+
 ### Can I use https instead of a custom scheme? ###
 
 If you want to use an HTTPS url as the redirect uri, you must setup it as an [App Link](https://developer.android.com/training/app-links/index.html).
-First you need to specify both the android:host and android:pathPrefix attributes, as long as the _android:autoVerify="true"_ attribute in the intent-filter tag inside the _AndroidManifest.xml_:
+First you need to specify both the ```android:host``` and ```android:pathPrefix``` attributes, as long as the ```android:autoVerify="true"``` attribute in the intent-filter tag inside the _AndroidManifest.xml_:
 
 ```xml
 <activity android:name="com.linusu.flutter_web_auth.CallbackActivity" >
