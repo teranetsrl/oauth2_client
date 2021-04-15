@@ -130,6 +130,22 @@ if(tknResp.isExpired()) {
 	tknResp = client.refreshToken(tknResp.refreshToken);
 }
 ```
+
+## Acessing custom/non standard response fields ##
+You can access non standard fields in the response by calling the ```getRespField``` method.
+
+For example:
+```dart
+AccessTokenResponse tknResp = await client.getTokenWithAuthCodeFlow(
+	clientId: 'your_client_id',
+	scopes: ['scope1', 'scope2', ...]
+);
+
+if(tknResp.isExpired()) {
+	var myCustomFieldVal = tknResp.getRespField('my_custom_field');
+}
+```
+
 # Predefined clients #
 The library implements clients for the following services/organizations:
 
