@@ -38,21 +38,32 @@ class OAuth2Client {
   String? refreshUrl;
   String? revokeUrl;
   String authorizeUrl;
+  String scopeSeparator;
 
   Map<String, String> _accessTokenRequestHeaders = {};
 
   late WebAuth webAuthClient;
   CredentialsLocation credentialsLocation;
 
-  OAuth2Client({
-    required this.authorizeUrl,
-    required this.tokenUrl,
-    this.refreshUrl,
-    this.revokeUrl,
-    required this.redirectUri,
-    required this.customUriScheme,
-    this.credentialsLocation = CredentialsLocation.HEADER,
-  }) {
+  /// Creates a new client instance with the following parameters:
+  ///
+  /// * [authorizeUrl]: the url that must be used to fetch authorization codes (for Authorization Code flows)
+  /// * [tokenUrl]: the url to be used for generating the OAuth2 access tokens
+  /// * [refreshUrl]: the url that must be used for refreshing an Access Token
+  /// * [revokeUrl]: the url to be invoked for token revocation
+  /// * [redirectUri]: the redirect uri defined in the provider's client registration panel
+  /// * [customUriScheme]: the scheme used for the redirect uri
+  /// * [credentialsLocation]: where the credentials (client ID / client secret) should be passed (header / body)
+  /// * [scopeSeparator]: the separator that has to be used to serialize scopes in the token request
+  OAuth2Client(
+      {required this.authorizeUrl,
+      required this.tokenUrl,
+      this.refreshUrl,
+      this.revokeUrl,
+      required this.redirectUri,
+      required this.customUriScheme,
+      this.credentialsLocation = CredentialsLocation.HEADER,
+      this.scopeSeparator = '+'}) {
     webAuthClient = WebAuth();
   }
 
@@ -163,7 +174,9 @@ class OAuth2Client {
       httpClient}) async {
     var params = <String, String>{'grant_type': 'client_credentials'};
 
-    if (scopes != null) params['scope'] = scopes.map((s) => s.trim()).join('+');
+    if (scopes != null && scopes.isNotEmpty) {
+      params['scope'] = serializeScopes(scopes);
+    }
 
     var response = await _performAuthorizedRequest(
         url: tokenUrl,
@@ -172,8 +185,7 @@ class OAuth2Client {
         params: params,
         httpClient: httpClient);
 
-    return AccessTokenResponse.fromHttpResponse(response,
-        requestedScopes: scopes);
+    return http2TokenResponse(response, requestedScopes: scopes);
   }
 
   /// Requests an Authorization Code to be used in the Authorization Code grant.
@@ -231,8 +243,7 @@ class OAuth2Client {
         headers: _accessTokenRequestHeaders,
         httpClient: httpClient);
 
-    return AccessTokenResponse.fromHttpResponse(response,
-        requestedScopes: scopes);
+    return http2TokenResponse(response, requestedScopes: scopes);
   }
 
   /// Refreshes an Access Token issuing a refresh_token grant to the OAuth2 server.
@@ -247,7 +258,7 @@ class OAuth2Client {
         params: params,
         httpClient: httpClient);
 
-    return AccessTokenResponse.fromHttpResponse(response);
+    return http2TokenResponse(response);
   }
 
   /// Revokes both the Access and the Refresh tokens in the provided [tknResp]
@@ -298,7 +309,9 @@ class OAuth2Client {
       params['redirect_uri'] = redirectUri;
     }
 
-    if (scopes != null && scopes.isNotEmpty) params['scope'] = scopes;
+    if (scopes != null && scopes.isNotEmpty) {
+      params['scope'] = serializeScopes(scopes);
+    }
 
     if (enableState && state != null && state.isNotEmpty) {
       params['state'] = state;
@@ -416,6 +429,16 @@ class OAuth2Client {
     return params;
   }
 
+  AccessTokenResponse http2TokenResponse(http.Response response,
+      {List<String>? requestedScopes}) {
+    return AccessTokenResponse.fromHttpResponse(response,
+        requestedScopes: requestedScopes);
+  }
+
+  String serializeScopes(List<String> scopes) {
+    return scopes.map((s) => s.trim()).join(scopeSeparator);
+  }
+
   /// Revokes the specified token [type] in the [tknResp]
   Future<OAuth2Response> _revokeTokenByType(
       AccessTokenResponse tknResp, String tokenType,
@@ -439,7 +462,7 @@ class OAuth2Client {
       http.Response response =
           await httpClient.post(Uri.parse(revokeUrl!), body: params);
 
-      resp = OAuth2Response.fromHttpResponse(response);
+      resp = http2TokenResponse(response);
     }
 
     return resp;
