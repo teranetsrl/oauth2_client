@@ -67,9 +67,6 @@ void main() {
 
       final resp = AccessTokenResponse.fromMap(respMap);
 
-      var now = DateTime.now();
-      var expirationDate = now.add(Duration(seconds: expiresIn));
-
       expect(
           resp.toMap(),
           allOf(
