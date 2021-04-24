@@ -379,7 +379,7 @@ class OAuth2Client {
     params ??= {};
 
     //If a client secret has been specified, it will be sent in the "Authorization" header instead of a body parameter...
-    if (clientSecret == null || clientSecret.isEmpty) {
+    if (clientSecret == null) {
       if (clientId.isNotEmpty) {
         params['client_id'] = clientId;
       }
@@ -409,7 +409,7 @@ class OAuth2Client {
     var headers = <String, String>{};
 
     if ((clientId.isNotEmpty) &&
-        (clientSecret != null && clientSecret.isNotEmpty)) {
+        (clientSecret != null)) {
       var credentials =
           base64.encode(utf8.encode(clientId + ':' + clientSecret));
 
