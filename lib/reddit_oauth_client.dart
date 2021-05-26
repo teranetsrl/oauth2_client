@@ -1,8 +1,8 @@
 import 'package:oauth2_client/oauth2_client.dart';
 
-/// Implements an OAuth2 client against GitHub
+/// Implements an OAuth2 client against Reddit
 ///
-/// In order to use this client you need to first create a new OAuth2 App in the GittHub Developer Settings (https://github.com/settings/developers)
+/// In order to use this client you need to first create a new OAuth2 App in Reddit autorized apps settings (https://www.reddit.com/prefs/apps)
 ///
 class RedditOauth2Client extends OAuth2Client {
   RedditOauth2Client(
