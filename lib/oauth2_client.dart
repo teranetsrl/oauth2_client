@@ -5,7 +5,15 @@ import 'package:oauth2_client/access_token_response.dart';
 import 'package:oauth2_client/authorization_response.dart';
 import 'package:oauth2_client/oauth2_response.dart';
 import 'package:oauth2_client/src/oauth2_utils.dart';
-import 'package:oauth2_client/src/web_auth.dart';
+// import 'package:oauth2_client/src/web_auth.dart';
+
+import 'src/base_web_auth.dart';
+import 'src/web_auth.dart'
+    // ignore: uri_does_not_exist
+    if (dart.library.io) 'src/io_web_auth.dart'
+    // ignore: uri_does_not_exist
+    if (dart.library.html) 'src/browser_web_auth.dart';
+
 import 'package:random_string/random_string.dart';
 
 enum CredentialsLocation { HEADER, BODY }
@@ -42,7 +50,7 @@ class OAuth2Client {
 
   Map<String, String> _accessTokenRequestHeaders = {};
 
-  late WebAuth webAuthClient;
+  BaseWebAuth webAuthClient = createWebAuth();
   CredentialsLocation credentialsLocation;
 
   /// Creates a new client instance with the following parameters:
@@ -63,9 +71,7 @@ class OAuth2Client {
       required this.redirectUri,
       required this.customUriScheme,
       this.credentialsLocation = CredentialsLocation.HEADER,
-      this.scopeSeparator = '+'}) {
-    webAuthClient = WebAuth();
-  }
+      this.scopeSeparator = '+'});
 
   /// Requests an Access Token to the OAuth2 endpoint using the Implicit grant flow (https://tools.ietf.org/html/rfc6749#page-31)
   Future<AccessTokenResponse> getTokenWithImplicitGrantFlow({
@@ -74,7 +80,7 @@ class OAuth2Client {
     bool enableState = true,
     String? state,
     httpClient,
-    webAuthClient,
+    BaseWebAuth? webAuthClient,
   }) async {
     httpClient ??= http.Client();
     webAuthClient ??= this.webAuthClient;
@@ -91,7 +97,9 @@ class OAuth2Client {
 
     // Present the dialog to the user
     final result = await webAuthClient.authenticate(
-        url: authorizeUrl, callbackUrlScheme: customUriScheme);
+        url: authorizeUrl,
+        callbackUrlScheme: customUriScheme,
+        redirectUrl: redirectUri);
 
     final fragment = Uri.splitQueryString(Uri.parse(result).fragment);
 
@@ -125,7 +133,7 @@ class OAuth2Client {
     Map<String, dynamic>? authCodeParams,
     Map<String, dynamic>? accessTokenParams,
     httpClient,
-    webAuthClient,
+    BaseWebAuth? webAuthClient,
   }) async {
     AccessTokenResponse? tknResp;
 
@@ -196,7 +204,7 @@ class OAuth2Client {
     bool enableState = true,
     String? state,
     Map<String, dynamic>? customParams,
-    webAuthClient,
+    BaseWebAuth? webAuthClient,
   }) async {
     webAuthClient ??= this.webAuthClient;
 
@@ -215,7 +223,9 @@ class OAuth2Client {
 
     // Present the dialog to the user
     final result = await webAuthClient.authenticate(
-        url: authorizeUrl, callbackUrlScheme: customUriScheme);
+        url: authorizeUrl,
+        callbackUrlScheme: customUriScheme,
+        redirectUrl: redirectUri);
 
     return AuthorizationResponse.fromRedirectUri(result, state);
   }
