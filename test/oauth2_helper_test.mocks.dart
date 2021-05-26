@@ -15,14 +15,14 @@ import 'package:oauth2_client/access_token_response.dart' as _i3;
 import 'package:oauth2_client/authorization_response.dart' as _i4;
 import 'package:oauth2_client/oauth2_client.dart' as _i10;
 import 'package:oauth2_client/oauth2_response.dart' as _i5;
+import 'package:oauth2_client/src/base_web_auth.dart' as _i2;
 import 'package:oauth2_client/src/storage.dart' as _i9;
 import 'package:oauth2_client/src/token_storage.dart' as _i15;
-import 'package:oauth2_client/src/web_auth.dart' as _i2;
 
 // ignore_for_file: comment_references
 // ignore_for_file: unnecessary_parenthesis
 
-class _FakeWebAuth extends _i1.Fake implements _i2.WebAuth {}
+class _FakeBaseWebAuth extends _i1.Fake implements _i2.BaseWebAuth {}
 
 class _FakeAccessTokenResponse extends _i1.Fake
     implements _i3.AccessTokenResponse {}
@@ -81,11 +81,19 @@ class MockOAuth2Client extends _i1.Mock implements _i10.OAuth2Client {
       super.noSuchMethod(Invocation.setter(#authorizeUrl, _authorizeUrl),
           returnValueForMissingStub: null);
   @override
-  _i2.WebAuth get webAuthClient =>
-      (super.noSuchMethod(Invocation.getter(#webAuthClient),
-          returnValue: _FakeWebAuth()) as _i2.WebAuth);
+  String get scopeSeparator =>
+      (super.noSuchMethod(Invocation.getter(#scopeSeparator), returnValue: '')
+          as String);
   @override
-  set webAuthClient(_i2.WebAuth? _webAuthClient) =>
+  set scopeSeparator(String? _scopeSeparator) =>
+      super.noSuchMethod(Invocation.setter(#scopeSeparator, _scopeSeparator),
+          returnValueForMissingStub: null);
+  @override
+  _i2.BaseWebAuth get webAuthClient =>
+      (super.noSuchMethod(Invocation.getter(#webAuthClient),
+          returnValue: _FakeBaseWebAuth()) as _i2.BaseWebAuth);
+  @override
+  set webAuthClient(_i2.BaseWebAuth? _webAuthClient) =>
       super.noSuchMethod(Invocation.setter(#webAuthClient, _webAuthClient),
           returnValueForMissingStub: null);
   @override
@@ -109,7 +117,7 @@ class MockOAuth2Client extends _i1.Mock implements _i10.OAuth2Client {
           bool? enableState = true,
           String? state,
           dynamic httpClient,
-          dynamic webAuthClient}) =>
+          _i2.BaseWebAuth? webAuthClient}) =>
       (super.noSuchMethod(
               Invocation.method(#getTokenWithImplicitGrantFlow, [], {
                 #clientId: clientId,
@@ -134,7 +142,7 @@ class MockOAuth2Client extends _i1.Mock implements _i10.OAuth2Client {
           Map<String, dynamic>? authCodeParams,
           Map<String, dynamic>? accessTokenParams,
           dynamic httpClient,
-          dynamic webAuthClient}) =>
+          _i2.BaseWebAuth? webAuthClient}) =>
       (super.noSuchMethod(
               Invocation.method(#getTokenWithAuthCodeFlow, [], {
                 #clientId: clientId,
@@ -175,7 +183,7 @@ class MockOAuth2Client extends _i1.Mock implements _i10.OAuth2Client {
           bool? enableState = true,
           String? state,
           Map<String, dynamic>? customParams,
-          dynamic webAuthClient}) =>
+          _i2.BaseWebAuth? webAuthClient}) =>
       (super.noSuchMethod(
               Invocation.method(#requestAuthorization, [], {
                 #clientId: clientId,
@@ -316,6 +324,17 @@ class MockOAuth2Client extends _i1.Mock implements _i10.OAuth2Client {
           Invocation.method(
               #getRefreshUrlParams, [], {#refreshToken: refreshToken}),
           returnValue: <String, String>{}) as Map<String, String>);
+  @override
+  _i3.AccessTokenResponse http2TokenResponse(_i6.Response? response,
+          {List<String>? requestedScopes}) =>
+      (super.noSuchMethod(
+          Invocation.method(#http2TokenResponse, [response],
+              {#requestedScopes: requestedScopes}),
+          returnValue: _FakeAccessTokenResponse()) as _i3.AccessTokenResponse);
+  @override
+  String serializeScopes(List<String>? scopes) =>
+      (super.noSuchMethod(Invocation.method(#serializeScopes, [scopes]),
+          returnValue: '') as String);
 }
 
 /// A class which mocks [Client].

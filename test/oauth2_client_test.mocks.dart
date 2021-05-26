@@ -11,7 +11,7 @@ import 'package:http/src/client.dart' as _i7;
 import 'package:http/src/response.dart' as _i2;
 import 'package:http/src/streamed_response.dart' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:oauth2_client/src/web_auth.dart' as _i5;
+import 'package:oauth2_client/src/base_web_auth.dart' as _i5;
 
 // ignore_for_file: comment_references
 // ignore_for_file: unnecessary_parenthesis
@@ -22,19 +22,23 @@ class _FakeUint8List extends _i1.Fake implements _i3.Uint8List {}
 
 class _FakeStreamedResponse extends _i1.Fake implements _i4.StreamedResponse {}
 
-/// A class which mocks [WebAuth].
+/// A class which mocks [BaseWebAuth].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockWebAuth extends _i1.Mock implements _i5.WebAuth {
-  MockWebAuth() {
+class MockBaseWebAuth extends _i1.Mock implements _i5.BaseWebAuth {
+  MockBaseWebAuth() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i6.Future<String> authenticate({String? callbackUrlScheme, String? url}) =>
+  _i6.Future<String> authenticate(
+          {String? callbackUrlScheme, String? url, String? redirectUrl}) =>
       (super.noSuchMethod(
-          Invocation.method(#authenticate, [],
-              {#callbackUrlScheme: callbackUrlScheme, #url: url}),
+          Invocation.method(#authenticate, [], {
+            #callbackUrlScheme: callbackUrlScheme,
+            #url: url,
+            #redirectUrl: redirectUrl
+          }),
           returnValue: Future.value('')) as _i6.Future<String>);
 }
 

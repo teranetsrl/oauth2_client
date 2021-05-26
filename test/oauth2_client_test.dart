@@ -5,13 +5,13 @@ import 'package:http/http.dart' as http;
 import 'package:oauth2_client/access_token_response.dart';
 import 'package:oauth2_client/oauth2_client.dart';
 import 'package:oauth2_client/src/oauth2_utils.dart';
-import 'package:oauth2_client/src/web_auth.dart';
+import 'package:oauth2_client/src/base_web_auth.dart';
 import 'oauth2_client_test.mocks.dart';
 
-@GenerateMocks([WebAuth])
+@GenerateMocks([BaseWebAuth])
 @GenerateMocks([http.Client])
 void main() {
-  final webAuthClient = MockWebAuth();
+  final webAuthClient = MockBaseWebAuth();
 
   // final customUriScheme = 'myurlscheme:/';
   final customUriScheme = 'myurlscheme';
@@ -54,7 +54,8 @@ void main() {
 
       when(webAuthClient.authenticate(
               url: OAuth2Utils.addParamsToUrl(authorizeUrl, authParams),
-              callbackUrlScheme: customUriScheme))
+              callbackUrlScheme: customUriScheme,
+              redirectUrl: redirectUri))
           .thenAnswer((_) async =>
               redirectUri + '?code=' + authCode + '&state=' + state);
 
@@ -214,7 +215,8 @@ void main() {
 
       when(webAuthClient.authenticate(
               url: OAuth2Utils.addParamsToUrl(authorizeUrl, authParams),
-              callbackUrlScheme: customUriScheme))
+              callbackUrlScheme: customUriScheme,
+              redirectUrl: redirectUri))
           .thenAnswer((_) async =>
               redirectUri + '?code=' + authCode + '&state=' + state);
 
@@ -267,7 +269,8 @@ void main() {
 
       when(webAuthClient.authenticate(
               url: OAuth2Utils.addParamsToUrl(authorizeUrl, authParams),
-              callbackUrlScheme: customUriScheme))
+              callbackUrlScheme: customUriScheme,
+              redirectUrl: redirectUri))
           .thenAnswer((_) async =>
               redirectUri + '?code=' + authCode + '&state=' + state);
 
@@ -517,7 +520,8 @@ void main() {
 
       when(webAuthClient.authenticate(
               url: OAuth2Utils.addParamsToUrl(authorizeUrl, authParams),
-              callbackUrlScheme: customUriScheme))
+              callbackUrlScheme: customUriScheme,
+              redirectUrl: redirectUri))
           .thenAnswer((_) async => redirectUri + '?code=' + authCode);
 
       final authResponse = await oauth2Client.requestAuthorization(
@@ -758,7 +762,8 @@ void main() {
 
       when(webAuthClient.authenticate(
               url: OAuth2Utils.addParamsToUrl(authorizeUrl, authParams),
-              callbackUrlScheme: customUriScheme))
+              callbackUrlScheme: customUriScheme,
+              redirectUrl: redirectUri))
           .thenAnswer((_) async =>
               redirectUri +
               '#access_token=' +
