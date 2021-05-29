@@ -1,3 +1,5 @@
+## [2.2.0] - 2021/05/29
+* Web platform support!
 ## [2.1.0] - 2021/04/15
 * AccessTokenResponse refactorization. It is now possible to retrieve custom response fields through the ```getRespField``` method
 * Scopes separator can be configured with the OAuth2Client's ```scopeSeparator``` param
