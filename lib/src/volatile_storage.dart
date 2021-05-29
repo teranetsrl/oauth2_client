@@ -1,6 +1,8 @@
-import 'package:oauth2_client/src/storage.dart';
+import 'package:oauth2_client/src/base_storage.dart';
 
-class VolatileStorage extends Storage {
+BaseStorage createStorage() => VolatileStorage();
+
+class VolatileStorage implements BaseStorage {
   final Map<String, String> storage = {};
 
   VolatileStorage();

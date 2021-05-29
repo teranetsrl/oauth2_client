@@ -1,15 +1,20 @@
 import 'dart:convert';
 import 'package:oauth2_client/access_token_response.dart';
-import 'package:oauth2_client/src/secure_storage.dart';
-import 'package:oauth2_client/src/storage.dart';
+
+import 'base_storage.dart';
+import 'storage.dart'
+    // ignore: uri_does_not_exist
+    if (dart.library.io) 'secure_storage.dart'
+    // ignore: uri_does_not_exist
+    if (dart.library.html) 'browser_storage.dart';
 
 class TokenStorage {
   String key;
 
-  late Storage storage;
+  BaseStorage storage = createStorage();
 
-  TokenStorage(this.key, {Storage? storage}) {
-    this.storage = storage ?? SecureStorage();
+  TokenStorage(this.key, {BaseStorage? storage}) {
+    if (storage != null) this.storage = storage;
   }
 
   /// Looks for a token in the storage that matches the required [scopes].

@@ -1,7 +1,9 @@
-import 'package:oauth2_client/src/storage.dart';
+import 'package:oauth2_client/src/base_storage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-class SecureStorage extends Storage {
+BaseStorage createStorage() => SecureStorage();
+
+class SecureStorage implements BaseStorage {
   static final FlutterSecureStorage storage = FlutterSecureStorage();
 
   SecureStorage();
