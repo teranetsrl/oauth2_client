@@ -70,7 +70,7 @@ class OAuth2Response {
 */
   }
 
-  dynamic? getRespField(String fieldName) {
+  dynamic getRespField(String fieldName) {
     return respMap[fieldName];
   }
 
