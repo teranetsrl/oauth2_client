@@ -6,7 +6,8 @@ import 'package:oauth2_client/oauth2_client.dart';
 import 'package:oauth2_client/oauth2_exception.dart';
 import 'package:oauth2_client/oauth2_helper.dart';
 import 'package:oauth2_client/oauth2_response.dart';
-import 'package:oauth2_client/src/secure_storage.dart';
+// import 'package:oauth2_client/src/secure_storage.dart';
+import 'package:oauth2_client/src/base_storage.dart';
 import 'package:oauth2_client/src/token_storage.dart';
 import 'package:oauth2_client/src/volatile_storage.dart';
 import 'package:http/http.dart' as http;
@@ -15,8 +16,7 @@ import 'oauth2_helper_test.mocks.dart';
 @GenerateMocks([OAuth2Client])
 @GenerateMocks([http.Client])
 @GenerateMocks([TokenStorage])
-class SecureStorageMock extends Mock implements SecureStorage {}
-
+@GenerateMocks([BaseStorage])
 void main() {
   final clientId = 'test_client';
   final clientSecret = 'test_secret';
