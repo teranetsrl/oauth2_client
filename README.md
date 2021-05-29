@@ -6,19 +6,19 @@ Simple Flutter library for interacting with OAuth2 servers. It provides convenie
 The library handles **Authorization Code**, **Client Credentials** and **Implicit Grant** flows.
 
 # Prerequisites #
-If at all possible, when registering your application on the OAuth provider **try not to use HTTPS** as the scheme part of the redirect uri, because in that case your application won't intercept the server redirection, as it will be automatically handled by the system browser (at least on Android). Just use a custom scheme, such as "my.test.app" or any other scheme you want.
-
-If the OAuth2 server **allows only HTTPS** uri schemes and you are developing an Android app, refer to the [FAQ](#faq) section.
 
 ## Android ##
-
-If Android is one of your targets, you must first set the *minSdkVersion* in the *build.gradle* file:
+On Android you must first set the *minSdkVersion* in the *build.gradle* file:
 ```
 defaultConfig {
    ...
    minSdkVersion 18
    ...
 ```
+
+If at all possible, when registering your application on the OAuth provider **try not to use HTTPS** as the scheme part of the redirect uri, because in that case your application won't intercept the server redirection, as it will be automatically handled by the system browser (at least on Android). Just use a custom scheme, such as "my.test.app" or any other scheme you want.
+
+If the OAuth2 server **allows only HTTPS** uri schemes, refer to the [FAQ](#faq) section.
 
 Again on Android, if your application uses the Authorization Code flow, you first need to modify the *AndroidManifest.xml* file adding the intent filter needed to open the browser window for the authorization workflow.
 The library relies on the flutter_web_auth package to allow the Authorization Code flow.
@@ -41,6 +41,29 @@ On iOS you need to set the *platform* in the *ios/Podfile* file:
 ```
 platform :ios, '11.0'
 ```
+
+## Web ##
+Web support has been added in the 2.2.0 version, and should be considered preliminary.
+
+On the web platform you **must** register your application using an **HTTPS** redirect uri.
+
+When the authorization code flow is used, the authorization phase will be carried out by opening a popup window to the provider login page.
+
+After the user grants access to your application, the server will redirect the browser to the redirect uri. This page should contain some javascript code to read the _code_ parameter sent by the authorization server and pass it to the parent window through postMessage.
+
+Something like:
+
+```javascript
+window.onload = function() {
+	const urlParams = new URLSearchParams(window.location.search);
+	const code = urlParams.get('code');
+	if(code) {
+		window.opener.postMessage(window.location.href, _url_of_the_opener_window_);
+	}
+}
+```
+
+**Please note** that the browser can't *securely* store confidential information! The OAuth2Helper class, when used on the web, stores the tokens in the localStorage, and this means they won't be encrypted!
 
 # Installation #
 
