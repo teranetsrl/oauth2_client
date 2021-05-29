@@ -15,8 +15,8 @@ import 'package:oauth2_client/access_token_response.dart' as _i3;
 import 'package:oauth2_client/authorization_response.dart' as _i4;
 import 'package:oauth2_client/oauth2_client.dart' as _i10;
 import 'package:oauth2_client/oauth2_response.dart' as _i5;
+import 'package:oauth2_client/src/base_storage.dart' as _i9;
 import 'package:oauth2_client/src/base_web_auth.dart' as _i2;
-import 'package:oauth2_client/src/storage.dart' as _i9;
 import 'package:oauth2_client/src/token_storage.dart' as _i15;
 
 // ignore_for_file: comment_references
@@ -38,7 +38,7 @@ class _FakeUint8List extends _i1.Fake implements _i7.Uint8List {}
 
 class _FakeStreamedResponse extends _i1.Fake implements _i8.StreamedResponse {}
 
-class _FakeStorage extends _i1.Fake implements _i9.Storage {}
+class _FakeBaseStorage extends _i1.Fake implements _i9.BaseStorage {}
 
 /// A class which mocks [OAuth2Client].
 ///
@@ -428,10 +428,11 @@ class MockTokenStorage extends _i1.Mock implements _i15.TokenStorage {
   set key(String? _key) => super.noSuchMethod(Invocation.setter(#key, _key),
       returnValueForMissingStub: null);
   @override
-  _i9.Storage get storage => (super.noSuchMethod(Invocation.getter(#storage),
-      returnValue: _FakeStorage()) as _i9.Storage);
+  _i9.BaseStorage get storage =>
+      (super.noSuchMethod(Invocation.getter(#storage),
+          returnValue: _FakeBaseStorage()) as _i9.BaseStorage);
   @override
-  set storage(_i9.Storage? _storage) =>
+  set storage(_i9.BaseStorage? _storage) =>
       super.noSuchMethod(Invocation.setter(#storage, _storage),
           returnValueForMissingStub: null);
   @override
@@ -470,4 +471,23 @@ class MockTokenStorage extends _i1.Mock implements _i15.TokenStorage {
   String getScopeKey(List<String>? scope) =>
       (super.noSuchMethod(Invocation.method(#getScopeKey, [scope]),
           returnValue: '') as String);
+}
+
+/// A class which mocks [BaseStorage].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockBaseStorage extends _i1.Mock implements _i9.BaseStorage {
+  MockBaseStorage() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i11.Future<String?> read(String? key) =>
+      (super.noSuchMethod(Invocation.method(#read, [key]),
+          returnValue: Future.value('')) as _i11.Future<String?>);
+  @override
+  _i11.Future<void> write(String? key, String? value) =>
+      (super.noSuchMethod(Invocation.method(#write, [key, value]),
+          returnValue: Future.value(null),
+          returnValueForMissingStub: Future.value()) as _i11.Future<void>);
 }
