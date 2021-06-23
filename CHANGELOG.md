@@ -1,3 +1,6 @@
+## [2.2.1] - 2021/06/23
+* Fixes (incorrect scope handling with implicit grant, send empty client secret if specified)
+* Added Reddit client (thanks [lavalleeale](https://github.com/lavalleeale))
 ## [2.2.0] - 2021/05/29
 * Web platform support!
 ## [2.1.0] - 2021/04/15
