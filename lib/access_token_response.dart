@@ -28,10 +28,6 @@ class AccessTokenResponse extends OAuth2Response {
         if (requestedScopes != null) {
           rMap['scope'] = requestedScopes;
         }
-      } else {
-        //The OAuth 2 standard suggests that the scopes should be a space-separated list,
-        //but some providers (i.e. GitHub) return a comma-separated list
-        rMap['scope'] = rMap['scope'].split(RegExp(r'[\s,]'));
       }
 
       if (rMap.containsKey('expires_in')) {
@@ -125,7 +121,7 @@ class AccessTokenResponse extends OAuth2Response {
     var scopes;
 
     if (isValid()) {
-      scopes = respMap['scope'];
+      scopes = _splitScopes(respMap['scope']);
     }
 
     return scopes;
@@ -159,6 +155,16 @@ class AccessTokenResponse extends OAuth2Response {
     }
 
     return expDt;
+  }
+
+  List<String>? _splitScopes(dynamic scopes) {
+    if (scopes is List) {
+      return List.from(scopes);
+    } else if (scopes is String) {
+      //The OAuth 2 standard suggests that the scopes should be a space-separated list,
+      //but some providers (i.e. GitHub) return a comma-separated list
+      return scopes.split(RegExp(r'[\s,]'));
+    }
   }
 
   @override
