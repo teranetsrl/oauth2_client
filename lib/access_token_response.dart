@@ -61,7 +61,10 @@ class AccessTokenResponse extends OAuth2Response {
 
   @override
   Map<String, dynamic> toMap() {
-    return respMap;
+    return {
+      ...respMap,
+      ...{'scope': scope}
+    };
   }
 
   ///Checks if the access token is expired
