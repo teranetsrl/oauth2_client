@@ -418,8 +418,7 @@ class OAuth2Client {
       {required String clientId, String? clientSecret}) {
     var headers = <String, String>{};
 
-    if ((clientId.isNotEmpty) &&
-        (clientSecret != null)) {
+    if ((clientId.isNotEmpty) && (clientSecret != null)) {
       var credentials =
           base64.encode(utf8.encode(clientId + ':' + clientSecret));
 
