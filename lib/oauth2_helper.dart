@@ -26,6 +26,7 @@ class OAuth2Helper {
   List<String>? scopes;
   bool enablePKCE;
   bool enableState;
+  String? loginHint;
 
   Function? afterAuthorizationCodeCb;
 
@@ -42,7 +43,8 @@ class OAuth2Helper {
       tokenStorage,
       this.afterAuthorizationCodeCb,
       this.authCodeParams,
-      this.accessTokenParams}) {
+      this.accessTokenParams,
+	  this.loginHint}) {
     this.tokenStorage = tokenStorage ?? TokenStorage(client.tokenUrl);
   }
 
@@ -58,7 +60,8 @@ class OAuth2Helper {
       bool? enablePKCE,
       bool? enableState,
       Map<String, dynamic>? authCodeParams,
-      Map<String, dynamic>? accessTokenParams}) {
+      Map<String, dynamic>? accessTokenParams,
+	  String? loginHint}) {
     this.grantType = grantType;
     this.clientId = clientId;
     this.clientSecret = clientSecret;
@@ -67,6 +70,7 @@ class OAuth2Helper {
     this.enableState = enableState ?? true;
     this.authCodeParams = authCodeParams;
     this.accessTokenParams = accessTokenParams;
+	this.loginHint = loginHint;
 
     _validateAuthorizationParams();
   }
@@ -120,7 +124,8 @@ class OAuth2Helper {
           enableState: enableState,
           authCodeParams: authCodeParams,
           accessTokenParams: accessTokenParams,
-          afterAuthorizationCodeCb: afterAuthorizationCodeCb);
+          afterAuthorizationCodeCb: afterAuthorizationCodeCb,
+		  loginHint: loginHint);
     } else if (grantType == CLIENT_CREDENTIALS) {
       tknResp = await client.getTokenWithClientCredentialsFlow(
           clientId: clientId,

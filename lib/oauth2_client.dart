@@ -132,6 +132,7 @@ class OAuth2Client {
     Function? afterAuthorizationCodeCb,
     Map<String, dynamic>? authCodeParams,
     Map<String, dynamic>? accessTokenParams,
+	String? loginHint,
     httpClient,
     BaseWebAuth? webAuthClient,
   }) async {
@@ -152,7 +153,8 @@ class OAuth2Client {
         codeChallenge: codeChallenge,
         enableState: enableState,
         state: state,
-        customParams: authCodeParams);
+        customParams: authCodeParams,
+		loginHint: loginHint);
 
     if (authResp.isAccessGranted()) {
       if (afterAuthorizationCodeCb != null) afterAuthorizationCodeCb(authResp);
@@ -205,6 +207,7 @@ class OAuth2Client {
     String? state,
     Map<String, dynamic>? customParams,
     BaseWebAuth? webAuthClient,
+	String? loginHint
   }) async {
     webAuthClient ??= this.webAuthClient;
 
@@ -219,7 +222,8 @@ class OAuth2Client {
         enableState: enableState,
         state: state,
         codeChallenge: codeChallenge,
-        customParams: customParams);
+        customParams: customParams,
+		loginHint: loginHint);
 
     // Present the dialog to the user
     final result = await webAuthClient.authenticate(
@@ -309,7 +313,8 @@ class OAuth2Client {
       bool enableState = true,
       String? state,
       String? codeChallenge,
-      Map<String, dynamic>? customParams}) {
+      Map<String, dynamic>? customParams,
+	  String? loginHint}) {
     final params = <String, dynamic>{
       'response_type': responseType,
       'client_id': clientId
@@ -335,6 +340,10 @@ class OAuth2Client {
     if (customParams != null && customParams is Map) {
       params.addAll(customParams);
     }
+	
+	if (loginHint != null && loginHint.isNotEmpty) {
+	  params['login_hint'] = loginHint;
+	}
 
     return OAuth2Utils.addParamsToUrl(authorizeUrl, params);
   }
