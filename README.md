@@ -69,9 +69,9 @@ window.onload = function() {
 
 Add the library to your *pubspec.yaml* file:
 
-```dart
+```yaml
 dependencies:
-	oauth2_client: ^1.5.0
+	oauth2_client: ^2.2.2
 ```
 
 # Usage with the helper class #
