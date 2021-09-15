@@ -8,8 +8,12 @@ class IoWebAuth implements BaseWebAuth {
   Future<String> authenticate(
       {required String callbackUrlScheme,
       required String url,
-      required String redirectUrl}) async {
+      required String redirectUrl,
+      bool? preferEphemeral}) async {
     return await FlutterWebAuth.authenticate(
-        callbackUrlScheme: callbackUrlScheme, url: url);
+      callbackUrlScheme: callbackUrlScheme,
+      url: url,
+      preferEphemeral: preferEphemeral,
+    );
   }
 }

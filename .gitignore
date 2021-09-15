@@ -77,3 +77,6 @@ build/
 launch.json
 coverage/
 test.sh
+
+# Don't check in pubspec.lock files
+pubspec.lock
