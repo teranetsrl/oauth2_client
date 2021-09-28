@@ -1,3 +1,7 @@
+## [2.2.4] - 2021/09/28
+* Support ephemeral sessions (thanks [ThexXTURBOXx](https://github.com/ThexXTURBOXx))
+* Fixes (URI components encoding)
+
 ## [2.2.2] - 2021/06/27
 * Fixes (scope handling)
 
