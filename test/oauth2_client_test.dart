@@ -389,7 +389,7 @@ void main() {
             containsPair('response_type', 'code'),
             containsPair('client_id', clientId),
             containsPair('redirect_uri', redirectUri),
-            containsPair('scope', scopes.join('+')),
+            containsPair('scope', scopes.join(' ')),
           ));
     });
 
@@ -408,7 +408,7 @@ void main() {
             containsPair('response_type', 'code'),
             containsPair('client_id', clientId),
             containsPair('redirect_uri', redirectUri),
-            containsPair('scope', scopes.join('+')),
+            containsPair('scope', scopes.join(' ')),
             containsPair('state', state),
           ));
     });
@@ -430,7 +430,7 @@ void main() {
             containsPair('response_type', 'code'),
             containsPair('client_id', clientId),
             containsPair('redirect_uri', redirectUri),
-            containsPair('scope', scopes.join('+')),
+            containsPair('scope', scopes.join(' ')),
             containsPair('state', state),
             containsPair('code_challenge', codeChallenge),
             containsPair('code_challenge_method', 'S256'),
@@ -971,7 +971,7 @@ void main() {
           redirectUri: redirectUri,
           customUriScheme: customUriScheme);
 
-      expect(oauth2Client.serializeScopes(scopes), 'scope1+scope2');
+      expect(oauth2Client.serializeScopes(scopes), 'scope1 scope2');
     });
     test('Custom scope separator', () async {
       var oauth2Client = OAuth2Client(

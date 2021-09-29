@@ -71,7 +71,7 @@ class OAuth2Client {
       required this.redirectUri,
       required this.customUriScheme,
       this.credentialsLocation = CredentialsLocation.HEADER,
-      this.scopeSeparator = '+'});
+      this.scopeSeparator = ' '});
 
   /// Requests an Access Token to the OAuth2 endpoint using the Implicit grant flow (https://tools.ietf.org/html/rfc6749#page-31)
   Future<AccessTokenResponse> getTokenWithImplicitGrantFlow({

@@ -26,7 +26,7 @@ class OAuth2Utils {
     params.forEach((k, v) {
       String val;
       if (v is List) {
-        val = v.map((p) => p.trim()).join('+');
+        val = v.map((p) => p.trim()).join(' ');
       } else {
         val = v.trim();
       }
