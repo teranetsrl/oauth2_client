@@ -1,3 +1,6 @@
+## [2.2.5] - 2021/09/29
+* Fix for authorization url params encoding
+
 ## [2.2.4] - 2021/09/28
 * Support ephemeral sessions (thanks [ThexXTURBOXx](https://github.com/ThexXTURBOXx))
 * Fixes (URI components encoding)
