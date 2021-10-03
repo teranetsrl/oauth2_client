@@ -1,3 +1,6 @@
+## [2.2.6] - 2021/10/03
+* Allow passing optional parameters to web_auth "authenticate" method
+
 ## [2.2.5] - 2021/09/29
 * Fix for authorization url params encoding
 
