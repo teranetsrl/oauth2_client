@@ -31,6 +31,7 @@ class OAuth2Helper {
 
   Map<String, dynamic>? authCodeParams;
   Map<String, dynamic>? accessTokenParams;
+  Map<String, dynamic>? webAuthOpts;
 
   OAuth2Helper(this.client,
       {this.grantType = AUTHORIZATION_CODE,
@@ -42,7 +43,8 @@ class OAuth2Helper {
       tokenStorage,
       this.afterAuthorizationCodeCb,
       this.authCodeParams,
-      this.accessTokenParams}) {
+      this.accessTokenParams,
+      this.webAuthOpts}) {
     this.tokenStorage = tokenStorage ?? TokenStorage(client.tokenUrl);
   }
 
@@ -120,7 +122,8 @@ class OAuth2Helper {
           enableState: enableState,
           authCodeParams: authCodeParams,
           accessTokenParams: accessTokenParams,
-          afterAuthorizationCodeCb: afterAuthorizationCodeCb);
+          afterAuthorizationCodeCb: afterAuthorizationCodeCb,
+          webAuthOpts: webAuthOpts);
     } else if (grantType == CLIENT_CREDENTIALS) {
       tknResp = await client.getTokenWithClientCredentialsFlow(
           clientId: clientId,
@@ -129,10 +132,10 @@ class OAuth2Helper {
           scopes: scopes);
     } else if (grantType == IMPLICIT_GRANT) {
       tknResp = await client.getTokenWithImplicitGrantFlow(
-        clientId: clientId,
-        scopes: scopes,
-        enableState: enableState,
-      );
+          clientId: clientId,
+          scopes: scopes,
+          enableState: enableState,
+          webAuthOpts: webAuthOpts);
     } else {
       tknResp = AccessTokenResponse.errorResponse();
     }

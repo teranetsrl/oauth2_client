@@ -125,7 +125,8 @@ class MockOAuth2Client extends _i1.Mock implements _i8.OAuth2Client {
           bool? enableState = true,
           String? state,
           dynamic httpClient,
-          _i2.BaseWebAuth? webAuthClient}) =>
+          _i2.BaseWebAuth? webAuthClient,
+          Map<String, dynamic>? webAuthOpts}) =>
       (super.noSuchMethod(
               Invocation.method(#getTokenWithImplicitGrantFlow, [], {
                 #clientId: clientId,
@@ -133,7 +134,8 @@ class MockOAuth2Client extends _i1.Mock implements _i8.OAuth2Client {
                 #enableState: enableState,
                 #state: state,
                 #httpClient: httpClient,
-                #webAuthClient: webAuthClient
+                #webAuthClient: webAuthClient,
+                #webAuthOpts: webAuthOpts
               }),
               returnValue: Future<_i3.AccessTokenResponse>.value(
                   _FakeAccessTokenResponse_1()))
@@ -151,7 +153,8 @@ class MockOAuth2Client extends _i1.Mock implements _i8.OAuth2Client {
           Map<String, dynamic>? authCodeParams,
           Map<String, dynamic>? accessTokenParams,
           dynamic httpClient,
-          _i2.BaseWebAuth? webAuthClient}) =>
+          _i2.BaseWebAuth? webAuthClient,
+          Map<String, dynamic>? webAuthOpts}) =>
       (super.noSuchMethod(
               Invocation.method(#getTokenWithAuthCodeFlow, [], {
                 #clientId: clientId,
@@ -165,7 +168,8 @@ class MockOAuth2Client extends _i1.Mock implements _i8.OAuth2Client {
                 #authCodeParams: authCodeParams,
                 #accessTokenParams: accessTokenParams,
                 #httpClient: httpClient,
-                #webAuthClient: webAuthClient
+                #webAuthClient: webAuthClient,
+                #webAuthOpts: webAuthOpts
               }),
               returnValue: Future<_i3.AccessTokenResponse>.value(
                   _FakeAccessTokenResponse_1()))
@@ -194,7 +198,8 @@ class MockOAuth2Client extends _i1.Mock implements _i8.OAuth2Client {
           bool? enableState = true,
           String? state,
           Map<String, dynamic>? customParams,
-          _i2.BaseWebAuth? webAuthClient}) =>
+          _i2.BaseWebAuth? webAuthClient,
+          Map<String, dynamic>? webAuthOpts}) =>
       (super.noSuchMethod(
               Invocation.method(#requestAuthorization, [], {
                 #clientId: clientId,
@@ -203,7 +208,8 @@ class MockOAuth2Client extends _i1.Mock implements _i8.OAuth2Client {
                 #enableState: enableState,
                 #state: state,
                 #customParams: customParams,
-                #webAuthClient: webAuthClient
+                #webAuthClient: webAuthClient,
+                #webAuthOpts: webAuthOpts
               }),
               returnValue: Future<_i4.AuthorizationResponse>.value(
                   _FakeAuthorizationResponse_2()))

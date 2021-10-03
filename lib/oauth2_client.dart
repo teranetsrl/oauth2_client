@@ -74,14 +74,14 @@ class OAuth2Client {
       this.scopeSeparator = ' '});
 
   /// Requests an Access Token to the OAuth2 endpoint using the Implicit grant flow (https://tools.ietf.org/html/rfc6749#page-31)
-  Future<AccessTokenResponse> getTokenWithImplicitGrantFlow({
-    required String clientId,
-    List<String>? scopes,
-    bool enableState = true,
-    String? state,
-    httpClient,
-    BaseWebAuth? webAuthClient,
-  }) async {
+  Future<AccessTokenResponse> getTokenWithImplicitGrantFlow(
+      {required String clientId,
+      List<String>? scopes,
+      bool enableState = true,
+      String? state,
+      httpClient,
+      BaseWebAuth? webAuthClient,
+      Map<String, dynamic>? webAuthOpts}) async {
     httpClient ??= http.Client();
     webAuthClient ??= this.webAuthClient;
 
@@ -99,7 +99,8 @@ class OAuth2Client {
     final result = await webAuthClient.authenticate(
         url: authorizeUrl,
         callbackUrlScheme: customUriScheme,
-        redirectUrl: redirectUri);
+        redirectUrl: redirectUri,
+        opts: webAuthOpts);
 
     final fragment = Uri.splitQueryString(Uri.parse(result).fragment);
 
@@ -121,20 +122,20 @@ class OAuth2Client {
   }
 
   /// Requests an Access Token to the OAuth2 endpoint using the Authorization Code Flow.
-  Future<AccessTokenResponse> getTokenWithAuthCodeFlow({
-    required String clientId,
-    List<String>? scopes,
-    String? clientSecret,
-    bool enablePKCE = true,
-    bool enableState = true,
-    String? state,
-    String? codeVerifier,
-    Function? afterAuthorizationCodeCb,
-    Map<String, dynamic>? authCodeParams,
-    Map<String, dynamic>? accessTokenParams,
-    httpClient,
-    BaseWebAuth? webAuthClient,
-  }) async {
+  Future<AccessTokenResponse> getTokenWithAuthCodeFlow(
+      {required String clientId,
+      List<String>? scopes,
+      String? clientSecret,
+      bool enablePKCE = true,
+      bool enableState = true,
+      String? state,
+      String? codeVerifier,
+      Function? afterAuthorizationCodeCb,
+      Map<String, dynamic>? authCodeParams,
+      Map<String, dynamic>? accessTokenParams,
+      httpClient,
+      BaseWebAuth? webAuthClient,
+      Map<String, dynamic>? webAuthOpts}) async {
     AccessTokenResponse? tknResp;
 
     String? codeChallenge;
@@ -152,7 +153,8 @@ class OAuth2Client {
         codeChallenge: codeChallenge,
         enableState: enableState,
         state: state,
-        customParams: authCodeParams);
+        customParams: authCodeParams,
+        webAuthOpts: webAuthOpts);
 
     if (authResp.isAccessGranted()) {
       if (afterAuthorizationCodeCb != null) afterAuthorizationCodeCb(authResp);
@@ -197,15 +199,15 @@ class OAuth2Client {
   }
 
   /// Requests an Authorization Code to be used in the Authorization Code grant.
-  Future<AuthorizationResponse> requestAuthorization({
-    required String clientId,
-    List<String>? scopes,
-    String? codeChallenge,
-    bool enableState = true,
-    String? state,
-    Map<String, dynamic>? customParams,
-    BaseWebAuth? webAuthClient,
-  }) async {
+  Future<AuthorizationResponse> requestAuthorization(
+      {required String clientId,
+      List<String>? scopes,
+      String? codeChallenge,
+      bool enableState = true,
+      String? state,
+      Map<String, dynamic>? customParams,
+      BaseWebAuth? webAuthClient,
+      Map<String, dynamic>? webAuthOpts}) async {
     webAuthClient ??= this.webAuthClient;
 
     if (enableState) {
@@ -225,7 +227,8 @@ class OAuth2Client {
     final result = await webAuthClient.authenticate(
         url: authorizeUrl,
         callbackUrlScheme: customUriScheme,
-        redirectUrl: redirectUri);
+        redirectUrl: redirectUri,
+        opts: webAuthOpts);
 
     return AuthorizationResponse.fromRedirectUri(result, state);
   }

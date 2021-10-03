@@ -151,6 +151,41 @@ void main() {
       oauth2Client.accessTokenRequestHeaders = {};
     });
 
+    test('Fetch access token with preferEphemeral', () async {
+      var authParams = {
+        'response_type': 'code',
+        'client_id': clientId,
+        'redirect_uri': redirectUri,
+        'scope': scopes,
+        'code_challenge': codeChallenge,
+        'code_challenge_method': 'S256'
+      };
+
+      when(webAuthClient.authenticate(
+              url: OAuth2Utils.addParamsToUrl(authorizeUrl, authParams),
+              callbackUrlScheme: customUriScheme,
+              redirectUrl: redirectUri,
+              opts: captureAnyNamed('opts')))
+          .thenAnswer((_) async => redirectUri + '?code=' + authCode);
+
+      await oauth2Client.requestAuthorization(
+          webAuthClient: webAuthClient,
+          clientId: clientId,
+          scopes: scopes,
+          codeChallenge: codeChallenge,
+          enableState: false,
+          webAuthOpts: {'preferEphemeral': true});
+
+      expect(
+          verify(webAuthClient.authenticate(
+                  url: OAuth2Utils.addParamsToUrl(authorizeUrl, authParams),
+                  callbackUrlScheme: customUriScheme,
+                  redirectUrl: redirectUri,
+                  opts: captureAnyNamed('opts')))
+              .captured[0],
+          {'preferEphemeral': true});
+    });
+
     test('Error fetching Access Token', () async {
       final httpClient = MockClient();
 
@@ -779,6 +814,51 @@ void main() {
           webAuthClient: webAuthClient);
 
       expect(tknResponse.accessToken, accessToken);
+    });
+
+    test('Get new token with preferEphemeral', () async {
+      clearInteractions(webAuthClient);
+
+      final httpClient = MockClient();
+
+      final accessToken = '12345';
+
+      final authParams = {
+        'response_type': 'token',
+        'client_id': clientId,
+        'redirect_uri': redirectUri,
+        'state': state,
+        // 'scope': scopes
+      };
+
+      when(webAuthClient.authenticate(
+              url: OAuth2Utils.addParamsToUrl(authorizeUrl, authParams),
+              callbackUrlScheme: customUriScheme,
+              redirectUrl: redirectUri,
+              opts: captureAnyNamed('opts')))
+          .thenAnswer((_) async =>
+              redirectUri +
+              '#access_token=' +
+              accessToken +
+              '&token_type=bearer&state=' +
+              state);
+
+      await oauth2Client.getTokenWithImplicitGrantFlow(
+          clientId: clientId,
+          state: state,
+          // List<String> scopes,
+          httpClient: httpClient,
+          webAuthClient: webAuthClient,
+          webAuthOpts: {'preferEphemeral': true});
+
+      expect(
+          verify(webAuthClient.authenticate(
+                  url: OAuth2Utils.addParamsToUrl(authorizeUrl, authParams),
+                  callbackUrlScheme: customUriScheme,
+                  redirectUrl: redirectUri,
+                  opts: captureAnyNamed('opts')))
+              .captured[0],
+          {'preferEphemeral': true});
     });
   });
 

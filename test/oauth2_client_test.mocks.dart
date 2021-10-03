@@ -36,12 +36,16 @@ class MockBaseWebAuth extends _i1.Mock implements _i4.BaseWebAuth {
 
   @override
   _i5.Future<String> authenticate(
-          {String? callbackUrlScheme, String? url, String? redirectUrl}) =>
+          {String? callbackUrlScheme,
+          String? url,
+          String? redirectUrl,
+          Map<String, dynamic>? opts}) =>
       (super.noSuchMethod(
           Invocation.method(#authenticate, [], {
             #callbackUrlScheme: callbackUrlScheme,
             #url: url,
-            #redirectUrl: redirectUrl
+            #redirectUrl: redirectUrl,
+            #opts: opts
           }),
           returnValue: Future<String>.value('')) as _i5.Future<String>);
   @override

@@ -8,7 +8,8 @@ class BrowserWebAuth implements BaseWebAuth {
   Future<String> authenticate(
       {required String callbackUrlScheme,
       required String url,
-      required String redirectUrl}) async {
+      required String redirectUrl,
+      Map<String, dynamic>? opts}) async {
     // ignore: unsafe_html
     final popupLogin = html.window.open(
         url,
