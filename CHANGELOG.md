@@ -1,3 +1,6 @@
+## [2.2.7] - 2021/10/07
+* Fix: null check operator in WebAuth class (thanks [jakub-bacic](https://github.com/jakub-bacic))
+
 ## [2.2.6] - 2021/10/03
 * Allow passing optional parameters to web_auth "authenticate" method
 

@@ -71,7 +71,7 @@ Add the library to your *pubspec.yaml* file:
 
 ```yaml
 dependencies:
-	oauth2_client: ^2.2.6
+	oauth2_client: ^2.2.7
 ```
 
 # Usage with the helper class #
