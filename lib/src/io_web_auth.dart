@@ -13,7 +13,7 @@ class IoWebAuth implements BaseWebAuth {
     return await FlutterWebAuth.authenticate(
       callbackUrlScheme: callbackUrlScheme,
       url: url,
-      preferEphemeral: opts!['preferEphemeral'] ?? false,
+      preferEphemeral: (opts?['preferEphemeral'] == true),
     );
   }
 }
