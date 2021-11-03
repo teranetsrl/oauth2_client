@@ -3,6 +3,7 @@ import 'package:oauth2_client/oauth2_exception.dart';
 import 'package:oauth2_client/oauth2_client.dart';
 import 'package:http/http.dart' as http;
 import 'package:oauth2_client/oauth2_response.dart';
+import 'package:oauth2_client/src/base_web_auth.dart';
 import 'package:oauth2_client/src/token_storage.dart';
 
 /// Helper class for simplifying OAuth2 authorization process.
@@ -31,6 +32,8 @@ class OAuth2Helper {
 
   Map<String, dynamic>? authCodeParams;
   Map<String, dynamic>? accessTokenParams;
+
+  BaseWebAuth? webAuthClient;
   Map<String, dynamic>? webAuthOpts;
 
   OAuth2Helper(this.client,
@@ -44,6 +47,7 @@ class OAuth2Helper {
       this.afterAuthorizationCodeCb,
       this.authCodeParams,
       this.accessTokenParams,
+      this.webAuthClient,
       this.webAuthOpts}) {
     this.tokenStorage = tokenStorage ?? TokenStorage(client.tokenUrl);
   }
@@ -123,6 +127,7 @@ class OAuth2Helper {
           authCodeParams: authCodeParams,
           accessTokenParams: accessTokenParams,
           afterAuthorizationCodeCb: afterAuthorizationCodeCb,
+          webAuthClient: webAuthClient,
           webAuthOpts: webAuthOpts);
     } else if (grantType == CLIENT_CREDENTIALS) {
       tknResp = await client.getTokenWithClientCredentialsFlow(
@@ -135,6 +140,7 @@ class OAuth2Helper {
           clientId: clientId,
           scopes: scopes,
           enableState: enableState,
+          webAuthClient: webAuthClient,
           webAuthOpts: webAuthOpts);
     } else {
       tknResp = AccessTokenResponse.errorResponse();
