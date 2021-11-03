@@ -177,6 +177,7 @@ The library implements clients for the following services/organizations:
  - LinkedIn
  - GitHub
  - Shopify
+ - Spotify
 
 ## Google client ##
 

@@ -1,3 +1,7 @@
+## [2.3.0] - 2021/11/03
+* Add Spotify client (thanks [mauriciocartagena](https://github.com/mauriciocartagena))
+* Allow passing custom WebAuth class to OAuth2Helper (thanks [Jon Salmon](https://github.com/Jon-Salmon))
+
 ## [2.2.7] - 2021/10/07
 * Fix: null check operator in WebAuth class (thanks [jakub-bacic](https://github.com/jakub-bacic))
 
