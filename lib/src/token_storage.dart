@@ -38,12 +38,14 @@ class TokenStorage {
           found = (tkn['scope'] == null || tkn['scope'].isEmpty);
         } else {
           //...Otherwise look for a token granted to a superset of the requested scopes
-          final tknCleanScopes = clearScopes(tkn['scope'].cast<String>());
+          if (tkn.containsKey('scope')) {
+            final tknCleanScopes = clearScopes(tkn['scope'].cast<String>());
 
-          if (tknCleanScopes.isNotEmpty) {
-            var s1 = Set.from(tknCleanScopes);
-            var s2 = Set.from(cleanScopes);
-            found = s1.intersection(s2).length == cleanScopes.length;
+            if (tknCleanScopes.isNotEmpty) {
+              var s1 = Set.from(tknCleanScopes);
+              var s2 = Set.from(cleanScopes);
+              found = s1.intersection(s2).length == cleanScopes.length;
+            }
           }
         }
 
