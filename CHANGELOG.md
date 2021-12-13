@@ -1,3 +1,5 @@
+## [2.3.1] - 2021/12/13
+* Small fix
 ## [2.3.0] - 2021/11/03
 * Add Spotify client (thanks [mauriciocartagena](https://github.com/mauriciocartagena))
 * Allow passing custom WebAuth class to OAuth2Helper (thanks [Jon Salmon](https://github.com/Jon-Salmon))
