@@ -24,7 +24,7 @@ jobs:
       with:
         java-version: '12.x'
 
-    - uses: subosito/flutter-action@v1.4.0
+    - uses: subosito/flutter-action@v1.5.3
       #with:
         # The Flutter version to make available on the path
        # flutter-version:
