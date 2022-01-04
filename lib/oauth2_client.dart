@@ -335,7 +335,7 @@ class OAuth2Client {
       params['code_challenge_method'] = 'S256';
     }
 
-    if (customParams != null && customParams is Map) {
+    if (customParams != null) {
       params.addAll(customParams);
     }
 
@@ -370,7 +370,7 @@ class OAuth2Client {
       params['code_verifier'] = codeVerifier;
     }
 
-    if (customParams != null && customParams is Map) {
+    if (customParams != null) {
       params.addAll(customParams);
     }
 
