@@ -1,3 +1,8 @@
+## [2.3.2] - 2022/01/17
+* Fix: support fetching a new token when expired without a refresh token (thanks [Tiernan](https://github.com/nvx))
+* Updated dependencies (thanks [Menelphor](https://github.com/Menelphor))
+* Fix linter warnings
+
 ## [2.3.1] - 2021/12/13
 * Small fix
 ## [2.3.0] - 2021/11/03
