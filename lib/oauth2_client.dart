@@ -260,7 +260,7 @@ class OAuth2Client {
   }
 
   /// Refreshes an Access Token issuing a refresh_token grant to the OAuth2 server.
-  Future<AccessTokenResponse> refreshToken(String refreshToken,
+  Future<AccessTokenResponse?> refreshToken(String refreshToken,
       {httpClient, required String clientId, String? clientSecret}) async {
     final Map params = getRefreshUrlParams(refreshToken: refreshToken);
 
@@ -271,7 +271,12 @@ class OAuth2Client {
         params: params,
         httpClient: httpClient);
 
-    return http2TokenResponse(response);
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return http2TokenResponse(response);
+    }
+
+    return null;
+
   }
 
   /// Revokes both the Access and the Refresh tokens in the provided [tknResp]

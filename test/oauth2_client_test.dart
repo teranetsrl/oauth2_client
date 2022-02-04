@@ -354,8 +354,8 @@ void main() {
               .captured[1],
           {'Authorization': 'Basic bXljbGllbnRpZDp0ZXN0X3NlY3JldA=='});
 
-      expect(resp.isValid(), true);
-      expect(resp.accessToken, accessToken);
+      expect(resp?.isValid() ?? false, true);
+      expect(resp?.accessToken ?? '', accessToken);
     });
 
     test('Error in refreshing token', () async {
@@ -381,7 +381,7 @@ void main() {
               .captured[1],
           {'Authorization': 'Basic bXljbGllbnRpZDp0ZXN0X3NlY3JldA=='});
 
-      expect(resp.isValid(), false);
+      expect(resp?.isValid() ?? false, false);
     });
 
     test('Authorization url params (1/5)', () {
