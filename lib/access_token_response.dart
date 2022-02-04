@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:oauth2_client/oauth2_response.dart';
 
 /// Represents the response to an Access Token Request.
@@ -79,6 +80,22 @@ class AccessTokenResponse extends OAuth2Response {
     return expired;
   }
 
+  bool isRefreshTokenExpired() {
+    if (!hasRefreshToken()) return true;
+
+    final decodedRefreshToken = JwtDecoder.tryDecode(refreshToken ?? '');
+
+    if (decodedRefreshToken != null) {
+      final int? expirationTimestamp = decodedRefreshToken.containsKey('exp') ? decodedRefreshToken['exp'] : null;
+      if (expirationTimestamp != null) {
+        final refreshTokenExpirationDate = DateTime.fromMillisecondsSinceEpoch(Duration(seconds: expirationTimestamp).inMilliseconds);
+        return refreshTokenExpirationDate.difference(DateTime.now()).inSeconds < 0;
+      }
+    }
+
+    return false;
+  }
+
   ///Checks if the access token must be refreeshed
   bool refreshNeeded({secondsToExpiration = 30}) {
     var needsRefresh = false;
@@ -104,6 +121,14 @@ class AccessTokenResponse extends OAuth2Response {
 
   String? get accessToken {
     return isValid() ? respMap['access_token'] : null;
+  }
+
+  Map<String, dynamic>? get decodedAccessToken {
+    final rawAccessToken = accessToken;
+    if (rawAccessToken != null) {
+      return JwtDecoder.tryDecode(rawAccessToken);
+    }
+    return null;
   }
 
   String? get tokenType {
