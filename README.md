@@ -26,7 +26,7 @@ The library relies on the flutter_web_auth package to allow the Authorization Co
 AndroidManifest.xml
 
 ```xml
-<activity android:name="com.linusu.flutter_web_auth.CallbackActivity" >
+<activity android:name="com.linusu.flutter_web_auth.CallbackActivity" android:exported="true">
 	<intent-filter android:label="flutter_web_auth">
 		<action android:name="android.intent.action.VIEW" />
 		<category android:name="android.intent.category.DEFAULT" />
@@ -312,7 +312,7 @@ Please make sure you modified the *AndroidManifest.xml* file adding the  ```flut
 The AndroidManifest.xml file must contain the ```flutter_web_auth.CallbackActivity``` activity. Copy and paste the below code and CHANGE the value of `android:scheme` to match the scheme used in the redirect uri:
 
 ```xml
-<activity android:name="com.linusu.flutter_web_auth.CallbackActivity" >
+<activity android:name="com.linusu.flutter_web_auth.CallbackActivity" android:exported="true">
 	<intent-filter android:label="flutter_web_auth">
 		<action android:name="android.intent.action.VIEW" />
 		<category android:name="android.intent.category.DEFAULT" />
