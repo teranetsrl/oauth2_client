@@ -1,3 +1,7 @@
+## [2.3.3] - 2022/03/14
+* Expose the BaseStorage object (thanks [Jon Salmon](https://github.com/Jon-Salmon))
+* Improved documentation for android Manifest modification (thanks [supermar1010](https://github.com/supermar1010))
+* Update flutter_web_auth dependency
 ## [2.3.2] - 2022/01/17
 * Fix: support fetching a new token when expired without a refresh token (thanks [Tiernan](https://github.com/nvx))
 * Updated dependencies (thanks [Menelphor](https://github.com/Menelphor))
