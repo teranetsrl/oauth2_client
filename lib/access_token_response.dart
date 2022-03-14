@@ -167,6 +167,8 @@ class AccessTokenResponse extends OAuth2Response {
       //The OAuth 2 standard suggests that the scopes should be a space-separated list,
       //but some providers (i.e. GitHub) return a comma-separated list
       return scopes.split(RegExp(r'[\s,]'));
+    } else {
+      return null;
     }
   }
 
