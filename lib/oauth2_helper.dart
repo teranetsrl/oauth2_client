@@ -1,3 +1,4 @@
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:oauth2_client/access_token_response.dart';
 import 'package:oauth2_client/oauth2_exception.dart';
 import 'package:oauth2_client/oauth2_client.dart';
@@ -88,7 +89,7 @@ class OAuth2Helper {
     if (tknResp != null) {
       if (tknResp.refreshNeeded()) {
         //The access token is expired
-        if (tknResp.refreshToken != null) {
+        if (tknResp.refreshToken != null && !tknResp.isRefreshTokenExpired()) {
           tknResp = await refreshToken(tknResp.refreshToken!);
         } else {
           //No refresh token, fetch a new token
