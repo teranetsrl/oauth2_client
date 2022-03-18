@@ -157,17 +157,31 @@ class OAuth2Helper {
 
     return tknResp;
   }
-
   /// Performs a refresh_token request using the [refreshToken].
   Future<AccessTokenResponse> refreshToken(String refreshToken) async {
     var tknResp;
-
     try {
       tknResp = await client.refreshToken(refreshToken,
           clientId: clientId, clientSecret: clientSecret);
     } catch (_) {
+      // infinite loop of refreshToken() method call if auth server revoke the refresh token.
+      if (RetryControl.retryCount > RetryControl.MAX_RETRY) {
+        RetryControl.retryCount = 0;
+        // throw OAuth2Exception('Unexpected error');
+        if (tknResp.error == 'invalid_grant') {
+          //The refresh token is expired too
+          await tokenStorage.deleteAllTokens();
+          //Fetch another access token
+          tknResp = await getToken();
+        } else {
+          throw OAuth2Exception(tknResp.error,
+              errorDescription: tknResp.errorDescription);
+        }
+      }
+      RetryControl.retryCount++;
       return await fetchToken();
     }
+    RetryControl.retryCount = 0;
 
     if (tknResp == null) {
       throw OAuth2Exception('Unexpected error');
@@ -180,7 +194,8 @@ class OAuth2Helper {
     } else {
       if (tknResp.error == 'invalid_grant') {
         //The refresh token is expired too
-        await tokenStorage.deleteToken(scopes ?? []);
+        // await tokenStorage.deleteToken(scopes ?? []); // this will not clear your refresh token and lead to infinite loop calling of refreshToken() method
+        await tokenStorage.deleteAllTokens();
         //Fetch another access token
         tknResp = await getToken();
       } else {
@@ -345,3 +360,9 @@ class OAuth2Helper {
     }
   }
 }
+
+class RetryControl {
+  static int retryCount = 0;
+  static int MAX_RETRY = 3;
+}
+
