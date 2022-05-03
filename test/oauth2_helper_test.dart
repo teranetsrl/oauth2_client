@@ -98,7 +98,7 @@ void main() {
 
   void _mockRefreshToken(oauth2Client) {
     when(oauth2Client.refreshToken(refreshToken,
-            clientId: clientId, clientSecret: clientSecret))
+            clientId: clientId, clientSecret: clientSecret, scopes: scopes))
         .thenAnswer((_) async => AccessTokenResponse.fromMap({
               'access_token': renewedAccessToken,
               'token_type': tokenType,
@@ -147,7 +147,6 @@ void main() {
           clientSecret: clientSecret,
           scopes: scopes,
           tokenStorage: tokenStorage);
-
       var tknResp = await hlp.getToken();
       expect(tknResp?.isValid(), true);
       expect(tknResp?.accessToken, accessToken);
@@ -213,7 +212,11 @@ void main() {
           scopes: scopes,
           tokenStorage: tokenStorage);
 
-      var tknResp = await hlp.refreshToken(refreshToken);
+      var tknResp = await hlp.refreshToken(AccessTokenResponse.fromMap({
+        'refresh_token': refreshToken,
+        'http_status_code': 200,
+        'access_token': accessToken
+      }));
 
       expect(tknResp.isValid(), true);
       expect(tknResp.accessToken, accessToken);
@@ -268,7 +271,13 @@ void main() {
           scopes: scopes,
           tokenStorage: tokenStorage);
 
-      expect(() async => await hlp.refreshToken(refreshToken),
+      // expect(() async => await hlp.refreshToken(refreshToken),
+      expect(
+          () async => await hlp.refreshToken(AccessTokenResponse.fromMap({
+                'refresh_token': refreshToken,
+                'http_status_code': 200,
+                'access_token': accessToken
+              })),
           throwsA(isInstanceOf<OAuth2Exception>()));
     });
 
@@ -777,7 +786,12 @@ void main() {
           scopes: scopes,
           tokenStorage: tokenStorage);
 
-      var tknResp = await hlp.refreshToken(refreshToken);
+      // var tknResp = await hlp.refreshToken(refreshToken);
+      var tknResp = await hlp.refreshToken(AccessTokenResponse.fromMap({
+        'refresh_token': refreshToken,
+        'http_status_code': 200,
+        'access_token': accessToken
+      }));
 
       expect(tknResp.isValid(), true);
       expect(tknResp.accessToken, accessToken);
@@ -810,7 +824,12 @@ void main() {
           scopes: scopes,
           tokenStorage: tokenStorage);
 
-      var tknResp = await hlp.refreshToken(refreshToken);
+      // var tknResp = await hlp.refreshToken(refreshToken);
+      var tknResp = await hlp.refreshToken(AccessTokenResponse.fromMap({
+        'refresh_token': refreshToken,
+        'http_status_code': 200,
+        'access_token': accessToken
+      }));
 
       expect(tknResp.isValid(), true);
       expect(tknResp.refreshToken, refreshToken);

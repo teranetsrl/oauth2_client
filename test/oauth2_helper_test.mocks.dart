@@ -239,14 +239,18 @@ class MockOAuth2Client extends _i1.Mock implements _i8.OAuth2Client {
           as _i9.Future<_i3.AccessTokenResponse>);
   @override
   _i9.Future<_i3.AccessTokenResponse> refreshToken(String? refreshToken,
-          {dynamic httpClient, String? clientId, String? clientSecret}) =>
+          {dynamic httpClient,
+          String? clientId,
+          String? clientSecret,
+          List<String>? scopes}) =>
       (super.noSuchMethod(
               Invocation.method(#refreshToken, [
                 refreshToken
               ], {
                 #httpClient: httpClient,
                 #clientId: clientId,
-                #clientSecret: clientSecret
+                #clientSecret: clientSecret,
+                #scopes: scopes
               }),
               returnValue: Future<_i3.AccessTokenResponse>.value(
                   _FakeAccessTokenResponse_1()))
