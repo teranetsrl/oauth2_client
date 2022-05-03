@@ -1,3 +1,6 @@
+## [2.4.0] - 2022/05/03
+* Fix for token renewal process through the refresh token flow
+* Expose the TokenStorage class
 ## [2.3.3] - 2022/03/14
 * Expose the BaseStorage object (thanks [Jon Salmon](https://github.com/Jon-Salmon))
 * Improved documentation for android Manifest modification (thanks [supermar1010](https://github.com/supermar1010))
