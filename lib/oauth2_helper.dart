@@ -88,8 +88,8 @@ class OAuth2Helper {
     if (tknResp != null) {
       if (tknResp.refreshNeeded()) {
         //The access token is expired
-        if (tknResp.refreshToken != null) {
-          tknResp = await refreshToken(tknResp.refreshToken!);
+        if (tknResp.hasRefreshToken()) {
+          tknResp = await refreshToken(tknResp);
         } else {
           //No refresh token, fetch a new token
           tknResp = await fetchToken();
@@ -159,12 +159,15 @@ class OAuth2Helper {
   }
 
   /// Performs a refresh_token request using the [refreshToken].
-  Future<AccessTokenResponse> refreshToken(String refreshToken) async {
+  Future<AccessTokenResponse> refreshToken(
+      AccessTokenResponse curTknResp) async {
     var tknResp;
-
+    var refreshToken = curTknResp.refreshToken!;
     try {
       tknResp = await client.refreshToken(refreshToken,
-          clientId: clientId, clientSecret: clientSecret);
+          clientId: clientId,
+          clientSecret: clientSecret,
+          scopes: curTknResp.scope);
     } catch (_) {
       return await fetchToken();
     }
@@ -176,6 +179,7 @@ class OAuth2Helper {
       if (!tknResp.hasRefreshToken()) {
         tknResp.refreshToken = refreshToken;
       }
+
       await tokenStorage.addToken(tknResp);
     } else {
       if (tknResp.error == 'invalid_grant') {
@@ -319,7 +323,7 @@ class OAuth2Helper {
         //The token could have been invalidated on the server side
         //Try to fetch a new token...
         if (tknResp.hasRefreshToken()) {
-          tknResp = await refreshToken(tknResp.refreshToken!);
+          tknResp = await refreshToken(tknResp);
         } else {
           tknResp = await fetchToken();
         }

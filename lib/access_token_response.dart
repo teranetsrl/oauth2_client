@@ -130,6 +130,10 @@ class AccessTokenResponse extends OAuth2Response {
     return scopes;
   }
 
+  set scope(List<String>? _scope) {
+    respMap['scope'] = scope;
+  }
+
   int? get expiresIn {
     int? expIn;
 
