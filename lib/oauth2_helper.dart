@@ -146,7 +146,8 @@ class OAuth2Helper {
           scopes: scopes,
           enableState: enableState,
           webAuthClient: webAuthClient,
-          webAuthOpts: webAuthOpts);
+          webAuthOpts: webAuthOpts,
+          customParams: authCodeParams);
     } else {
       tknResp = AccessTokenResponse.errorResponse();
     }
