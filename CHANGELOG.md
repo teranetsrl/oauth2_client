@@ -1,5 +1,6 @@
-## [2.4.1] - 2022/07/14
-* Fix accessing secure token storage on newer Android versions.
+## [2.4.1] - 2022/07/17
+* Fix accessing secure token storage on newer Android versions (thanks [Piotr Mitkowski](https://github.com/PiotrMitkowski)).
+* Added custom params handling for Implicit grant flow (thanks [qasim90](https://github.com/qasim90))
 
 ## [2.4.0] - 2022/05/03
 * Fix for token renewal process through the refresh token flow
