@@ -1,3 +1,6 @@
+## [2.4.1] - 2022/07/14
+* Fix accessing secure token storage on newer Android versions.
+
 ## [2.4.0] - 2022/05/03
 * Fix for token renewal process through the refresh token flow
 * Expose the TokenStorage class
