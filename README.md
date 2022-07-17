@@ -31,7 +31,7 @@ AndroidManifest.xml
 		<action android:name="android.intent.action.VIEW" />
 		<category android:name="android.intent.category.DEFAULT" />
 		<category android:name="android.intent.category.BROWSABLE" />
-		<data android:scheme="my.test.app" />
+		<data android:scheme="my.test.app" /> <!-- This must correspond to the custom scheme used for instantiatng the client... See below -->
 	</intent-filter>
 </activity>
 ```
@@ -185,8 +185,8 @@ In order to use this client you need to first configure OAuth2 credentials in th
 
 First you need to create a new Project if it doesn't already exists, then you need to create the OAuth2 credentials ("OAuth Client ID").
 
-Select **iOS** as *Application Type*, specify a name for the client and in the *Bundle ID* field insert your custom uri scheme
-(for example 'my.test.app', but you can use whatever uri scheme you want).
+Select **iOS** as *Application Type*, specify a name for the client and a *Bundle ID*.
+Now edit the just created Client ID and take note of the "IOS URL scheme". This should look something like ``com.googleusercontent.apps.XXX`` and is the custom scheme you'll need to use.
 
 Then in your code:
 
@@ -194,8 +194,8 @@ Then in your code:
 import 'package:oauth2_client/google_oauth2_client.dart';
 
 OAuth2Client googleClient = GoogleOAuth2Client(
-	redirectUri: 'my.test.app:/oauth2redirect', //Just one slash, required by Google specs
-	customUriScheme: 'my.test.app'
+	redirectUri: 'com.googleusercontent.apps.XXX:/oauth2redirect', //Just one slash, required by Google specs
+	customUriScheme: 'com.googleusercontent.apps.XXX'
 );
 ```
 
