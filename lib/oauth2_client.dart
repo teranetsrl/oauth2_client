@@ -82,7 +82,8 @@ class OAuth2Client {
       String? state,
       httpClient,
       BaseWebAuth? webAuthClient,
-      Map<String, dynamic>? webAuthOpts}) async {
+      Map<String, dynamic>? webAuthOpts,
+      Map<String, dynamic>? customParams}) async {
     httpClient ??= http.Client();
     webAuthClient ??= this.webAuthClient;
 
@@ -94,7 +95,8 @@ class OAuth2Client {
         scopes: scopes,
         enableState: enableState,
         state: state,
-        redirectUri: redirectUri);
+        redirectUri: redirectUri,
+        customParams: customParams);
 
     // Present the dialog to the user
     try {
@@ -163,8 +165,9 @@ class OAuth2Client {
           webAuthOpts: webAuthOpts);
 
       if (authResp.isAccessGranted()) {
-        if (afterAuthorizationCodeCb != null)
+        if (afterAuthorizationCodeCb != null) {
           afterAuthorizationCodeCb(authResp);
+        }
 
         tknResp = await requestAccessToken(
             httpClient: httpClient,
