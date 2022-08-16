@@ -1,3 +1,6 @@
+## [2.4.2] - 2022/08/16
+* Fix for breaking change in flutter_secure_storage (thanks [asmith26](https://github.com/asmith26))
+
 ## [2.4.1] - 2022/07/17
 * Fix accessing secure token storage on newer Android versions (thanks [Piotr Mitkowski](https://github.com/PiotrMitkowski)).
 * Added custom params handling for Implicit grant flow (thanks [qasim90](https://github.com/qasim90))
