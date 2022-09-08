@@ -1,3 +1,5 @@
+## [2.5.0] - 2022/09/08
+* Migrated the package to use [flutter_web_auth_2](https://pub.dev/packages/flutter_web_auth_2)
 ## [2.4.0] - 2022/05/03
 * Fix for token renewal process through the refresh token flow
 * Expose the TokenStorage class
