@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   crypto: ^3.0.1
-  flutter_secure_storage: ^5.0.2
+  flutter_secure_storage: ^5.1.0
   flutter_web_auth_2: ^1.1.2
   http: ^0.13.4
   meta: ^1.7.0

@@ -127,7 +127,8 @@ class MockOAuth2Client extends _i1.Mock implements _i8.OAuth2Client {
           String? state,
           dynamic httpClient,
           _i2.BaseWebAuth? webAuthClient,
-          Map<String, dynamic>? webAuthOpts}) =>
+          Map<String, dynamic>? webAuthOpts,
+          Map<String, dynamic>? customParams}) =>
       (super.noSuchMethod(
               Invocation.method(#getTokenWithImplicitGrantFlow, [], {
                 #clientId: clientId,
@@ -136,7 +137,8 @@ class MockOAuth2Client extends _i1.Mock implements _i8.OAuth2Client {
                 #state: state,
                 #httpClient: httpClient,
                 #webAuthClient: webAuthClient,
-                #webAuthOpts: webAuthOpts
+                #webAuthOpts: webAuthOpts,
+                #customParams: customParams
               }),
               returnValue: Future<_i3.AccessTokenResponse>.value(
                   _FakeAccessTokenResponse_1()))

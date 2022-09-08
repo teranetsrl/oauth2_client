@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:oauth2_client/access_token_response.dart';
 import 'package:oauth2_client/authorization_response.dart';
@@ -81,7 +82,8 @@ class OAuth2Client {
       String? state,
       httpClient,
       BaseWebAuth? webAuthClient,
-      Map<String, dynamic>? webAuthOpts}) async {
+      Map<String, dynamic>? webAuthOpts,
+      Map<String, dynamic>? customParams}) async {
     httpClient ??= http.Client();
     webAuthClient ??= this.webAuthClient;
 
@@ -93,32 +95,37 @@ class OAuth2Client {
         scopes: scopes,
         enableState: enableState,
         state: state,
-        redirectUri: redirectUri);
+        redirectUri: redirectUri,
+        customParams: customParams);
 
     // Present the dialog to the user
-    final result = await webAuthClient.authenticate(
-        url: authorizeUrl,
-        callbackUrlScheme: customUriScheme,
-        redirectUrl: redirectUri,
-        opts: webAuthOpts);
+    try {
+      final result = await webAuthClient.authenticate(
+          url: authorizeUrl,
+          callbackUrlScheme: customUriScheme,
+          redirectUrl: redirectUri,
+          opts: webAuthOpts);
 
-    final fragment = Uri.splitQueryString(Uri.parse(result).fragment);
+      final fragment = Uri.splitQueryString(Uri.parse(result).fragment);
 
-    if (enableState) {
-      final checkState = fragment['state'];
-      if (state != checkState) {
-        throw Exception(
-            '"state" parameter in response doesn\'t correspond to the expected value');
+      if (enableState) {
+        final checkState = fragment['state'];
+        if (state != checkState) {
+          throw Exception(
+              '"state" parameter in response doesn\'t correspond to the expected value');
+        }
       }
-    }
 
-    return AccessTokenResponse.fromMap({
-      'access_token': fragment['access_token'],
-      'token_type': fragment['token_type'],
-      'scope': fragment['scope'] ?? scopes,
-      'expires_in': fragment['expires_in'],
-      'http_status_code': 200
-    });
+      return AccessTokenResponse.fromMap({
+        'access_token': fragment['access_token'],
+        'token_type': fragment['token_type'],
+        'scope': fragment['scope'] ?? scopes,
+        'expires_in': fragment['expires_in'],
+        'http_status_code': 200
+      });
+    } on PlatformException {
+      return AccessTokenResponse.errorResponse();
+    }
   }
 
   /// Requests an Access Token to the OAuth2 endpoint using the Authorization Code Flow.
@@ -146,30 +153,36 @@ class OAuth2Client {
       codeChallenge = OAuth2Utils.generateCodeChallenge(codeVerifier);
     }
 
-    var authResp = await requestAuthorization(
-        webAuthClient: webAuthClient,
-        clientId: clientId,
-        scopes: scopes,
-        codeChallenge: codeChallenge,
-        enableState: enableState,
-        state: state,
-        customParams: authCodeParams,
-        webAuthOpts: webAuthOpts);
-
-    if (authResp.isAccessGranted()) {
-      if (afterAuthorizationCodeCb != null) afterAuthorizationCodeCb(authResp);
-
-      tknResp = await requestAccessToken(
-          httpClient: httpClient,
-          //If the authorization request was successfull, the code must be set
-          //otherwise an exception is raised in the OAuth2Response constructor
-          code: authResp.code!,
+    try {
+      var authResp = await requestAuthorization(
+          webAuthClient: webAuthClient,
           clientId: clientId,
           scopes: scopes,
-          clientSecret: clientSecret,
-          codeVerifier: codeVerifier,
-          customParams: accessTokenParams);
-    } else {
+          codeChallenge: codeChallenge,
+          enableState: enableState,
+          state: state,
+          customParams: authCodeParams,
+          webAuthOpts: webAuthOpts);
+
+      if (authResp.isAccessGranted()) {
+        if (afterAuthorizationCodeCb != null) {
+          afterAuthorizationCodeCb(authResp);
+        }
+
+        tknResp = await requestAccessToken(
+            httpClient: httpClient,
+            //If the authorization request was successfull, the code must be set
+            //otherwise an exception is raised in the OAuth2Response constructor
+            code: authResp.code!,
+            clientId: clientId,
+            scopes: scopes,
+            clientSecret: clientSecret,
+            codeVerifier: codeVerifier,
+            customParams: accessTokenParams);
+      } else {
+        tknResp = AccessTokenResponse.errorResponse();
+      }
+    } on PlatformException {
       tknResp = AccessTokenResponse.errorResponse();
     }
 
