@@ -1,4 +1,4 @@
-## [2.5.0] - 2022/09/08
+## [3.0.0] - 2022/09/08
 * Migrated the package to use [flutter_web_auth_2](https://pub.dev/packages/flutter_web_auth_2)
 
 ## [2.4.2] - 2022/08/16
