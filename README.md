@@ -20,8 +20,8 @@ If at all possible, when registering your application on the OAuth provider **tr
 
 If the OAuth2 server **allows only HTTPS** uri schemes, refer to the [FAQ](#faq) section.
 
-Again on Android, if your application uses the Authorization Code flow, you first need to modify the *AndroidManifest.xml* file adding the activity `com.linusu.flutter_web_auth.CallbackActivity` with the intent filter needed to open the browser window for the authorization workflow.
-The library relies on the flutter_web_auth package to allow the Authorization Code flow.
+Again on Android, if your application uses the Authorization Code flow, you first need to modify the *AndroidManifest.xml* file adding the activity `com.linusu.flutter_web_auth_2.CallbackActivity` with the intent filter needed to open the browser window for the authorization workflow.
+The library relies on the [flutter_web_auth_2](https://pub.dev/packages/flutter_web_auth_2) package to allow the Authorization Code flow.
 
 AndroidManifest.xml
 
@@ -307,9 +307,9 @@ print(tknResp.scope);
 Apart from the order, the printed scopes should correspond **exactly** to the ones you requested.
 
 ### I get an error *PlatformException(CANCELED, User canceled login, null, null)* on Android ###
-Please make sure you modified the *AndroidManifest.xml* file adding the  ```flutter_web_auth.CallbackActivity``` and the intent filter needed to open the browser window for the authorization workflow.
+Please make sure you modified the *AndroidManifest.xml* file adding the  ```com.linusu.flutter_web_auth_2.CallbackActivity``` and the intent filter needed to open the browser window for the authorization workflow.
 
-The AndroidManifest.xml file must contain the ```flutter_web_auth.CallbackActivity``` activity. Copy and paste the below code and CHANGE the value of `android:scheme` to match the scheme used in the redirect uri:
+The AndroidManifest.xml file must contain the ```com.linusu.flutter_web_auth_2.CallbackActivity``` activity. Copy and paste the below code and CHANGE the value of `android:scheme` to match the scheme used in the redirect uri:
 
 ```xml
 <activity android:name="com.linusu.flutter_web_auth_2.CallbackActivity" android:exported="true">
