@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   crypto: ^3.0.1
-  flutter_secure_storage: ^5.1.0
+  flutter_secure_storage: ^6.0.0
   flutter_web_auth_2: ^1.1.2
   http: ^0.13.4
   meta: ^1.7.0
@@ -22,7 +22,7 @@ dev_dependencies:
     sdk: flutter
   build_runner: ^2.1.7
   mockito: ^5.0.17
-  pedantic: ^1.11.1
+  flutter_lints: ^2.0.0
 
 # The following section is specific to Flutter.
 flutter: null
