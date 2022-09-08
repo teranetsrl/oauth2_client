@@ -26,8 +26,8 @@ The library relies on the flutter_web_auth package to allow the Authorization Co
 AndroidManifest.xml
 
 ```xml
-<activity android:name="com.linusu.flutter_web_auth.CallbackActivity" android:exported="true">
-	<intent-filter android:label="flutter_web_auth">
+<activity android:name="com.linusu.flutter_web_auth_2.CallbackActivity" android:exported="true">
+	<intent-filter android:label="flutter_web_auth_2">
 		<action android:name="android.intent.action.VIEW" />
 		<category android:name="android.intent.category.DEFAULT" />
 		<category android:name="android.intent.category.BROWSABLE" />
@@ -312,8 +312,8 @@ Please make sure you modified the *AndroidManifest.xml* file adding the  ```flut
 The AndroidManifest.xml file must contain the ```flutter_web_auth.CallbackActivity``` activity. Copy and paste the below code and CHANGE the value of `android:scheme` to match the scheme used in the redirect uri:
 
 ```xml
-<activity android:name="com.linusu.flutter_web_auth.CallbackActivity" android:exported="true">
-	<intent-filter android:label="flutter_web_auth">
+<activity android:name="com.linusu.flutter_web_auth_2.CallbackActivity" android:exported="true">
+	<intent-filter android:label="flutter_web_auth_2">
 		<action android:name="android.intent.action.VIEW" />
 		<category android:name="android.intent.category.DEFAULT" />
 		<category android:name="android.intent.category.BROWSABLE" />
@@ -328,8 +328,8 @@ If you want to use an HTTPS url as the redirect uri, you must setup it as an [Ap
 First you need to specify both the ```android:host``` and ```android:pathPrefix``` attributes, as long as the ```android:autoVerify="true"``` attribute in the intent-filter tag inside the _AndroidManifest.xml_:
 
 ```xml
-<activity android:name="com.linusu.flutter_web_auth.CallbackActivity" >
-	<intent-filter android:label="flutter_web_auth" android:autoVerify="true">
+<activity android:name="com.linusu.flutter_web_auth_2.CallbackActivity">
+	<intent-filter android:label="flutter_web_auth_2" android:autoVerify="true">
 		<action android:name="android.intent.action.VIEW" />
 		<category android:name="android.intent.category.DEFAULT" />
 		<category android:name="android.intent.category.BROWSABLE" />
