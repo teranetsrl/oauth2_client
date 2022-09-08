@@ -17,6 +17,6 @@ class ShopifyOAuth2Client extends OAuth2Client {
           tokenUrl: 'https://$shop.myshopify.com/admin/oauth/access_token',
           redirectUri: redirectUri,
           customUriScheme: customUriScheme,
-          credentialsLocation: CredentialsLocation.BODY,
+          credentialsLocation: CredentialsLocation.body,
         );
 }

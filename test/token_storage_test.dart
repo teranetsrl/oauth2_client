@@ -6,6 +6,7 @@ import 'package:mockito/mockito.dart';
 import 'package:oauth2_client/access_token_response.dart';
 import 'package:oauth2_client/src/secure_storage.dart';
 import 'package:oauth2_client/src/token_storage.dart';
+
 import 'token_storage_test.mocks.dart';
 
 @GenerateMocks([SecureStorage])
