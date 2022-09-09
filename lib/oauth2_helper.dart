@@ -25,6 +25,7 @@ class OAuth2Helper {
   String clientId;
   String? clientSecret;
   List<String>? scopes;
+  Map<String, String>? headers;
   bool enablePKCE;
   bool enableState;
 
@@ -139,7 +140,8 @@ class OAuth2Helper {
           clientId: clientId,
           //The clientSecret param can't be null at this point... It has been validated by the above _validateAuthorizationParams call...
           clientSecret: clientSecret!,
-          scopes: scopes);
+          scopes: scopes,
+          headers: headers);
     } else if (grantType == IMPLICIT_GRANT) {
       tknResp = await client.getTokenWithImplicitGrantFlow(
           clientId: clientId,

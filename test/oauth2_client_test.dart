@@ -602,6 +602,7 @@ void main() {
           clientId: clientId,
           clientSecret: clientSecret,
           // List<String> scopes,
+          // Map<String, String> headers,
           httpClient: httpClient);
 
       expect(
@@ -630,6 +631,7 @@ void main() {
           clientId: clientId,
           clientSecret: clientSecret,
           // List<String> scopes,
+          // Map<String, String> headers,
           httpClient: httpClient);
 
       expect(

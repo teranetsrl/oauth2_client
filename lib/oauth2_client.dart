@@ -194,6 +194,7 @@ class OAuth2Client {
       {required String clientId,
       required String clientSecret,
       List<String>? scopes,
+      Map<String, String>? headers,
       httpClient}) async {
     var params = <String, String>{'grant_type': 'client_credentials'};
 
@@ -206,6 +207,7 @@ class OAuth2Client {
         clientId: clientId,
         clientSecret: clientSecret,
         params: params,
+        headers: headers,
         httpClient: httpClient);
 
     return http2TokenResponse(response, requestedScopes: scopes);

@@ -182,12 +182,14 @@ class MockOAuth2Client extends _i1.Mock implements _i8.OAuth2Client {
           {String? clientId,
           String? clientSecret,
           List<String>? scopes,
+          Map<String, String>? headers,
           dynamic httpClient}) =>
       (super.noSuchMethod(
               Invocation.method(#getTokenWithClientCredentialsFlow, [], {
                 #clientId: clientId,
                 #clientSecret: clientSecret,
                 #scopes: scopes,
+                #headers: headers,
                 #httpClient: httpClient
               }),
               returnValue: Future<_i3.AccessTokenResponse>.value(

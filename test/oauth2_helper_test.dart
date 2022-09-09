@@ -21,6 +21,7 @@ void main() {
   final clientId = 'test_client';
   final clientSecret = 'test_secret';
   final scopes = ['scope1', 'scope2'];
+  final headers = {'Content-Type': 'application/x-www-form-urlencoded'};
   final accessToken = 'test_token';
   final renewedAccessToken = 'test_token_renewed';
   final tokenType = 'Bearer';
@@ -73,7 +74,10 @@ void main() {
         .millisecondsSinceEpoch;
 
     when(oauth2Client.getTokenWithClientCredentialsFlow(
-            clientId: clientId, clientSecret: clientSecret, scopes: scopes))
+            clientId: clientId,
+            clientSecret: clientSecret,
+            scopes: scopes,
+            headers: headers))
         .thenAnswer((_) async => AccessTokenResponse.fromMap(accessTokenMap));
   }
 

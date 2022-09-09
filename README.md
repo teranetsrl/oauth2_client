@@ -145,7 +145,9 @@ AccessTokenResponse tknResp = await client.getTokenWithAuthCodeFlow(
 AccessTokenResponse tknResp = await client.getTokenWithClientCredentialsFlow(
 	clientId: 'XXX', //Your client id
 	clientSecret: 'XXX', //Your client secret
-	scopes: ['scope1', 'scope2', ...] //Optional
+	scopes: ['scope1', 'scope2', ...], //Optional
+	headers: {'Content-Type': 'application/x-www-form-urlencoded', 'Connection': 'keep-alive', ...} //Optional
+
 );
 
 //Or, if you already have a token, check if it is expired and in case refresh it...
