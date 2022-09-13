@@ -31,8 +31,8 @@ enum CredentialsLocation { HEADER, BODY }
 /// When instantiating the client, pass your custom uri scheme in the [customUriScheme] field.
 /// Normally you would use something like <customUriScheme>:/oauth for the [redirectUri] field.
 /// For Android only you must add an intent filter in your AndroidManifest.xml file to enable the custom uri handling.
-/// <activity android:name="com.linusu.flutter_web_auth.CallbackActivity" >
-///   <intent-filter android:label="flutter_web_auth">
+/// <activity android:name="com.linusu.flutter_web_auth_2.CallbackActivity" >
+///   <intent-filter android:label="flutter_web_auth_2">
 ///     <action android:name="android.intent.action.VIEW" />
 ///     <category android:name="android.intent.category.DEFAULT" />
 ///     <category android:name="android.intent.category.BROWSABLE" />
