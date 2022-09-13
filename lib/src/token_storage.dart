@@ -1,11 +1,12 @@
 import 'dart:convert';
+
 import 'package:oauth2_client/access_token_response.dart';
 
 import 'base_storage.dart';
 import 'storage.dart'
-    // ignore: uri_does_not_exist
+// ignore: uri_does_not_exist
     if (dart.library.io) 'secure_storage.dart'
-    // ignore: uri_does_not_exist
+// ignore: uri_does_not_exist
     if (dart.library.html) 'browser_storage.dart';
 
 class TokenStorage {

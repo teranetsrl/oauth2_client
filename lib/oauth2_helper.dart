@@ -1,7 +1,7 @@
-import 'package:oauth2_client/access_token_response.dart';
-import 'package:oauth2_client/oauth2_exception.dart';
-import 'package:oauth2_client/oauth2_client.dart';
 import 'package:http/http.dart' as http;
+import 'package:oauth2_client/access_token_response.dart';
+import 'package:oauth2_client/oauth2_client.dart';
+import 'package:oauth2_client/oauth2_exception.dart';
 import 'package:oauth2_client/oauth2_response.dart';
 import 'package:oauth2_client/src/base_web_auth.dart';
 import 'package:oauth2_client/src/token_storage.dart';
@@ -14,9 +14,9 @@ import 'package:oauth2_client/src/token_storage.dart';
 ///
 ///
 class OAuth2Helper {
-  static const AUTHORIZATION_CODE = 1;
-  static const CLIENT_CREDENTIALS = 2;
-  static const IMPLICIT_GRANT = 3;
+  static const authorizationCode = 1;
+  static const clientCredentials = 2;
+  static const implicitGrant = 3;
 
   final OAuth2Client client;
   late TokenStorage tokenStorage;
@@ -37,7 +37,7 @@ class OAuth2Helper {
   Map<String, dynamic>? webAuthOpts;
 
   OAuth2Helper(this.client,
-      {this.grantType = AUTHORIZATION_CODE,
+      {this.grantType = authorizationCode,
       required this.clientId,
       this.clientSecret,
       this.scopes,
@@ -55,7 +55,7 @@ class OAuth2Helper {
   /// Sets the proper parameters for requesting an authorization token.
   ///
   /// The parameters are validated depending on the [grantType].
-  @deprecated
+  @Deprecated("Use the constructor instead.")
   void setAuthorizationParams(
       {required int grantType,
       required String clientId,
@@ -122,7 +122,7 @@ class OAuth2Helper {
 
     AccessTokenResponse tknResp;
 
-    if (grantType == AUTHORIZATION_CODE) {
+    if (grantType == authorizationCode) {
       tknResp = await client.getTokenWithAuthCodeFlow(
           clientId: clientId,
           clientSecret: clientSecret,
@@ -134,13 +134,13 @@ class OAuth2Helper {
           afterAuthorizationCodeCb: afterAuthorizationCodeCb,
           webAuthClient: webAuthClient,
           webAuthOpts: webAuthOpts);
-    } else if (grantType == CLIENT_CREDENTIALS) {
+    } else if (grantType == clientCredentials) {
       tknResp = await client.getTokenWithClientCredentialsFlow(
           clientId: clientId,
           //The clientSecret param can't be null at this point... It has been validated by the above _validateAuthorizationParams call...
           clientSecret: clientSecret!,
           scopes: scopes);
-    } else if (grantType == IMPLICIT_GRANT) {
+    } else if (grantType == implicitGrant) {
       tknResp = await client.getTokenWithImplicitGrantFlow(
           clientId: clientId,
           scopes: scopes,
@@ -162,7 +162,7 @@ class OAuth2Helper {
   /// Performs a refresh_token request using the [refreshToken].
   Future<AccessTokenResponse> refreshToken(
       AccessTokenResponse curTknResp) async {
-    var tknResp;
+    AccessTokenResponse? tknResp;
     var refreshToken = curTknResp.refreshToken!;
     try {
       tknResp = await client.refreshToken(refreshToken,
@@ -173,9 +173,7 @@ class OAuth2Helper {
       return await fetchToken();
     }
 
-    if (tknResp == null) {
-      throw OAuth2Exception('Unexpected error');
-    } else if (tknResp.isValid()) {
+    if (tknResp.isValid()) {
       //If the response doesn't contain a refresh token, keep using the current one
       if (!tknResp.hasRefreshToken()) {
         tknResp.refreshToken = refreshToken;
@@ -189,12 +187,12 @@ class OAuth2Helper {
         //Fetch another access token
         tknResp = await getToken();
       } else {
-        throw OAuth2Exception(tknResp.error,
+        throw OAuth2Exception(tknResp.error ?? 'Error',
             errorDescription: tknResp.errorDescription);
       }
     }
 
-    return tknResp;
+    return tknResp!;
   }
 
   /// Revokes the previously fetched token
@@ -287,10 +285,10 @@ class OAuth2Helper {
 
     headers ??= {};
 
-    var sendRequest = (accessToken) async {
-      var resp;
+    sendRequest(accessToken) async {
+      http.Response resp;
 
-      headers!['Authorization'] = 'Bearer ' + accessToken;
+      headers!['Authorization'] = 'Bearer $accessToken';
 
       if (method == 'POST') {
         resp = await httpClient!
@@ -307,10 +305,12 @@ class OAuth2Helper {
         resp = await httpClient!.delete(Uri.parse(url), headers: headers);
       } else if (method == 'HEAD') {
         resp = await httpClient!.head(Uri.parse(url), headers: headers);
+      } else {
+        throw OAuth2Exception('Unknown method $method!');
       }
 
       return resp;
-    };
+    }
 
     http.Response resp;
 
@@ -344,7 +344,7 @@ class OAuth2Helper {
       throw Exception('Required "clientId" parameter not set');
     }
 
-    if (grantType == CLIENT_CREDENTIALS &&
+    if (grantType == clientCredentials &&
         (clientSecret == null || clientSecret!.isEmpty)) {
       throw Exception('Required "clientSecret" parameter not set');
     }

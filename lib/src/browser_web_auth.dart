@@ -1,5 +1,8 @@
-import 'base_web_auth.dart';
+// ignore_for_file: avoid_web_libraries_in_flutter
+
 import 'dart:html' as html;
+
+import 'base_web_auth.dart';
 
 BaseWebAuth createWebAuth() => BrowserWebAuth();
 

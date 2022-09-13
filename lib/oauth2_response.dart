@@ -100,12 +100,7 @@ class OAuth2Response {
     if (httpStatusCode == 200) {
       return 'Request ok';
     } else {
-      return 'HTTP ' +
-          httpStatusCode.toString() +
-          ' - ' +
-          (error ?? '') +
-          ' ' +
-          (errorDescription ?? '');
+      return 'HTTP $httpStatusCode - ${error ?? ''} ${errorDescription ?? ''}';
     }
   }
 }

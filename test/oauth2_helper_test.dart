@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:oauth2_client/access_token_response.dart';
@@ -10,7 +11,7 @@ import 'package:oauth2_client/oauth2_response.dart';
 import 'package:oauth2_client/src/base_storage.dart';
 import 'package:oauth2_client/src/token_storage.dart';
 import 'package:oauth2_client/src/volatile_storage.dart';
-import 'package:http/http.dart' as http;
+
 import 'oauth2_helper_test.mocks.dart';
 
 @GenerateMocks([OAuth2Client])
@@ -18,14 +19,14 @@ import 'oauth2_helper_test.mocks.dart';
 @GenerateMocks([TokenStorage])
 @GenerateMocks([BaseStorage])
 void main() {
-  final clientId = 'test_client';
-  final clientSecret = 'test_secret';
+  const clientId = 'test_client';
+  const clientSecret = 'test_secret';
   final scopes = ['scope1', 'scope2'];
-  final accessToken = 'test_token';
-  final renewedAccessToken = 'test_token_renewed';
-  final tokenType = 'Bearer';
-  final refreshToken = 'test_refresh_token';
-  final expiresIn = 3600;
+  const accessToken = 'test_token';
+  const renewedAccessToken = 'test_token_renewed';
+  const tokenType = 'Bearer';
+  const refreshToken = 'test_refresh_token';
+  const expiresIn = 3600;
 
   final oauth2Client = MockOAuth2Client();
   final httpClient = MockClient();
@@ -33,7 +34,7 @@ void main() {
   when(oauth2Client.tokenUrl).thenReturn('http://my.test.app/token');
   when(oauth2Client.revokeUrl).thenReturn('http://my.test.app/revoke');
 
-  void _mockGetTokenWithAuthCodeFlow(oauth2Client,
+  void mockGetTokenWithAuthCodeFlow(oauth2Client,
       {Map<String, dynamic>? respMap}) {
     var accessTokenMap = <String, dynamic>{
       'access_token': accessToken,
@@ -53,7 +54,7 @@ void main() {
         .thenAnswer((_) async => AccessTokenResponse.fromMap(accessTokenMap));
   }
 
-  void _mockGetTokenWithClientCredentials(oauth2Client,
+  void mockGetTokenWithClientCredentials(oauth2Client,
       {Map<String, dynamic>? respMap}) {
     var accessTokenMap = <String, dynamic>{
       'access_token': accessToken,
@@ -77,7 +78,7 @@ void main() {
         .thenAnswer((_) async => AccessTokenResponse.fromMap(accessTokenMap));
   }
 
-  void _mockGetTokenWithImplicitFlow(oauth2Client,
+  void mockGetTokenWithImplicitFlow(oauth2Client,
       {Map<String, dynamic>? respMap}) {
     var accessTokenMap = <String, dynamic>{
       'access_token': accessToken,
@@ -96,7 +97,7 @@ void main() {
         .thenAnswer((_) async => AccessTokenResponse.fromMap(accessTokenMap));
   }
 
-  void _mockRefreshToken(oauth2Client) {
+  void mockRefreshToken(oauth2Client) {
     when(oauth2Client.refreshToken(refreshToken,
             clientId: clientId, clientSecret: clientSecret, scopes: scopes))
         .thenAnswer((_) async => AccessTokenResponse.fromMap({
@@ -114,10 +115,10 @@ void main() {
       final tokenStorage =
           TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
 
-      _mockGetTokenWithAuthCodeFlow(oauth2Client);
+      mockGetTokenWithAuthCodeFlow(oauth2Client);
 
       var hlp = OAuth2Helper(oauth2Client,
-          grantType: OAuth2Helper.AUTHORIZATION_CODE,
+          grantType: OAuth2Helper.authorizationCode,
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes,
@@ -133,16 +134,17 @@ void main() {
       final tokenStorage =
           TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
 
-      _mockGetTokenWithAuthCodeFlow(oauth2Client, respMap: {
+      mockGetTokenWithAuthCodeFlow(oauth2Client, respMap: {
         'expires_in': 1,
-        'expiration_date':
-            DateTime.now().add(Duration(seconds: 1)).millisecondsSinceEpoch
+        'expiration_date': DateTime.now()
+            .add(const Duration(seconds: 1))
+            .millisecondsSinceEpoch
       });
 
-      _mockRefreshToken(oauth2Client);
+      mockRefreshToken(oauth2Client);
 
       var hlp = OAuth2Helper(oauth2Client,
-          grantType: OAuth2Helper.AUTHORIZATION_CODE,
+          grantType: OAuth2Helper.authorizationCode,
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes,
@@ -172,11 +174,11 @@ void main() {
           .thenAnswer(
               (_) async => http.Response('{"error": "invalid_token"}', 401));
 
-      _mockGetTokenWithAuthCodeFlow(oauth2Client);
-      _mockRefreshToken(oauth2Client);
+      mockGetTokenWithAuthCodeFlow(oauth2Client);
+      mockRefreshToken(oauth2Client);
 
       var hlp = OAuth2Helper(oauth2Client,
-          grantType: OAuth2Helper.AUTHORIZATION_CODE,
+          grantType: OAuth2Helper.authorizationCode,
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes,
@@ -198,7 +200,7 @@ void main() {
       final tokenStorage =
           TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
 
-      _mockGetTokenWithAuthCodeFlow(oauth2Client);
+      mockGetTokenWithAuthCodeFlow(oauth2Client);
 
       when(oauth2Client.refreshToken(refreshToken,
               clientId: clientId, clientSecret: clientSecret))
@@ -206,7 +208,7 @@ void main() {
               {'error': 'invalid_grant', 'http_status_code': 400}));
 
       var hlp = OAuth2Helper(oauth2Client,
-          grantType: OAuth2Helper.AUTHORIZATION_CODE,
+          grantType: OAuth2Helper.authorizationCode,
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes,
@@ -226,11 +228,11 @@ void main() {
       final tokenStorage =
           TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
 
-      _mockGetTokenWithAuthCodeFlow(oauth2Client);
-      _mockRefreshToken(oauth2Client);
+      mockGetTokenWithAuthCodeFlow(oauth2Client);
+      mockRefreshToken(oauth2Client);
 
       var hlp = OAuth2Helper(oauth2Client,
-          grantType: OAuth2Helper.AUTHORIZATION_CODE,
+          grantType: OAuth2Helper.authorizationCode,
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes,
@@ -257,7 +259,7 @@ void main() {
       final tokenStorage =
           TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
 
-      _mockGetTokenWithAuthCodeFlow(oauth2Client);
+      mockGetTokenWithAuthCodeFlow(oauth2Client);
 
       when(oauth2Client.refreshToken(refreshToken,
               clientId: clientId, clientSecret: clientSecret))
@@ -265,7 +267,7 @@ void main() {
               {'error': 'generic_error', 'http_status_code': 400}));
 
       var hlp = OAuth2Helper(oauth2Client,
-          grantType: OAuth2Helper.AUTHORIZATION_CODE,
+          grantType: OAuth2Helper.authorizationCode,
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes,
@@ -285,8 +287,8 @@ void main() {
       final tokenStorage =
           TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
 
-      _mockGetTokenWithAuthCodeFlow(oauth2Client);
-      _mockRefreshToken(oauth2Client);
+      mockGetTokenWithAuthCodeFlow(oauth2Client);
+      mockRefreshToken(oauth2Client);
 
       clearInteractions(httpClient);
 
@@ -296,7 +298,7 @@ void main() {
               (_) async => http.Response('{"error": "invalid_token"}', 401));
 
       var hlp = OAuth2Helper(oauth2Client,
-          grantType: OAuth2Helper.AUTHORIZATION_CODE,
+          grantType: OAuth2Helper.authorizationCode,
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes,
@@ -316,8 +318,8 @@ void main() {
       final tokenStorage =
           TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
 
-      _mockGetTokenWithAuthCodeFlow(oauth2Client);
-      _mockRefreshToken(oauth2Client);
+      mockGetTokenWithAuthCodeFlow(oauth2Client);
+      mockRefreshToken(oauth2Client);
 
       clearInteractions(httpClient);
 
@@ -327,7 +329,7 @@ void main() {
               (_) async => http.Response('{"error": "invalid_token"}', 401));
 
       var hlp = OAuth2Helper(oauth2Client,
-          grantType: OAuth2Helper.AUTHORIZATION_CODE,
+          grantType: OAuth2Helper.authorizationCode,
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes,
@@ -346,8 +348,8 @@ void main() {
       final tokenStorage =
           TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
 
-      _mockGetTokenWithAuthCodeFlow(oauth2Client);
-      _mockRefreshToken(oauth2Client);
+      mockGetTokenWithAuthCodeFlow(oauth2Client);
+      mockRefreshToken(oauth2Client);
 
       clearInteractions(httpClient);
 
@@ -357,7 +359,7 @@ void main() {
               (_) async => http.Response('{"error": "invalid_token"}', 401));
 
       var hlp = OAuth2Helper(oauth2Client,
-          grantType: OAuth2Helper.AUTHORIZATION_CODE,
+          grantType: OAuth2Helper.authorizationCode,
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes,
@@ -377,8 +379,8 @@ void main() {
       final tokenStorage =
           TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
 
-      _mockGetTokenWithAuthCodeFlow(oauth2Client);
-      _mockRefreshToken(oauth2Client);
+      mockGetTokenWithAuthCodeFlow(oauth2Client);
+      mockRefreshToken(oauth2Client);
 
       clearInteractions(httpClient);
 
@@ -388,7 +390,7 @@ void main() {
               (_) async => http.Response('{"error": "invalid_token"}', 401));
 
       var hlp = OAuth2Helper(oauth2Client,
-          grantType: OAuth2Helper.AUTHORIZATION_CODE,
+          grantType: OAuth2Helper.authorizationCode,
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes,
@@ -407,8 +409,8 @@ void main() {
       final tokenStorage =
           TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
 
-      _mockGetTokenWithAuthCodeFlow(oauth2Client);
-      _mockRefreshToken(oauth2Client);
+      mockGetTokenWithAuthCodeFlow(oauth2Client);
+      mockRefreshToken(oauth2Client);
 
       clearInteractions(httpClient);
 
@@ -418,7 +420,7 @@ void main() {
               (_) async => http.Response('{"error": "invalid_token"}', 401));
 
       var hlp = OAuth2Helper(oauth2Client,
-          grantType: OAuth2Helper.AUTHORIZATION_CODE,
+          grantType: OAuth2Helper.authorizationCode,
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes,
@@ -437,8 +439,8 @@ void main() {
       final tokenStorage =
           TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
 
-      _mockGetTokenWithAuthCodeFlow(oauth2Client);
-      _mockRefreshToken(oauth2Client);
+      mockGetTokenWithAuthCodeFlow(oauth2Client);
+      mockRefreshToken(oauth2Client);
 
       clearInteractions(httpClient);
 
@@ -448,7 +450,7 @@ void main() {
               (_) async => http.Response('{"error": "invalid_token"}', 401));
 
       var hlp = OAuth2Helper(oauth2Client,
-          grantType: OAuth2Helper.AUTHORIZATION_CODE,
+          grantType: OAuth2Helper.authorizationCode,
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes,
@@ -467,8 +469,8 @@ void main() {
       final tokenStorage =
           TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
 
-      _mockGetTokenWithAuthCodeFlow(oauth2Client);
-      _mockRefreshToken(oauth2Client);
+      mockGetTokenWithAuthCodeFlow(oauth2Client);
+      mockRefreshToken(oauth2Client);
 
       clearInteractions(httpClient);
 
@@ -478,7 +480,7 @@ void main() {
               (_) async => http.Response('{"error": "invalid_token"}', 401));
 
       var hlp = OAuth2Helper(oauth2Client,
-          grantType: OAuth2Helper.AUTHORIZATION_CODE,
+          grantType: OAuth2Helper.authorizationCode,
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes,
@@ -498,8 +500,8 @@ void main() {
       final tokenStorage =
           TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
 
-      _mockGetTokenWithAuthCodeFlow(oauth2Client);
-      _mockRefreshToken(oauth2Client);
+      mockGetTokenWithAuthCodeFlow(oauth2Client);
+      mockRefreshToken(oauth2Client);
 
       clearInteractions(httpClient);
 
@@ -509,7 +511,7 @@ void main() {
               (_) async => http.Response('{"error": "invalid_token"}', 401));
 
       var hlp = OAuth2Helper(oauth2Client,
-          grantType: OAuth2Helper.AUTHORIZATION_CODE,
+          grantType: OAuth2Helper.authorizationCode,
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes,
@@ -528,8 +530,8 @@ void main() {
       final tokenStorage =
           TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
 
-      _mockGetTokenWithAuthCodeFlow(oauth2Client);
-      _mockRefreshToken(oauth2Client);
+      mockGetTokenWithAuthCodeFlow(oauth2Client);
+      mockRefreshToken(oauth2Client);
 
       clearInteractions(httpClient);
 
@@ -539,7 +541,7 @@ void main() {
               (_) async => http.Response('{"error": "invalid_token"}', 401));
 
       var hlp = OAuth2Helper(oauth2Client,
-          grantType: OAuth2Helper.AUTHORIZATION_CODE,
+          grantType: OAuth2Helper.authorizationCode,
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes,
@@ -577,7 +579,7 @@ void main() {
 
       final hlp = OAuth2Helper(oauth2Client,
           tokenStorage: tokenStorage,
-          grantType: OAuth2Helper.CLIENT_CREDENTIALS,
+          grantType: OAuth2Helper.clientCredentials,
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes);
@@ -594,7 +596,7 @@ void main() {
 
       final hlp = OAuth2Helper(oauth2Client,
           tokenStorage: tokenStorage,
-          grantType: OAuth2Helper.CLIENT_CREDENTIALS,
+          grantType: OAuth2Helper.clientCredentials,
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes);
@@ -617,7 +619,7 @@ void main() {
       )).thenAnswer((_) async => AccessTokenResponse());
 
       var hlp = OAuth2Helper(oauth2Client,
-          grantType: OAuth2Helper.AUTHORIZATION_CODE,
+          grantType: OAuth2Helper.authorizationCode,
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes,
@@ -692,10 +694,10 @@ void main() {
       final tokenStorage =
           TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
 
-      _mockGetTokenWithClientCredentials(oauth2Client);
+      mockGetTokenWithClientCredentials(oauth2Client);
 
       var hlp = OAuth2Helper(oauth2Client,
-          grantType: OAuth2Helper.CLIENT_CREDENTIALS,
+          grantType: OAuth2Helper.clientCredentials,
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes,
@@ -711,13 +713,13 @@ void main() {
       final tokenStorage =
           TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
 
-      _mockGetTokenWithClientCredentials(oauth2Client,
+      mockGetTokenWithClientCredentials(oauth2Client,
           respMap: {'expires_in': 1});
 
-      _mockRefreshToken(oauth2Client);
+      mockRefreshToken(oauth2Client);
 
       var hlp = OAuth2Helper(oauth2Client,
-          grantType: OAuth2Helper.CLIENT_CREDENTIALS,
+          grantType: OAuth2Helper.clientCredentials,
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes,
@@ -741,18 +743,18 @@ void main() {
       final tokenStorage =
           TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
 
-      _mockGetTokenWithClientCredentials(oauth2Client);
-      _mockRefreshToken(oauth2Client);
+      mockGetTokenWithClientCredentials(oauth2Client);
+      mockRefreshToken(oauth2Client);
 
       var hlp = OAuth2Helper(oauth2Client,
-          grantType: OAuth2Helper.CLIENT_CREDENTIALS,
+          grantType: OAuth2Helper.clientCredentials,
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes,
           tokenStorage: tokenStorage);
 
       when(httpClient.post(Uri.parse('https://my.test.url'),
-              body: null, headers: {'Authorization': 'Bearer ' + accessToken}))
+              body: null, headers: {'Authorization': 'Bearer $accessToken'}))
           .thenAnswer(
               (_) async => http.Response('{"error": "invalid_token"}', 401));
 
@@ -772,7 +774,7 @@ void main() {
       final tokenStorage =
           TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
 
-      _mockGetTokenWithClientCredentials(oauth2Client);
+      mockGetTokenWithClientCredentials(oauth2Client);
 
       when(oauth2Client.refreshToken(refreshToken,
               clientId: clientId, clientSecret: clientSecret))
@@ -780,7 +782,7 @@ void main() {
               {'error': 'invalid_grant', 'http_status_code': 400}));
 
       var hlp = OAuth2Helper(oauth2Client,
-          grantType: OAuth2Helper.CLIENT_CREDENTIALS,
+          grantType: OAuth2Helper.clientCredentials,
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes,
@@ -803,7 +805,7 @@ void main() {
       final tokenStorage =
           TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
 
-      _mockGetTokenWithClientCredentials(oauth2Client);
+      mockGetTokenWithClientCredentials(oauth2Client);
 
       when(oauth2Client.refreshToken(refreshToken,
               clientId: clientId, clientSecret: clientSecret))
@@ -812,13 +814,13 @@ void main() {
                 'token_type': tokenType,
                 'expires_in': expiresIn,
                 'expiration_date': DateTime.now()
-                    .add(Duration(seconds: expiresIn))
+                    .add(const Duration(seconds: expiresIn))
                     .millisecondsSinceEpoch,
                 'http_status_code': 200
               }));
 
       var hlp = OAuth2Helper(oauth2Client,
-          grantType: OAuth2Helper.CLIENT_CREDENTIALS,
+          grantType: OAuth2Helper.clientCredentials,
           clientId: clientId,
           clientSecret: clientSecret,
           scopes: scopes,
@@ -841,10 +843,10 @@ void main() {
       final tokenStorage =
           TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
 
-      _mockGetTokenWithImplicitFlow(oauth2Client);
+      mockGetTokenWithImplicitFlow(oauth2Client);
 
       var hlp = OAuth2Helper(oauth2Client,
-          grantType: OAuth2Helper.IMPLICIT_GRANT,
+          grantType: OAuth2Helper.implicitGrant,
           clientId: clientId,
           scopes: scopes,
           tokenStorage: tokenStorage);

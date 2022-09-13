@@ -8,6 +8,7 @@ import 'package:oauth2_client/oauth2_response.dart';
 
 class AccessTokenResponse extends OAuth2Response {
   AccessTokenResponse() : super();
+
   AccessTokenResponse.errorResponse() : super.errorResponse();
 
   AccessTokenResponse.fromMap(Map<String, dynamic> map) : super.fromMap(map);
@@ -31,7 +32,7 @@ class AccessTokenResponse extends OAuth2Response {
       }
 
       if (rMap.containsKey('expires_in')) {
-        var expiresIn;
+        int expiresIn;
 
         try {
           expiresIn = rMap['expires_in'] is String
@@ -44,7 +45,7 @@ class AccessTokenResponse extends OAuth2Response {
         rMap['expires_in'] = expiresIn;
 
         rMap['expiration_date'] = DateTime.now()
-            .add(Duration(seconds: expiresIn!))
+            .add(Duration(seconds: expiresIn))
             .millisecondsSinceEpoch;
       }
 
@@ -79,7 +80,7 @@ class AccessTokenResponse extends OAuth2Response {
     return expired;
   }
 
-  ///Checks if the access token must be refreeshed
+  ///Checks if the access token must be refreshed
   bool refreshNeeded({secondsToExpiration = 30}) {
     var needsRefresh = false;
 
@@ -116,12 +117,12 @@ class AccessTokenResponse extends OAuth2Response {
     return isValid() ? respMap['refresh_token'] : null;
   }
 
-  set refreshToken(String? _tkn) {
-    respMap['refresh_token'] = _tkn;
+  set refreshToken(String? tkn) {
+    respMap['refresh_token'] = tkn;
   }
 
   List<String>? get scope {
-    var scopes;
+    List<String>? scopes;
 
     if (isValid()) {
       scopes = _splitScopes(respMap['scope']);
@@ -130,7 +131,7 @@ class AccessTokenResponse extends OAuth2Response {
     return scopes;
   }
 
-  set scope(List<String>? _scope) {
+  set scope(List<String>? scope) {
     respMap['scope'] = scope;
   }
 
@@ -179,14 +180,9 @@ class AccessTokenResponse extends OAuth2Response {
   @override
   String toString() {
     if (httpStatusCode == 200) {
-      return 'Access Token: ' + (accessToken ?? 'n.a.');
+      return 'Access Token: ${accessToken ?? 'n.a.'}';
     } else {
-      return 'HTTP ' +
-          httpStatusCode.toString() +
-          ' - ' +
-          (error ?? '') +
-          ' ' +
-          (errorDescription ?? '');
+      return 'HTTP $httpStatusCode - ${error ?? ''} ${errorDescription ?? ''}';
     }
   }
 }
