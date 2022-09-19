@@ -107,8 +107,6 @@ void main() {
     test('Fetch Access Token with custom headers', () async {
       final httpClient = MockClient();
 
-      oauth2Client.accessTokenRequestHeaders = {'test': '42'};
-
       const accessToken = '12345';
       const refreshToken = '54321';
 
@@ -130,6 +128,7 @@ void main() {
           httpClient: httpClient,
           code: authCode,
           clientId: clientId,
+          customHeaders: {'test': '42'},
           codeVerifier: codeVerifier);
 
       expect(
@@ -139,8 +138,6 @@ void main() {
           {'test': '42'});
 
       expect(tknResponse.accessToken, accessToken);
-
-      oauth2Client.accessTokenRequestHeaders = {};
     });
 
     test('Fetch access token with preferEphemeral', () async {

@@ -32,6 +32,7 @@ class OAuth2Helper {
 
   Map<String, dynamic>? authCodeParams;
   Map<String, dynamic>? accessTokenParams;
+  Map<String, String>? accessTokenHeaders;
 
   BaseWebAuth? webAuthClient;
   Map<String, dynamic>? webAuthOpts;
@@ -131,6 +132,7 @@ class OAuth2Helper {
           enableState: enableState,
           authCodeParams: authCodeParams,
           accessTokenParams: accessTokenParams,
+          accessTokenHeaders: accessTokenHeaders,
           afterAuthorizationCodeCb: afterAuthorizationCodeCb,
           webAuthClient: webAuthClient,
           webAuthOpts: webAuthOpts);
@@ -139,6 +141,7 @@ class OAuth2Helper {
           clientId: clientId,
           //The clientSecret param can't be null at this point... It has been validated by the above _validateAuthorizationParams call...
           clientSecret: clientSecret!,
+          customHeaders: accessTokenHeaders,
           scopes: scopes);
     } else if (grantType == implicitGrant) {
       tknResp = await client.getTokenWithImplicitGrantFlow(

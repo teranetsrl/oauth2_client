@@ -49,8 +49,6 @@ class OAuth2Client {
   String authorizeUrl;
   String scopeSeparator;
 
-  Map<String, String> _accessTokenRequestHeaders = {};
-
   BaseWebAuth webAuthClient = createWebAuth();
   CredentialsLocation credentialsLocation;
 
@@ -140,6 +138,7 @@ class OAuth2Client {
       Function? afterAuthorizationCodeCb,
       Map<String, dynamic>? authCodeParams,
       Map<String, dynamic>? accessTokenParams,
+      Map<String, String>? accessTokenHeaders,
       httpClient,
       BaseWebAuth? webAuthClient,
       Map<String, dynamic>? webAuthOpts}) async {
@@ -178,7 +177,8 @@ class OAuth2Client {
             scopes: scopes,
             clientSecret: clientSecret,
             codeVerifier: codeVerifier,
-            customParams: accessTokenParams);
+            customParams: accessTokenParams,
+            customHeaders: accessTokenHeaders);
       } else {
         tknResp = AccessTokenResponse.errorResponse();
       }
@@ -194,6 +194,7 @@ class OAuth2Client {
       {required String clientId,
       required String clientSecret,
       List<String>? scopes,
+      Map<String, String>? customHeaders,
       httpClient}) async {
     var params = <String, String>{'grant_type': 'client_credentials'};
 
@@ -206,6 +207,7 @@ class OAuth2Client {
         clientId: clientId,
         clientSecret: clientSecret,
         params: params,
+        headers: customHeaders,
         httpClient: httpClient);
 
     return http2TokenResponse(response, requestedScopes: scopes);
@@ -254,6 +256,7 @@ class OAuth2Client {
       String? codeVerifier,
       List<String>? scopes,
       Map<String, dynamic>? customParams,
+      Map<String, String>? customHeaders,
       httpClient}) async {
     final params = getTokenUrlParams(
         code: code,
@@ -266,7 +269,7 @@ class OAuth2Client {
         clientId: clientId,
         clientSecret: clientSecret,
         params: params,
-        headers: _accessTokenRequestHeaders,
+        headers: customHeaders,
         httpClient: httpClient);
 
     return http2TokenResponse(response, requestedScopes: scopes);
@@ -497,9 +500,5 @@ class OAuth2Client {
 
   String _getRefreshUrl() {
     return refreshUrl ?? tokenUrl;
-  }
-
-  set accessTokenRequestHeaders(Map<String, String> headers) {
-    _accessTokenRequestHeaders = headers;
   }
 }

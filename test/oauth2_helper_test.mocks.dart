@@ -143,10 +143,6 @@ class MockOAuth2Client extends _i1.Mock implements _i8.OAuth2Client {
           Invocation.setter(#credentialsLocation, _credentialsLocation),
           returnValueForMissingStub: null);
   @override
-  set accessTokenRequestHeaders(Map<String, String>? headers) =>
-      super.noSuchMethod(Invocation.setter(#accessTokenRequestHeaders, headers),
-          returnValueForMissingStub: null);
-  @override
   _i9.Future<_i3.AccessTokenResponse> getTokenWithImplicitGrantFlow(
           {String? clientId,
           List<String>? scopes,
@@ -192,6 +188,7 @@ class MockOAuth2Client extends _i1.Mock implements _i8.OAuth2Client {
           Function? afterAuthorizationCodeCb,
           Map<String, dynamic>? authCodeParams,
           Map<String, dynamic>? accessTokenParams,
+          Map<String, String>? accessTokenHeaders,
           dynamic httpClient,
           _i2.BaseWebAuth? webAuthClient,
           Map<String, dynamic>? webAuthOpts}) =>
@@ -207,6 +204,7 @@ class MockOAuth2Client extends _i1.Mock implements _i8.OAuth2Client {
             #afterAuthorizationCodeCb: afterAuthorizationCodeCb,
             #authCodeParams: authCodeParams,
             #accessTokenParams: accessTokenParams,
+            #accessTokenHeaders: accessTokenHeaders,
             #httpClient: httpClient,
             #webAuthClient: webAuthClient,
             #webAuthOpts: webAuthOpts
@@ -225,6 +223,7 @@ class MockOAuth2Client extends _i1.Mock implements _i8.OAuth2Client {
                     #afterAuthorizationCodeCb: afterAuthorizationCodeCb,
                     #authCodeParams: authCodeParams,
                     #accessTokenParams: accessTokenParams,
+                    #accessTokenHeaders: accessTokenHeaders,
                     #httpClient: httpClient,
                     #webAuthClient: webAuthClient,
                     #webAuthOpts: webAuthOpts
@@ -234,12 +233,14 @@ class MockOAuth2Client extends _i1.Mock implements _i8.OAuth2Client {
           {String? clientId,
           String? clientSecret,
           List<String>? scopes,
+          Map<String, String>? customHeaders,
           dynamic httpClient}) =>
       (super.noSuchMethod(
           Invocation.method(#getTokenWithClientCredentialsFlow, [], {
             #clientId: clientId,
             #clientSecret: clientSecret,
             #scopes: scopes,
+            #customHeaders: customHeaders,
             #httpClient: httpClient
           }),
           returnValue: _i9.Future<_i3.AccessTokenResponse>.value(
@@ -249,6 +250,7 @@ class MockOAuth2Client extends _i1.Mock implements _i8.OAuth2Client {
                     #clientId: clientId,
                     #clientSecret: clientSecret,
                     #scopes: scopes,
+                    #customHeaders: customHeaders,
                     #httpClient: httpClient
                   })))) as _i9.Future<_i3.AccessTokenResponse>);
   @override
@@ -293,6 +295,7 @@ class MockOAuth2Client extends _i1.Mock implements _i8.OAuth2Client {
           String? codeVerifier,
           List<String>? scopes,
           Map<String, dynamic>? customParams,
+          Map<String, String>? customHeaders,
           dynamic httpClient}) =>
       (super.noSuchMethod(
           Invocation.method(#requestAccessToken, [], {
@@ -302,6 +305,7 @@ class MockOAuth2Client extends _i1.Mock implements _i8.OAuth2Client {
             #codeVerifier: codeVerifier,
             #scopes: scopes,
             #customParams: customParams,
+            #customHeaders: customHeaders,
             #httpClient: httpClient
           }),
           returnValue: _i9.Future<_i3.AccessTokenResponse>.value(
@@ -314,6 +318,7 @@ class MockOAuth2Client extends _i1.Mock implements _i8.OAuth2Client {
                     #codeVerifier: codeVerifier,
                     #scopes: scopes,
                     #customParams: customParams,
+                    #customHeaders: customHeaders,
                     #httpClient: httpClient
                   })))) as _i9.Future<_i3.AccessTokenResponse>);
   @override
