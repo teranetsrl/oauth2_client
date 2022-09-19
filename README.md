@@ -71,7 +71,70 @@ Add the library to your *pubspec.yaml* file:
 
 ```yaml
 dependencies:
-	oauth2_client: ^2.4.0
+	oauth2_client: ^3.0.0
+```
+
+## Upgrading from previous versions (< 3.0.0)
+Version 3.0.0 introduced some breaking changes that need to be addressed if you are upgrading from previous versions.
+
+Please take note of the following:
+* From version 3.0.0, `flutter_web_auth` has been replaced by [`flutter_web_auth_2`](https://pub.dev/packages/flutter_web_auth_2). Please refer to the [upgrade instructions](https://pub.dev/packages/flutter_web_auth_2#upgrading-from-flutter_web_auth).
+* The migration to `flutter_web_auth_2` marks the transition to Flutter 3. This means that you *must* upgrade to Flutter 3 (a simple `flutter upgrade` should be enough).
+* Version 3.0.0 migrates away from the `pedantic` package (that's now deprecated) to `flutter_lints`. This too entails some breaking changes. In particular, constants names are now in camelCase format for compliance with the style guides enforced by `flutter_lints`.
+
+  These include:
+```
+# Before 3.0.0
+OAuth2Helper.AUTHORIZATION_CODE
+OAuth2Helper.CLIENT_CREDENTIALS
+OAuth2Helper.IMPLICIT_GRANT
+
+# After 3.0.0 become:
+OAuth2Helper.authorizationCode
+OAuth2Helper.clientCredentials
+OAuth2Helper.implicitGrant
+```
+  As well as the `CredentialsLocation` enum:
+```
+# Before 3.0.0
+CredentialsLocation.HEADER
+CredentialsLocation.BODY
+
+# After 3.0.0 become:
+CredentialsLocation.header
+CredentialsLocation.body
+```
+* The `OAuth2Helper.setAUthorizationParams` has been definitively removed, after being deprecated since version 2.0.0. You must use the `OAUth2Helper` constructor parameters insstead.
+
+* The `OAuth2Client.accessTokenRequestHeaders` class field has been removed. You can now send custom headers by passing the `accessTokenHeaders` parameter to the `getTokenWithAuthCodeFlow` method, or the `customHeaders` parameter to the `getTokenWithClientCredentialsFlow` method. When using the helper, you can pass the custom parameters in the helper's constructor through the `accessTokenHeaders` parameter.
+For example:
+
+```dart
+OAuth2Client client = OAuth2Client(
+  redirectUri: ...,
+  customUriScheme: ...,
+  accessTokenRequestHeaders: {
+    'Accept': 'application/json'
+  });
+
+client.getTokenWithClientCredentialsFlow(clientId: ..., clientSecret: ..., customHeaders: {
+    'MyCustomHeaderName': 'MyCustomHeaderValue'
+});
+//or...
+client.getTokenWithAuthCodeFlow(clientId: ..., clientSecret: ..., accessTokenHeaders: {
+    'MyCustomHeaderName': 'MyCustomHeaderValue'
+});
+
+//...or, if using the OAuth2Helper...
+OAuth2Helper hlp = OAUth2Helper(client, {
+	...,
+	accessTokenHeaders: {
+    	'MyCustomHeaderName': 'MyCustomHeaderValue'
+	}
+});
+
+...
+
 ```
 
 # Usage with the helper class #
@@ -97,7 +160,7 @@ GoogleOAuth2Client client = GoogleOAuth2Client(
 
 //Then, instantiate the helper passing the previously instantiated client
 OAuth2Helper oauth2Helper = OAuth2Helper(client,
-	grantType: OAuth2Helper.AUTHORIZATION_CODE,
+	grantType: OAuth2Helper.authorizationCode,
 	clientId: 'your_client_id',
 	clientSecret: 'your_client_secret',
 	scopes: ['https://www.googleapis.com/auth/drive.readonly']);
