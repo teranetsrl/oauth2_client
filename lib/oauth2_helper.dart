@@ -48,34 +48,10 @@ class OAuth2Helper {
       this.afterAuthorizationCodeCb,
       this.authCodeParams,
       this.accessTokenParams,
+      this.accessTokenHeaders,
       this.webAuthClient,
       this.webAuthOpts}) {
     this.tokenStorage = tokenStorage ?? TokenStorage(client.tokenUrl);
-  }
-
-  /// Sets the proper parameters for requesting an authorization token.
-  ///
-  /// The parameters are validated depending on the [grantType].
-  @Deprecated("Use the constructor instead.")
-  void setAuthorizationParams(
-      {required int grantType,
-      required String clientId,
-      String? clientSecret,
-      List<String>? scopes,
-      bool? enablePKCE,
-      bool? enableState,
-      Map<String, dynamic>? authCodeParams,
-      Map<String, dynamic>? accessTokenParams}) {
-    this.grantType = grantType;
-    this.clientId = clientId;
-    this.clientSecret = clientSecret;
-    this.scopes = scopes;
-    this.enablePKCE = enablePKCE ?? true;
-    this.enableState = enableState ?? true;
-    this.authCodeParams = authCodeParams;
-    this.accessTokenParams = accessTokenParams;
-
-    _validateAuthorizationParams();
   }
 
   /// Returns a previously required token, if any, or requires a new one.
