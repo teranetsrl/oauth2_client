@@ -104,7 +104,7 @@ CredentialsLocation.BODY
 CredentialsLocation.header
 CredentialsLocation.body
 ```
-* The `OAuth2Helper.setAUthorizationParams` has been definitively removed, after being deprecated since version 2.0.0. You must use the `OAUth2Helper` constructor parameters insstead.
+* The `OAuth2Helper.setAuthorizationParams` has been definitively removed, after being deprecated since version 2.0.0. You must use the `OAuth2Helper` constructor parameters instead.
 
 * The `OAuth2Client.accessTokenRequestHeaders` class field has been removed. You can now send custom headers by passing the `accessTokenHeaders` parameter to the `getTokenWithAuthCodeFlow` method, or the `customHeaders` parameter to the `getTokenWithClientCredentialsFlow` method. When using the helper, you can pass the custom parameters in the helper's constructor through the `accessTokenHeaders` parameter.
 For example:
@@ -126,7 +126,7 @@ client.getTokenWithAuthCodeFlow(clientId: ..., clientSecret: ..., accessTokenHea
 });
 
 //...or, if using the OAuth2Helper...
-OAuth2Helper hlp = OAUth2Helper(client, {
+OAuth2Helper hlp = OAuth2Helper(client, {
 	...,
 	accessTokenHeaders: {
     	'MyCustomHeaderName': 'MyCustomHeaderValue'
@@ -385,9 +385,11 @@ The AndroidManifest.xml file must contain the ```com.linusu.flutter_web_auth_2.C
 </activity>
 ```
 
+If you are sure your intent filter is set up correctly, maybe you have another one enabled that clashes with `flutter_web_auth_2`'s (https://github.com/ThexXTURBOXx/flutter_web_auth_2/issues/8)?
+
 ### Can I use https instead of a custom scheme? ###
 
-If you want to use an HTTPS url as the redirect uri, you must setup it as an [App Link](https://developer.android.com/training/app-links/index.html).
+If you want to use an HTTPS url as the redirect uri, you must set it up as an [App Link](https://developer.android.com/training/app-links/index.html).
 First you need to specify both the ```android:host``` and ```android:pathPrefix``` attributes, as long as the ```android:autoVerify="true"``` attribute in the intent-filter tag inside the _AndroidManifest.xml_:
 
 ```xml
