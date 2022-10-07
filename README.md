@@ -20,14 +20,14 @@ If at all possible, when registering your application on the OAuth provider **tr
 
 If the OAuth2 server **allows only HTTPS** uri schemes, refer to the [FAQ](#faq) section.
 
-Again on Android, if your application uses the Authorization Code flow, you first need to modify the *AndroidManifest.xml* file adding the activity `com.linusu.flutter_web_auth.CallbackActivity` with the intent filter needed to open the browser window for the authorization workflow.
-The library relies on the flutter_web_auth package to allow the Authorization Code flow.
+Again on Android, if your application uses the Authorization Code flow, you first need to modify the *AndroidManifest.xml* file adding the activity `com.linusu.flutter_web_auth_2.CallbackActivity` with the intent filter needed to open the browser window for the authorization workflow.
+The library relies on the [flutter_web_auth_2](https://pub.dev/packages/flutter_web_auth_2) package to allow the Authorization Code flow.
 
 AndroidManifest.xml
 
 ```xml
-<activity android:name="com.linusu.flutter_web_auth.CallbackActivity" android:exported="true">
-	<intent-filter android:label="flutter_web_auth">
+<activity android:name="com.linusu.flutter_web_auth_2.CallbackActivity" android:exported="true">
+	<intent-filter android:label="flutter_web_auth_2">
 		<action android:name="android.intent.action.VIEW" />
 		<category android:name="android.intent.category.DEFAULT" />
 		<category android:name="android.intent.category.BROWSABLE" />
@@ -71,7 +71,70 @@ Add the library to your *pubspec.yaml* file:
 
 ```yaml
 dependencies:
-	oauth2_client: ^2.4.0
+	oauth2_client: ^3.0.0
+```
+
+## Upgrading from previous versions (< 3.0.0)
+Version 3.0.0 introduced some breaking changes that need to be addressed if you are upgrading from previous versions.
+
+Please take note of the following:
+* From version 3.0.0, `flutter_web_auth` has been replaced by [`flutter_web_auth_2`](https://pub.dev/packages/flutter_web_auth_2). Please refer to the [upgrade instructions](https://pub.dev/packages/flutter_web_auth_2#upgrading-from-flutter_web_auth).
+* The migration to `flutter_web_auth_2` marks the transition to Flutter 3. This means that you *must* upgrade to Flutter 3 (a simple `flutter upgrade` should be enough).
+* Version 3.0.0 migrates away from the `pedantic` package (that's now deprecated) to `flutter_lints`. This too entails some breaking changes. In particular, constants names are now in camelCase format for compliance with the style guides enforced by `flutter_lints`.
+
+  These include:
+```
+# Before 3.0.0
+OAuth2Helper.AUTHORIZATION_CODE
+OAuth2Helper.CLIENT_CREDENTIALS
+OAuth2Helper.IMPLICIT_GRANT
+
+# After 3.0.0 become:
+OAuth2Helper.authorizationCode
+OAuth2Helper.clientCredentials
+OAuth2Helper.implicitGrant
+```
+  As well as the `CredentialsLocation` enum:
+```
+# Before 3.0.0
+CredentialsLocation.HEADER
+CredentialsLocation.BODY
+
+# After 3.0.0 become:
+CredentialsLocation.header
+CredentialsLocation.body
+```
+* The `OAuth2Helper.setAuthorizationParams` has been definitively removed, after being deprecated since version 2.0.0. You must use the `OAuth2Helper` constructor parameters instead.
+
+* The `OAuth2Client.accessTokenRequestHeaders` class field has been removed. You can now send custom headers by passing the `accessTokenHeaders` parameter to the `getTokenWithAuthCodeFlow` method, or the `customHeaders` parameter to the `getTokenWithClientCredentialsFlow` method. When using the helper, you can pass the custom parameters in the helper's constructor through the `accessTokenHeaders` parameter.
+For example:
+
+```dart
+OAuth2Client client = OAuth2Client(
+  redirectUri: ...,
+  customUriScheme: ...,
+  accessTokenRequestHeaders: {
+    'Accept': 'application/json'
+  });
+
+client.getTokenWithClientCredentialsFlow(clientId: ..., clientSecret: ..., customHeaders: {
+    'MyCustomHeaderName': 'MyCustomHeaderValue'
+});
+//or...
+client.getTokenWithAuthCodeFlow(clientId: ..., clientSecret: ..., accessTokenHeaders: {
+    'MyCustomHeaderName': 'MyCustomHeaderValue'
+});
+
+//...or, if using the OAuth2Helper...
+OAuth2Helper hlp = OAuth2Helper(client, {
+	...,
+	accessTokenHeaders: {
+    	'MyCustomHeaderName': 'MyCustomHeaderValue'
+	}
+});
+
+...
+
 ```
 
 # Usage with the helper class #
@@ -97,7 +160,7 @@ GoogleOAuth2Client client = GoogleOAuth2Client(
 
 //Then, instantiate the helper passing the previously instantiated client
 OAuth2Helper oauth2Helper = OAuth2Helper(client,
-	grantType: OAuth2Helper.AUTHORIZATION_CODE,
+	grantType: OAuth2Helper.authorizationCode,
 	clientId: 'your_client_id',
 	clientSecret: 'your_client_secret',
 	scopes: ['https://www.googleapis.com/auth/drive.readonly']);
@@ -307,13 +370,13 @@ print(tknResp.scope);
 Apart from the order, the printed scopes should correspond **exactly** to the ones you requested.
 
 ### I get an error *PlatformException(CANCELED, User canceled login, null, null)* on Android ###
-Please make sure you modified the *AndroidManifest.xml* file adding the  ```flutter_web_auth.CallbackActivity``` and the intent filter needed to open the browser window for the authorization workflow.
+Please make sure you modified the *AndroidManifest.xml* file adding the  ```com.linusu.flutter_web_auth_2.CallbackActivity``` and the intent filter needed to open the browser window for the authorization workflow.
 
-The AndroidManifest.xml file must contain the ```flutter_web_auth.CallbackActivity``` activity. Copy and paste the below code and CHANGE the value of `android:scheme` to match the scheme used in the redirect uri:
+The AndroidManifest.xml file must contain the ```com.linusu.flutter_web_auth_2.CallbackActivity``` activity. Copy and paste the below code and CHANGE the value of `android:scheme` to match the scheme used in the redirect uri:
 
 ```xml
-<activity android:name="com.linusu.flutter_web_auth.CallbackActivity" android:exported="true">
-	<intent-filter android:label="flutter_web_auth">
+<activity android:name="com.linusu.flutter_web_auth_2.CallbackActivity" android:exported="true">
+	<intent-filter android:label="flutter_web_auth_2">
 		<action android:name="android.intent.action.VIEW" />
 		<category android:name="android.intent.category.DEFAULT" />
 		<category android:name="android.intent.category.BROWSABLE" />
@@ -322,14 +385,16 @@ The AndroidManifest.xml file must contain the ```flutter_web_auth.CallbackActivi
 </activity>
 ```
 
+If you are sure your intent filter is set up correctly, maybe you have another one enabled that clashes with `flutter_web_auth_2`'s (https://github.com/ThexXTURBOXx/flutter_web_auth_2/issues/8)?
+
 ### Can I use https instead of a custom scheme? ###
 
-If you want to use an HTTPS url as the redirect uri, you must setup it as an [App Link](https://developer.android.com/training/app-links/index.html).
+If you want to use an HTTPS url as the redirect uri, you must set it up as an [App Link](https://developer.android.com/training/app-links/index.html).
 First you need to specify both the ```android:host``` and ```android:pathPrefix``` attributes, as long as the ```android:autoVerify="true"``` attribute in the intent-filter tag inside the _AndroidManifest.xml_:
 
 ```xml
-<activity android:name="com.linusu.flutter_web_auth.CallbackActivity" >
-	<intent-filter android:label="flutter_web_auth" android:autoVerify="true">
+<activity android:name="com.linusu.flutter_web_auth_2.CallbackActivity">
+	<intent-filter android:label="flutter_web_auth_2" android:autoVerify="true">
 		<action android:name="android.intent.action.VIEW" />
 		<category android:name="android.intent.category.DEFAULT" />
 		<category android:name="android.intent.category.BROWSABLE" />

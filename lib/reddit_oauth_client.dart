@@ -8,13 +8,13 @@ class RedditOauth2Client extends OAuth2Client {
   RedditOauth2Client(
       {required String redirectUri, required String customUriScheme})
       : super(
-          authorizeUrl:
-              'https://www.reddit.com/api/v1/authorize.compact', //Your service's authorization url
-          tokenUrl:
-              'https://www.reddit.com/api/v1/access_token', //Your service access token url
+          authorizeUrl: 'https://www.reddit.com/api/v1/authorize.compact',
+          //Your service's authorization url
+          tokenUrl: 'https://www.reddit.com/api/v1/access_token',
+          //Your service access token url
           redirectUri: redirectUri,
           customUriScheme: customUriScheme,
           scopeSeparator: ',',
-          credentialsLocation: CredentialsLocation.HEADER,
+          credentialsLocation: CredentialsLocation.header,
         );
 }

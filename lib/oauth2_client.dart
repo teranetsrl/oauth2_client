@@ -6,18 +6,18 @@ import 'package:oauth2_client/access_token_response.dart';
 import 'package:oauth2_client/authorization_response.dart';
 import 'package:oauth2_client/oauth2_response.dart';
 import 'package:oauth2_client/src/oauth2_utils.dart';
+import 'package:random_string/random_string.dart';
+
 // import 'package:oauth2_client/src/web_auth.dart';
 
 import 'src/base_web_auth.dart';
 import 'src/web_auth.dart'
-    // ignore: uri_does_not_exist
+// ignore: uri_does_not_exist
     if (dart.library.io) 'src/io_web_auth.dart'
-    // ignore: uri_does_not_exist
+// ignore: uri_does_not_exist
     if (dart.library.html) 'src/browser_web_auth.dart';
 
-import 'package:random_string/random_string.dart';
-
-enum CredentialsLocation { HEADER, BODY }
+enum CredentialsLocation { header, body }
 
 /// Base class that implements OAuth2 authorization flows.
 ///
@@ -31,8 +31,8 @@ enum CredentialsLocation { HEADER, BODY }
 /// When instantiating the client, pass your custom uri scheme in the [customUriScheme] field.
 /// Normally you would use something like <customUriScheme>:/oauth for the [redirectUri] field.
 /// For Android only you must add an intent filter in your AndroidManifest.xml file to enable the custom uri handling.
-/// <activity android:name="com.linusu.flutter_web_auth.CallbackActivity" >
-///   <intent-filter android:label="flutter_web_auth">
+/// <activity android:name="com.linusu.flutter_web_auth_2.CallbackActivity" >
+///   <intent-filter android:label="flutter_web_auth_2">
 ///     <action android:name="android.intent.action.VIEW" />
 ///     <category android:name="android.intent.category.DEFAULT" />
 ///     <category android:name="android.intent.category.BROWSABLE" />
@@ -48,8 +48,6 @@ class OAuth2Client {
   String? revokeUrl;
   String authorizeUrl;
   String scopeSeparator;
-
-  Map<String, String> _accessTokenRequestHeaders = {};
 
   BaseWebAuth webAuthClient = createWebAuth();
   CredentialsLocation credentialsLocation;
@@ -71,7 +69,7 @@ class OAuth2Client {
       this.revokeUrl,
       required this.redirectUri,
       required this.customUriScheme,
-      this.credentialsLocation = CredentialsLocation.HEADER,
+      this.credentialsLocation = CredentialsLocation.header,
       this.scopeSeparator = ' '});
 
   /// Requests an Access Token to the OAuth2 endpoint using the Implicit grant flow (https://tools.ietf.org/html/rfc6749#page-31)
@@ -140,6 +138,7 @@ class OAuth2Client {
       Function? afterAuthorizationCodeCb,
       Map<String, dynamic>? authCodeParams,
       Map<String, dynamic>? accessTokenParams,
+      Map<String, String>? accessTokenHeaders,
       httpClient,
       BaseWebAuth? webAuthClient,
       Map<String, dynamic>? webAuthOpts}) async {
@@ -178,7 +177,8 @@ class OAuth2Client {
             scopes: scopes,
             clientSecret: clientSecret,
             codeVerifier: codeVerifier,
-            customParams: accessTokenParams);
+            customParams: accessTokenParams,
+            customHeaders: accessTokenHeaders);
       } else {
         tknResp = AccessTokenResponse.errorResponse();
       }
@@ -194,6 +194,7 @@ class OAuth2Client {
       {required String clientId,
       required String clientSecret,
       List<String>? scopes,
+      Map<String, String>? customHeaders,
       httpClient}) async {
     var params = <String, String>{'grant_type': 'client_credentials'};
 
@@ -206,6 +207,7 @@ class OAuth2Client {
         clientId: clientId,
         clientSecret: clientSecret,
         params: params,
+        headers: customHeaders,
         httpClient: httpClient);
 
     return http2TokenResponse(response, requestedScopes: scopes);
@@ -254,6 +256,7 @@ class OAuth2Client {
       String? codeVerifier,
       List<String>? scopes,
       Map<String, dynamic>? customParams,
+      Map<String, String>? customHeaders,
       httpClient}) async {
     final params = getTokenUrlParams(
         code: code,
@@ -266,7 +269,7 @@ class OAuth2Client {
         clientId: clientId,
         clientSecret: clientSecret,
         params: params,
-        headers: _accessTokenRequestHeaders,
+        headers: customHeaders,
         httpClient: httpClient);
 
     return http2TokenResponse(response, requestedScopes: scopes);
@@ -414,13 +417,13 @@ class OAuth2Client {
       }
     } else {
       switch (credentialsLocation) {
-        case CredentialsLocation.HEADER:
+        case CredentialsLocation.header:
           headers.addAll(getAuthorizationHeader(
             clientId: clientId,
             clientSecret: clientSecret,
           ));
           break;
-        case CredentialsLocation.BODY:
+        case CredentialsLocation.body:
           params['client_id'] = clientId;
           params['client_secret'] = clientSecret;
           break;
@@ -438,10 +441,9 @@ class OAuth2Client {
     var headers = <String, String>{};
 
     if ((clientId.isNotEmpty) && (clientSecret != null)) {
-      var credentials =
-          base64.encode(utf8.encode(clientId + ':' + clientSecret));
+      var credentials = base64.encode(utf8.encode('$clientId:$clientSecret'));
 
-      headers['Authorization'] = 'Basic ' + credentials;
+      headers['Authorization'] = 'Basic $credentials';
     }
 
     return headers;
@@ -498,9 +500,5 @@ class OAuth2Client {
 
   String _getRefreshUrl() {
     return refreshUrl ?? tokenUrl;
-  }
-
-  set accessTokenRequestHeaders(Map<String, String> headers) {
-    _accessTokenRequestHeaders = headers;
   }
 }

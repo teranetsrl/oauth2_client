@@ -5,22 +5,19 @@ version: 1.0.0
 homepage: https://github.com/teranetsrl/oauth2_client
 repository: https://github.com/teranetsrl/oauth2_client
 
+publish_to: none
+
 environment:
   sdk: '>=2.1.0 <3.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  meta: ^1.1.8
-  http: ^0.13.3
-  flutter_web_auth: ^0.3.1
-  random_string: ^2.0.1
-  crypto: ^3.0.1
-  flutter_secure_storage: ^4.2.1
-  oauth2_client: ^2.2.2
+  oauth2_client: # Normally you would need to specify something like "^3.0.0" here
+    path: ..
 
 dev_dependencies:
-  pedantic: ^1.9.0
+  flutter_lints: ^2.0.0
 
 # The following section is specific to Flutter.
 flutter:

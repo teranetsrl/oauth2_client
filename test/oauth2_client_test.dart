@@ -1,11 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:http/http.dart' as http;
 import 'package:oauth2_client/access_token_response.dart';
 import 'package:oauth2_client/oauth2_client.dart';
-import 'package:oauth2_client/src/oauth2_utils.dart';
 import 'package:oauth2_client/src/base_web_auth.dart';
+import 'package:oauth2_client/src/oauth2_utils.dart';
+
 import 'oauth2_client_test.mocks.dart';
 
 @GenerateMocks([BaseWebAuth])
@@ -14,25 +15,25 @@ void main() {
   final webAuthClient = MockBaseWebAuth();
 
   // final customUriScheme = 'myurlscheme:/';
-  final customUriScheme = 'myurlscheme';
-  final codeVerifier = '12345';
+  const customUriScheme = 'myurlscheme';
+  const codeVerifier = '12345';
   final codeChallenge = OAuth2Utils.generateCodeChallenge(codeVerifier);
-  final authCode = '12345';
-  final redirectUri = 'myurlscheme://oauth2';
-  final clientId = 'myclientid';
-  final clientSecret = 'test_secret';
+  const authCode = '12345';
+  const redirectUri = 'myurlscheme://oauth2';
+  const clientId = 'myclientid';
+  const clientSecret = 'test_secret';
 
-  final authorizeUrl = 'http://my.test.app/authorize';
-  final tokenUrl = 'http://my.test.app/token';
-  final revokeUrl = 'http://my.test.app/revoke';
+  const authorizeUrl = 'http://my.test.app/authorize';
+  const tokenUrl = 'http://my.test.app/token';
+  const revokeUrl = 'http://my.test.app/revoke';
 
-  final state = 'test_state';
+  const state = 'test_state';
   final scopes = <String>['scope1', 'scope2'];
 
-  final refreshToken = 'test_refresh_token';
-  final accessToken = 'test_access_token';
+  const refreshToken = 'test_refresh_token';
+  const accessToken = 'test_access_token';
 
-  final authorizationCode = 'test_code';
+  const authorizationCode = 'test_code';
 
   group('Authorization Code Grant.', () {
     final oauth2Client = OAuth2Client(
@@ -56,8 +57,7 @@ void main() {
               url: OAuth2Utils.addParamsToUrl(authorizeUrl, authParams),
               callbackUrlScheme: customUriScheme,
               redirectUrl: redirectUri))
-          .thenAnswer((_) async =>
-              redirectUri + '?code=' + authCode + '&state=' + state);
+          .thenAnswer((_) async => '$redirectUri?code=$authCode&state=$state');
 
       final authResponse = await oauth2Client.requestAuthorization(
           webAuthClient: webAuthClient,
@@ -72,8 +72,8 @@ void main() {
     test('Fetch Access Token', () async {
       final httpClient = MockClient();
 
-      final accessToken = '12345';
-      final refreshToken = '54321';
+      const accessToken = '12345';
+      const refreshToken = '54321';
 
       var tokenParams = {
         'grant_type': 'authorization_code',
@@ -86,11 +86,7 @@ void main() {
       when(httpClient.post(Uri.parse(tokenUrl),
               body: tokenParams, headers: captureAnyNamed('headers')))
           .thenAnswer((_) async => http.Response(
-              '{"access_token": "' +
-                  accessToken +
-                  '", "token_type": "Bearer", "refresh_token": "' +
-                  refreshToken +
-                  '", "expires_in": 3600}',
+              '{"access_token": "$accessToken", "token_type": "Bearer", "refresh_token": "$refreshToken", "expires_in": 3600}',
               200));
 
       final tknResponse = await oauth2Client.requestAccessToken(
@@ -111,10 +107,8 @@ void main() {
     test('Fetch Access Token with custom headers', () async {
       final httpClient = MockClient();
 
-      oauth2Client.accessTokenRequestHeaders = {'test': '42'};
-
-      final accessToken = '12345';
-      final refreshToken = '54321';
+      const accessToken = '12345';
+      const refreshToken = '54321';
 
       var tokenParams = {
         'grant_type': 'authorization_code',
@@ -127,17 +121,14 @@ void main() {
       when(httpClient.post(Uri.parse(tokenUrl),
               body: tokenParams, headers: captureAnyNamed('headers')))
           .thenAnswer((_) async => http.Response(
-              '{"access_token": "' +
-                  accessToken +
-                  '", "token_type": "Bearer", "refresh_token": "' +
-                  refreshToken +
-                  '", "expires_in": 3600}',
+              '{"access_token": "$accessToken", "token_type": "Bearer", "refresh_token": "$refreshToken", "expires_in": 3600}',
               200));
 
       final tknResponse = await oauth2Client.requestAccessToken(
           httpClient: httpClient,
           code: authCode,
           clientId: clientId,
+          customHeaders: {'test': '42'},
           codeVerifier: codeVerifier);
 
       expect(
@@ -147,8 +138,6 @@ void main() {
           {'test': '42'});
 
       expect(tknResponse.accessToken, accessToken);
-
-      oauth2Client.accessTokenRequestHeaders = {};
     });
 
     test('Fetch access token with preferEphemeral', () async {
@@ -166,7 +155,7 @@ void main() {
               callbackUrlScheme: customUriScheme,
               redirectUrl: redirectUri,
               opts: captureAnyNamed('opts')))
-          .thenAnswer((_) async => redirectUri + '?code=' + authCode);
+          .thenAnswer((_) async => '$redirectUri?code=$authCode');
 
       await oauth2Client.requestAuthorization(
           webAuthClient: webAuthClient,
@@ -226,8 +215,8 @@ void main() {
 
       final httpClient = MockClient();
 
-      final accessToken = '12345';
-      final refreshToken = '54321';
+      const accessToken = '12345';
+      const refreshToken = '54321';
 
       var tokenParams = {
         'grant_type': 'authorization_code',
@@ -241,19 +230,14 @@ void main() {
       when(httpClient.post(Uri.parse(tokenUrl),
               body: tokenParams, headers: captureAnyNamed('headers')))
           .thenAnswer((_) async => http.Response(
-              '{"access_token": "' +
-                  accessToken +
-                  '", "token_type": "Bearer", "refresh_token": "' +
-                  refreshToken +
-                  '", "expires_in": 3600}',
+              '{"access_token": "$accessToken", "token_type": "Bearer", "refresh_token": "$refreshToken", "expires_in": 3600}',
               200));
 
       when(webAuthClient.authenticate(
               url: OAuth2Utils.addParamsToUrl(authorizeUrl, authParams),
               callbackUrlScheme: customUriScheme,
               redirectUrl: redirectUri))
-          .thenAnswer((_) async =>
-              redirectUri + '?code=' + authCode + '&state=' + state);
+          .thenAnswer((_) async => '$redirectUri?code=$authCode&state=$state');
 
       final tknResponse = await oauth2Client.getTokenWithAuthCodeFlow(
           webAuthClient: webAuthClient,
@@ -280,8 +264,8 @@ void main() {
 
       final httpClient = MockClient();
 
-      final accessToken = '12345';
-      final refreshToken = '54321';
+      const accessToken = '12345';
+      const refreshToken = '54321';
 
       var tokenParams = {
         'grant_type': 'authorization_code',
@@ -295,19 +279,14 @@ void main() {
       when(httpClient.post(Uri.parse('https://test.token.url'),
               body: tokenParams, headers: captureAnyNamed('headers')))
           .thenAnswer((_) async => http.Response(
-              '{"access_token": "' +
-                  accessToken +
-                  '", "token_type": "Bearer", "refresh_token": "' +
-                  refreshToken +
-                  '", "expires_in": 3600}',
+              '{"access_token": "$accessToken", "token_type": "Bearer", "refresh_token": "$refreshToken", "expires_in": 3600}',
               200));
 
       when(webAuthClient.authenticate(
               url: OAuth2Utils.addParamsToUrl(authorizeUrl, authParams),
               callbackUrlScheme: customUriScheme,
               redirectUrl: redirectUri))
-          .thenAnswer((_) async =>
-              redirectUri + '?code=' + authCode + '&state=' + state);
+          .thenAnswer((_) async => '$redirectUri?code=$authCode&state=$state');
 
       await oauth2Client.getTokenWithAuthCodeFlow(
           webAuthClient: webAuthClient,
@@ -335,11 +314,7 @@ void main() {
               },
               headers: captureAnyNamed('headers')))
           .thenAnswer((_) async => http.Response(
-              '{"access_token": "' +
-                  accessToken +
-                  '", "token_type": "Bearer", "refresh_token": "' +
-                  refreshToken +
-                  '", "expires_in": 3600}',
+              '{"access_token": "$accessToken", "token_type": "Bearer", "refresh_token": "$refreshToken", "expires_in": 3600}',
               200));
 
       var resp = await oauth2Client.refreshToken(refreshToken,
@@ -521,7 +496,7 @@ void main() {
     });
 
     test('Token url params (5/5)', () {
-      final verifier = 'test_verifier';
+      const verifier = 'test_verifier';
 
       final params = oauth2Client.getTokenUrlParams(
           code: authorizationCode,
@@ -557,7 +532,7 @@ void main() {
               url: OAuth2Utils.addParamsToUrl(authorizeUrl, authParams),
               callbackUrlScheme: customUriScheme,
               redirectUrl: redirectUri))
-          .thenAnswer((_) async => redirectUri + '?code=' + authCode);
+          .thenAnswer((_) async => '$redirectUri?code=$authCode');
 
       final authResponse = await oauth2Client.requestAuthorization(
           webAuthClient: webAuthClient,
@@ -580,8 +555,8 @@ void main() {
     test('Get new token', () async {
       final httpClient = MockClient();
 
-      final accessToken = '12345';
-      final refreshToken = '54321';
+      const accessToken = '12345';
+      const refreshToken = '54321';
 
       final authParams = {
         'grant_type': 'client_credentials',
@@ -591,11 +566,7 @@ void main() {
       when(httpClient.post(Uri.parse(tokenUrl),
               body: authParams, headers: captureAnyNamed('headers')))
           .thenAnswer((_) async => http.Response(
-              '{"access_token": "' +
-                  accessToken +
-                  '", "token_type": "Bearer", "refresh_token": "' +
-                  refreshToken +
-                  '", "expires_in": 3600}',
+              '{"access_token": "$accessToken", "token_type": "Bearer", "refresh_token": "$refreshToken", "expires_in": 3600}',
               200));
 
       final tknResponse = await oauth2Client.getTokenWithClientCredentialsFlow(
@@ -650,7 +621,7 @@ void main() {
         tokenUrl: tokenUrl,
         redirectUri: redirectUri,
         customUriScheme: customUriScheme,
-        credentialsLocation: CredentialsLocation.BODY,
+        credentialsLocation: CredentialsLocation.body,
       );
 
       final httpClient = MockClient();
@@ -688,7 +659,7 @@ void main() {
         tokenUrl: tokenUrl,
         redirectUri: redirectUri,
         customUriScheme: customUriScheme,
-        credentialsLocation: CredentialsLocation.HEADER,
+        credentialsLocation: CredentialsLocation.header,
       );
 
       final httpClient = MockClient();
@@ -785,7 +756,7 @@ void main() {
     test('Get new token', () async {
       final httpClient = MockClient();
 
-      final accessToken = '12345';
+      const accessToken = '12345';
 
       final authParams = {
         'response_type': 'token',
@@ -800,11 +771,7 @@ void main() {
               callbackUrlScheme: customUriScheme,
               redirectUrl: redirectUri))
           .thenAnswer((_) async =>
-              redirectUri +
-              '#access_token=' +
-              accessToken +
-              '&token_type=bearer&state=' +
-              state);
+              '$redirectUri#access_token=$accessToken&token_type=bearer&state=$state');
 
       final tknResponse = await oauth2Client.getTokenWithImplicitGrantFlow(
           clientId: clientId,
@@ -821,7 +788,7 @@ void main() {
 
       final httpClient = MockClient();
 
-      final accessToken = '12345';
+      const accessToken = '12345';
 
       final authParams = {
         'response_type': 'token',
@@ -837,11 +804,7 @@ void main() {
               redirectUrl: redirectUri,
               opts: captureAnyNamed('opts')))
           .thenAnswer((_) async =>
-              redirectUri +
-              '#access_token=' +
-              accessToken +
-              '&token_type=bearer&state=' +
-              state);
+              '$redirectUri#access_token=$accessToken&token_type=bearer&state=$state');
 
       await oauth2Client.getTokenWithImplicitGrantFlow(
           clientId: clientId,

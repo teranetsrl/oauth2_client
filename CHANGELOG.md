@@ -1,3 +1,10 @@
+## [3.0.0] - 2022/09/19
+* Migrated to [`flutter_web_auth_2`](https://pub.dev/packages/flutter_web_auth_2) (thanks [ThexXTURBOXx](https://github.com/ThexXTURBOXx) & [Piotr Mitkowski](https://github.com/PiotrMitkowski)).
+* Migrated to [`flutter_lints`](https://pub.dev/packages/flutter_lints) (thanks [ThexXTURBOXx](https://github.com/ThexXTURBOXx)).
+* Updated [`flutter_secure_storage`](https://pub.dev/packages/flutter_secure_storage)
+* Constants are now in lowerCamelCase
+* Removed the `OAuth2Client.accessTokenRequestHeaders` class field. Use the proper `getTokenWithAuthCodeFlow`/`getTokenWithClientCredentialsFlow` parameters instead (see upgrading notes in the README).
+
 ## [2.4.2] - 2022/08/16
 * Fix for breaking change in flutter_secure_storage (thanks [asmith26](https://github.com/asmith26))
 

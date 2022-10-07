@@ -1,14 +1,13 @@
-import 'package:http/http.dart' as http;
-
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
 import 'package:oauth2_client/access_token_response.dart';
 
 void main() {
-  final accessToken = 'test_access_token';
-  final refreshToken = 'test_refresh_token';
+  const accessToken = 'test_access_token';
+  const refreshToken = 'test_refresh_token';
   final scopes = ['scope1', 'scope2'];
-  final expiresIn = 3600;
-  final tokenType = 'Bearer';
+  const expiresIn = 3600;
+  const tokenType = 'Bearer';
 
   group('Access Token Response.', () {
     test('Valid response', () async {
@@ -39,8 +38,9 @@ void main() {
         'scope': scopes,
         'expires_in': 1,
         'http_status_code': 200,
-        'expiration_date':
-            DateTime.now().add(Duration(seconds: 1)).millisecondsSinceEpoch
+        'expiration_date': DateTime.now()
+            .add(const Duration(seconds: 1))
+            .millisecondsSinceEpoch
       };
 
       final resp = AccessTokenResponse.fromMap(respMap);
@@ -130,7 +130,7 @@ void main() {
 
     final resp = AccessTokenResponse.fromMap(respMap);
 
-    expect(resp.toString(), 'Access Token: ' + accessToken);
+    expect(resp.toString(), 'Access Token: $accessToken');
   });
 
   test('toString(2)', () async {
