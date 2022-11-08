@@ -34,7 +34,7 @@ class WearAuth {
           'url': newUri.toString(),
       });
       return authUrl;
-    } on PlatformException {
+    } on MissingPluginException {
       return url;
     }
   }
