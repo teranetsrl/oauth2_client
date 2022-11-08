@@ -66,7 +66,7 @@ void main() {
           codeChallenge: codeChallenge,
           state: state);
 
-      expect(authResponse.code, authCode);
+      expect(authResponse.authResponse.code, authCode);
     });
 
     test('Fetch Access Token', () async {
@@ -541,7 +541,7 @@ void main() {
           codeChallenge: codeChallenge,
           enableState: false);
 
-      expect(authResponse.code, authCode);
+      expect(authResponse.authResponse.code, authCode);
     });
   });
 

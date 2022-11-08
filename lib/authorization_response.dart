@@ -1,3 +1,5 @@
+import 'package:flutter/services.dart';
+
 /// Represents the response to an Authorization Request.
 /// see https://tools.ietf.org/html/rfc6749#page-26
 class AuthorizationResponse {
@@ -7,6 +9,14 @@ class AuthorizationResponse {
 
   String? error;
   String? errorDescription;
+
+  AuthorizationResponse.fromError(PlatformException exception) {
+    code = exception.code;
+    state = null;
+    queryParams = {};
+    error = exception.code;
+    errorDescription = exception.message;
+  }
 
   AuthorizationResponse.fromRedirectUri(
       String redirectUri, String? checkState) {
