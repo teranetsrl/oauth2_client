@@ -1,3 +1,7 @@
+## [3.1.0] - 2023/01/26
+* Updated dependencies
+* Small fixes
+
 ## [3.0.0] - 2022/09/19
 * Migrated to [`flutter_web_auth_2`](https://pub.dev/packages/flutter_web_auth_2) (thanks [ThexXTURBOXx](https://github.com/ThexXTURBOXx) & [Piotr Mitkowski](https://github.com/PiotrMitkowski)).
 * Migrated to [`flutter_lints`](https://pub.dev/packages/flutter_lints) (thanks [ThexXTURBOXx](https://github.com/ThexXTURBOXx)).
