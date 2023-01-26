@@ -27,6 +27,8 @@ class OAuth2Utils {
       String val;
       if (v is List) {
         val = v.map((p) => p.trim()).join(' ');
+      } else if (v is Map) {
+        val = jsonEncode(v);
       } else {
         val = v.trim();
       }
