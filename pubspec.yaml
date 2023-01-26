@@ -10,11 +10,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  crypto: ^3.0.1
-  flutter_secure_storage: ^6.0.0
-  flutter_web_auth_2: ^1.1.2
-  http: ^0.13.4
-  meta: ^1.7.0
+  crypto: ^3.0.2
+  flutter_secure_storage: ^7.0.1
+  flutter_web_auth_2: ^2.0.4
+  http: ^0.13.5
+  meta: ^1.8.0
   random_string: ^2.3.1
 
 dev_dependencies:
