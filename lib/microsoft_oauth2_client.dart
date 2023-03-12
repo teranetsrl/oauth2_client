@@ -4,18 +4,16 @@ import 'package:oauth2_client/oauth2_client.dart';
 ///
 ///
 class MicrosoftOauth2Client extends OAuth2Client {
-  static final String _myAuthority = "https://login.microsoftonline.com/";
+  static const String _myAuthority = "https://login.microsoftonline.com/";
 
   MicrosoftOauth2Client({
     required String tenant,
     required String redirectUri,
     required String customUriScheme,
   }) : super(
-    authorizeUrl: '$_myAuthority$tenant/oauth2/v2.0/authorize',
-    tokenUrl: '$_myAuthority$tenant/oauth2/v2.0/token',
-    redirectUri: redirectUri,
-    customUriScheme: customUriScheme,
-  );
-
-
+          authorizeUrl: '$_myAuthority$tenant/oauth2/v2.0/authorize',
+          tokenUrl: '$_myAuthority$tenant/oauth2/v2.0/token',
+          redirectUri: redirectUri,
+          customUriScheme: customUriScheme,
+        );
 }
