@@ -241,6 +241,8 @@ The library implements clients for the following services/organizations:
  - GitHub
  - Shopify
  - Spotify
+ - Twitter
+ - Microsoft
 
 ## Google client ##
 
