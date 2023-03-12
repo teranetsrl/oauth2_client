@@ -1,3 +1,6 @@
+## [3.2.1] - 2023/03/12
+* Updated dependencies
+
 ## [3.2.0] - 2023/03/12
 * Added Twitter client
 * Added Microsoft client (thanks [Eradparvar](https://github.com/Eradparvar)).
