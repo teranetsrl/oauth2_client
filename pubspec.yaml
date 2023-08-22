@@ -16,7 +16,7 @@ dependencies:
   http: ^0.13.4
   meta: ^1.7.0
   random_string: ^2.3.1
-  wear_bridge: 0.0.1
+  wear_bridge: 0.0.2
 
 dev_dependencies:
   flutter_test:
