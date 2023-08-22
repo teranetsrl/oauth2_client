@@ -1,0 +1,5 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.teranet.oauth2_client">
+  <uses-sdk tools:overrideLibrary="androidx.security.ktx androidx.wear.phone.interactions" />
+</manifest>

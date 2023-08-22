@@ -6,9 +6,8 @@ import 'package:oauth2_client/access_token_response.dart';
 import 'package:oauth2_client/authorization_response.dart';
 import 'package:oauth2_client/oauth2_response.dart';
 import 'package:oauth2_client/src/oauth2_utils.dart';
+import 'package:oauth2_client/src/wear_auth.dart';
 import 'package:random_string/random_string.dart';
-
-// import 'package:oauth2_client/src/web_auth.dart';
 
 import 'src/base_web_auth.dart';
 import 'src/web_auth.dart'
@@ -18,6 +17,15 @@ import 'src/web_auth.dart'
     if (dart.library.html) 'src/browser_web_auth.dart';
 
 enum CredentialsLocation { header, body }
+
+class AuthorizationWrapper {
+  final AuthorizationResponse authResponse;
+  final String? redirectUrl;
+  AuthorizationWrapper({
+      required this.authResponse,
+      required this.redirectUrl
+  });
+}
 
 /// Base class that implements OAuth2 authorization flows.
 ///
@@ -153,7 +161,7 @@ class OAuth2Client {
     }
 
     try {
-      var authResp = await requestAuthorization(
+      var authRespWrapper = await requestAuthorization(
           webAuthClient: webAuthClient,
           clientId: clientId,
           scopes: scopes,
@@ -162,10 +170,16 @@ class OAuth2Client {
           state: state,
           customParams: authCodeParams,
           webAuthOpts: webAuthOpts);
+      var authResp = authRespWrapper.authResponse;
 
       if (authResp.isAccessGranted()) {
         if (afterAuthorizationCodeCb != null) {
           afterAuthorizationCodeCb(authResp);
+        }
+
+        final newTokenParams = Map<String, dynamic>.from(accessTokenParams ?? {});
+        if (authRespWrapper.redirectUrl != null) {
+          newTokenParams['redirect_uri'] = authRespWrapper.redirectUrl;
         }
 
         tknResp = await requestAccessToken(
@@ -177,7 +191,7 @@ class OAuth2Client {
             scopes: scopes,
             clientSecret: clientSecret,
             codeVerifier: codeVerifier,
-            customParams: accessTokenParams,
+            customParams: newTokenParams,
             customHeaders: accessTokenHeaders);
       } else {
         tknResp = AccessTokenResponse.errorResponse();
@@ -214,7 +228,7 @@ class OAuth2Client {
   }
 
   /// Requests an Authorization Code to be used in the Authorization Code grant.
-  Future<AuthorizationResponse> requestAuthorization(
+  Future<AuthorizationWrapper> requestAuthorization(
       {required String clientId,
       List<String>? scopes,
       String? codeChallenge,
@@ -229,7 +243,7 @@ class OAuth2Client {
       state ??= randomAlphaNumeric(25);
     }
 
-    final authorizeUrl = getAuthorizeUrl(
+    final authorizeUrlStem = getAuthorizeUrl(
         clientId: clientId,
         redirectUri: redirectUri,
         scopes: scopes,
@@ -238,14 +252,24 @@ class OAuth2Client {
         codeChallenge: codeChallenge,
         customParams: customParams);
 
+    final authorizeUrl = await WearAuth.authUrl(url: authorizeUrlStem);
     // Present the dialog to the user
-    final result = await webAuthClient.authenticate(
+    AuthorizationResponse authResp;
+    try {
+      final result = await webAuthClient.authenticate(
         url: authorizeUrl,
         callbackUrlScheme: customUriScheme,
         redirectUrl: redirectUri,
         opts: webAuthOpts);
 
-    return AuthorizationResponse.fromRedirectUri(result, state);
+      authResp = AuthorizationResponse.fromRedirectUri(result, state);
+    } on PlatformException catch(err) {
+      authResp = AuthorizationResponse.fromError(err);
+    }
+    return AuthorizationWrapper(
+      authResponse: authResp,
+      redirectUrl: Uri.parse(authorizeUrl).queryParameters['redirect_uri'],
+    );
   }
 
   /// Requests and Access Token using the provided Authorization [code].
