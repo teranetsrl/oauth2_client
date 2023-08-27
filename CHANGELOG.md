@@ -1,3 +1,7 @@
+## [3.2.2] - 2023/08/27
+* Updated dependencies (thanks [Jason Held](https://github.com/jheld))
+* Fix for LinkedInOAuth2Client client (thanks [Abhishek-Khanal](https://github.com/Abhishek-Khanal))
+
 ## [3.2.1] - 2023/03/12
 * Updated dependencies
 
