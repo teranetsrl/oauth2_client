@@ -5,13 +5,13 @@ version: 3.2.2
 homepage: https://github.com/teranetsrl/oauth2_client
 repository: https://github.com/teranetsrl/oauth2_client
 environment:
-  sdk: '>=2.14.0 <3.11.0'
+  sdk: '>=2.14.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
   crypto: ^3.0.3
-  flutter_secure_storage: ^8.0.0
+  flutter_secure_storage: ^9.0.0
   flutter_web_auth_2: ^2.2.1
   http: ^1.1.0
   meta: ^1.8.0
