@@ -71,7 +71,7 @@ Add the library to your *pubspec.yaml* file:
 
 ```yaml
 dependencies:
-	oauth2_client: ^3.0.0
+    oauth2_client: ^3.0.0
 ```
 
 ## Upgrading from previous versions (< 3.0.0)
@@ -154,7 +154,7 @@ import 'package:http/http.dart' as http;
 
 //Instantiate an OAuth2Client...
 GoogleOAuth2Client client = GoogleOAuth2Client(
-	customUriScheme: 'my.test.app' //Must correspond to the AndroidManifest's "android:scheme" attribute
+	customUriScheme: 'my.test.app', //Must correspond to the AndroidManifest's "android:scheme" attribute
 	redirectUri: 'my.test.app:/oauth2redirect', //Can be any URI, but the scheme part must correspond to the customUriScheme
 );
 
