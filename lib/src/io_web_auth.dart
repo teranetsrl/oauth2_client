@@ -11,10 +11,11 @@ class IoWebAuth implements BaseWebAuth {
       required String url,
       required String redirectUrl,
       Map<String, dynamic>? opts}) async {
+    final preferEphemeral = (opts?['preferEphemeral'] == true);
+
     return await FlutterWebAuth2.authenticate(
-      callbackUrlScheme: callbackUrlScheme,
-      url: url,
-      preferEphemeral: (opts?['preferEphemeral'] == true),
-    );
+        callbackUrlScheme: callbackUrlScheme,
+        url: url,
+        options: FlutterWebAuth2Options(preferEphemeral: preferEphemeral, intentFlags: ephemeralIntentFlags));
   }
 }
