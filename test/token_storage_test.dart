@@ -26,7 +26,8 @@ void main() {
         },
       };
 
-      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode(tokens));
+      when(secStorage.read('my_token_url'))
+          .thenAnswer((_) async => jsonEncode(tokens));
 
       final tknResp = await storage.getToken(['scope2']);
 
@@ -48,7 +49,8 @@ void main() {
         },
       };
 
-      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode(tokens));
+      when(secStorage.read('my_token_url'))
+          .thenAnswer((_) async => jsonEncode(tokens));
 
       final tknResp = await storage.getToken(['scope1']);
 
@@ -70,7 +72,8 @@ void main() {
         },
       };
 
-      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode(tokens));
+      when(secStorage.read('my_token_url'))
+          .thenAnswer((_) async => jsonEncode(tokens));
 
       final tknResp = await storage.getToken(['scope1']);
       expect(tknResp?.isValid(), true);
@@ -91,7 +94,8 @@ void main() {
         },
       };
 
-      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode(tokens));
+      when(secStorage.read('my_token_url'))
+          .thenAnswer((_) async => jsonEncode(tokens));
 
       final tknResp2 = await storage.getToken(['scope2']);
       expect(tknResp2?.isValid(), true);
@@ -112,7 +116,8 @@ void main() {
         },
       };
 
-      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode(tokens));
+      when(secStorage.read('my_token_url'))
+          .thenAnswer((_) async => jsonEncode(tokens));
 
       final tknResp3 = await storage.getToken(['scope1', 'scope2']);
       expect(tknResp3?.isValid(), true);
@@ -133,7 +138,8 @@ void main() {
         },
       };
 
-      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode(tokens));
+      when(secStorage.read('my_token_url'))
+          .thenAnswer((_) async => jsonEncode(tokens));
 
       final tknResp4 = await storage.getToken(['scope2', 'scope1']);
       expect(tknResp4?.isValid(), true);
@@ -154,7 +160,8 @@ void main() {
         },
       };
 
-      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode(tokens));
+      when(secStorage.read('my_token_url'))
+          .thenAnswer((_) async => jsonEncode(tokens));
 
       final tknResp4 = await storage.getToken(['scope2', 'scope1', 'scope3']);
       expect(tknResp4, null);
@@ -175,7 +182,8 @@ void main() {
         },
       };
 
-      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode(tokens));
+      when(secStorage.read('my_token_url'))
+          .thenAnswer((_) async => jsonEncode(tokens));
 
       final tknResp4 = await storage.getToken(['scope3']);
       expect(tknResp4, null);
@@ -196,7 +204,8 @@ void main() {
         },
       };
 
-      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode(tokens));
+      when(secStorage.read('my_token_url'))
+          .thenAnswer((_) async => jsonEncode(tokens));
 
       final tknResp = await storage.getToken([]);
       expect(tknResp, null);
@@ -220,7 +229,8 @@ void main() {
         },
       };
 
-      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode(tokens));
+      when(secStorage.read('my_token_url'))
+          .thenAnswer((_) async => jsonEncode(tokens));
 
       final tknResp = await storage.getToken([]);
       expect(tknResp?.isValid(), true);
@@ -241,7 +251,8 @@ void main() {
         },
       };
 
-      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode(tokens));
+      when(secStorage.read('my_token_url'))
+          .thenAnswer((_) async => jsonEncode(tokens));
 
       final tknResp = await storage.getToken([]);
       expect(tknResp?.isValid(), true);
@@ -268,16 +279,19 @@ void main() {
 
       final secStorage = MockSecureStorage();
 
-      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode({'scope1': scope1Map}));
+      when(secStorage.read('my_token_url'))
+          .thenAnswer((_) async => jsonEncode({'scope1': scope1Map}));
 
       final storage = TokenStorage('my_token_url', storage: secStorage);
 
-      var tokens = await storage.insertToken(AccessTokenResponse.fromMap(scope1Map));
+      var tokens =
+          await storage.insertToken(AccessTokenResponse.fromMap(scope1Map));
 
       expect(tokens, contains('scope1'));
       expect(tokens.containsKey('scope2'), false);
 
-      tokens = await storage.insertToken(AccessTokenResponse.fromMap(scope2Map));
+      tokens =
+          await storage.insertToken(AccessTokenResponse.fromMap(scope2Map));
 
       expect(tokens, contains('scope2'));
     });
@@ -294,7 +308,8 @@ void main() {
 
       final secStorage = MockSecureStorage();
 
-      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode({'scope1': scope1Map}));
+      when(secStorage.read('my_token_url'))
+          .thenAnswer((_) async => jsonEncode({'scope1': scope1Map}));
       final storage = TokenStorage('my_token_url', storage: secStorage);
 
       await storage.addToken(AccessTokenResponse.fromMap(scope1Map));
@@ -310,11 +325,13 @@ void main() {
       };
 
       final secStorage = MockSecureStorage();
-      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode({'scope1': noScopesMap}));
+      when(secStorage.read('my_token_url'))
+          .thenAnswer((_) async => jsonEncode({'scope1': noScopesMap}));
 
       final storage = TokenStorage('my_token_url', storage: secStorage);
 
-      final tokens = await storage.insertToken(AccessTokenResponse.fromMap(noScopesMap));
+      final tokens =
+          await storage.insertToken(AccessTokenResponse.fromMap(noScopesMap));
 
       expect(tokens, contains('_default_'));
     });
@@ -336,13 +353,18 @@ void main() {
         },
       };
 
-      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode(tknMap));
+      when(secStorage.read('my_token_url'))
+          .thenAnswer((_) async => jsonEncode(tknMap));
 
-      when(secStorage.write('my_token_url', captureAny)).thenAnswer((_) async => true);
+      when(secStorage.write('my_token_url', captureAny))
+          .thenAnswer((_) async => true);
 
       await storage.deleteToken(scopes);
 
-      expect(verify(secStorage.write('my_token_url', captureAny)).captured, ['{}']);
+      expect(
+        verify(secStorage.write('my_token_url', captureAny)).captured,
+        ['{}'],
+      );
 
       clearInteractions(secStorage);
     });

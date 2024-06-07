@@ -3,7 +3,6 @@ import 'package:oauth2_client/src/base_storage.dart';
 BaseStorage createStorage() => VolatileStorage();
 
 class VolatileStorage implements BaseStorage {
-
   VolatileStorage();
   final Map<String, String> storage = {};
 

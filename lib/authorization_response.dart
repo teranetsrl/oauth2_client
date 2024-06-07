@@ -24,7 +24,9 @@ class AuthorizationResponse {
         }
 
         if (state != checkState) {
-          throw Exception('"state" parameter in response doesn\'t correspond to the expected value');
+          throw Exception(
+            '"state" parameter in response doesn\'t correspond to the expected value',
+          );
         }
       }
     }
@@ -38,7 +40,10 @@ class AuthorizationResponse {
 
   /// Returns the value of the [paramName] key in the queryParams map
   dynamic getQueryParam(String paramName) {
-    return queryParams.containsKey(paramName) && queryParams[paramName]!.isNotEmpty ? queryParams[paramName] : null;
+    return queryParams.containsKey(paramName) &&
+            queryParams[paramName]!.isNotEmpty
+        ? queryParams[paramName]
+        : null;
   }
 
   bool isAccessGranted() {

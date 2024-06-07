@@ -35,18 +35,25 @@ void main() {
     test('Bad response (no state param)', () {
       const url = 'myurlscheme:/oauth2?code=$authCode';
 
-      expect(() => AuthorizationResponse.fromRedirectUri(url, state), throwsException);
+      expect(
+        () => AuthorizationResponse.fromRedirectUri(url, state),
+        throwsException,
+      );
     });
 
     test('Bad response (wrong state param)', () {
       const url = 'myurlscheme:/oauth2?code=$authCode&state=WRONGSTATE';
 
-      expect(() => AuthorizationResponse.fromRedirectUri(url, state), throwsException);
+      expect(
+        () => AuthorizationResponse.fromRedirectUri(url, state),
+        throwsException,
+      );
     });
 
     test('Fetch query parameters', () {
       const testParamVal = 'testValue';
-      const url = 'myurlscheme:/oauth2?code=$authCode&state=$state&testParam=$testParamVal';
+      const url =
+          'myurlscheme:/oauth2?code=$authCode&state=$state&testParam=$testParamVal';
       final resp = AuthorizationResponse.fromRedirectUri(url, state);
 
       expect(resp.getQueryParam('code'), authCode);

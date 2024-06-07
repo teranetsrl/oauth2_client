@@ -38,7 +38,8 @@ class _FakeBaseWebAuth_0 extends _i1.SmartFake implements _i2.BaseWebAuth {
         );
 }
 
-class _FakeAccessTokenResponse_1 extends _i1.SmartFake implements _i3.AccessTokenResponse {
+class _FakeAccessTokenResponse_1 extends _i1.SmartFake
+    implements _i3.AccessTokenResponse {
   _FakeAccessTokenResponse_1(
     Object parent,
     Invocation parentInvocation,
@@ -48,7 +49,8 @@ class _FakeAccessTokenResponse_1 extends _i1.SmartFake implements _i3.AccessToke
         );
 }
 
-class _FakeAuthorizationResponse_2 extends _i1.SmartFake implements _i4.AuthorizationResponse {
+class _FakeAuthorizationResponse_2 extends _i1.SmartFake
+    implements _i4.AuthorizationResponse {
   _FakeAuthorizationResponse_2(
     Object parent,
     Invocation parentInvocation,
@@ -58,7 +60,8 @@ class _FakeAuthorizationResponse_2 extends _i1.SmartFake implements _i4.Authoriz
         );
 }
 
-class _FakeOAuth2Response_3 extends _i1.SmartFake implements _i5.OAuth2Response {
+class _FakeOAuth2Response_3 extends _i1.SmartFake
+    implements _i5.OAuth2Response {
   _FakeOAuth2Response_3(
     Object parent,
     Invocation parentInvocation,
@@ -78,7 +81,8 @@ class _FakeResponse_4 extends _i1.SmartFake implements _i6.Response {
         );
 }
 
-class _FakeStreamedResponse_5 extends _i1.SmartFake implements _i6.StreamedResponse {
+class _FakeStreamedResponse_5 extends _i1.SmartFake
+    implements _i6.StreamedResponse {
   _FakeStreamedResponse_5(
     Object parent,
     Invocation parentInvocation,
@@ -209,7 +213,8 @@ class MockOAuth2Client extends _i1.Mock implements _i8.OAuth2Client {
         returnValue: _i8.CredentialsLocation.header,
       ) as _i8.CredentialsLocation);
   @override
-  set credentialsLocation(_i8.CredentialsLocation? _credentialsLocation) => super.noSuchMethod(
+  set credentialsLocation(_i8.CredentialsLocation? _credentialsLocation) =>
+      super.noSuchMethod(
         Invocation.setter(
           #credentialsLocation,
           _credentialsLocation,
@@ -242,7 +247,8 @@ class MockOAuth2Client extends _i1.Mock implements _i8.OAuth2Client {
             #customParams: customParams,
           },
         ),
-        returnValue: _i9.Future<_i3.AccessTokenResponse>.value(_FakeAccessTokenResponse_1(
+        returnValue: _i9.Future<_i3.AccessTokenResponse>.value(
+            _FakeAccessTokenResponse_1(
           this,
           Invocation.method(
             #getTokenWithImplicitGrantFlow,
@@ -298,7 +304,8 @@ class MockOAuth2Client extends _i1.Mock implements _i8.OAuth2Client {
             #webAuthOpts: webAuthOpts,
           },
         ),
-        returnValue: _i9.Future<_i3.AccessTokenResponse>.value(_FakeAccessTokenResponse_1(
+        returnValue: _i9.Future<_i3.AccessTokenResponse>.value(
+            _FakeAccessTokenResponse_1(
           this,
           Invocation.method(
             #getTokenWithAuthCodeFlow,
@@ -342,7 +349,8 @@ class MockOAuth2Client extends _i1.Mock implements _i8.OAuth2Client {
             #httpClient: httpClient,
           },
         ),
-        returnValue: _i9.Future<_i3.AccessTokenResponse>.value(_FakeAccessTokenResponse_1(
+        returnValue: _i9.Future<_i3.AccessTokenResponse>.value(
+            _FakeAccessTokenResponse_1(
           this,
           Invocation.method(
             #getTokenWithClientCredentialsFlow,
@@ -383,7 +391,8 @@ class MockOAuth2Client extends _i1.Mock implements _i8.OAuth2Client {
             #webAuthOpts: webAuthOpts,
           },
         ),
-        returnValue: _i9.Future<_i4.AuthorizationResponse>.value(_FakeAuthorizationResponse_2(
+        returnValue: _i9.Future<_i4.AuthorizationResponse>.value(
+            _FakeAuthorizationResponse_2(
           this,
           Invocation.method(
             #requestAuthorization,
@@ -427,7 +436,8 @@ class MockOAuth2Client extends _i1.Mock implements _i8.OAuth2Client {
             #httpClient: httpClient,
           },
         ),
-        returnValue: _i9.Future<_i3.AccessTokenResponse>.value(_FakeAccessTokenResponse_1(
+        returnValue: _i9.Future<_i3.AccessTokenResponse>.value(
+            _FakeAccessTokenResponse_1(
           this,
           Invocation.method(
             #requestAccessToken,
@@ -464,7 +474,8 @@ class MockOAuth2Client extends _i1.Mock implements _i8.OAuth2Client {
             #scopes: scopes,
           },
         ),
-        returnValue: _i9.Future<_i3.AccessTokenResponse>.value(_FakeAccessTokenResponse_1(
+        returnValue: _i9.Future<_i3.AccessTokenResponse>.value(
+            _FakeAccessTokenResponse_1(
           this,
           Invocation.method(
             #refreshToken,
@@ -633,7 +644,8 @@ class MockOAuth2Client extends _i1.Mock implements _i8.OAuth2Client {
         returnValue: <String, String>{},
       ) as Map<String, String>);
   @override
-  Map<String, String> getRefreshUrlParams({required String? refreshToken}) => (super.noSuchMethod(
+  Map<String, String> getRefreshUrlParams({required String? refreshToken}) =>
+      (super.noSuchMethod(
         Invocation.method(
           #getRefreshUrlParams,
           [],
@@ -866,12 +878,14 @@ class MockClient extends _i1.Mock implements _i6.Client {
         returnValue: _i9.Future<_i11.Uint8List>.value(_i11.Uint8List(0)),
       ) as _i9.Future<_i11.Uint8List>);
   @override
-  _i9.Future<_i6.StreamedResponse> send(_i6.BaseRequest? request) => (super.noSuchMethod(
+  _i9.Future<_i6.StreamedResponse> send(_i6.BaseRequest? request) =>
+      (super.noSuchMethod(
         Invocation.method(
           #send,
           [request],
         ),
-        returnValue: _i9.Future<_i6.StreamedResponse>.value(_FakeStreamedResponse_5(
+        returnValue:
+            _i9.Future<_i6.StreamedResponse>.value(_FakeStreamedResponse_5(
           this,
           Invocation.method(
             #send,
@@ -927,7 +941,8 @@ class MockTokenStorage extends _i1.Mock implements _i12.TokenStorage {
         returnValueForMissingStub: null,
       );
   @override
-  _i9.Future<_i3.AccessTokenResponse?> getToken(List<String>? scopes) => (super.noSuchMethod(
+  _i9.Future<_i3.AccessTokenResponse?> getToken(List<String>? scopes) =>
+      (super.noSuchMethod(
         Invocation.method(
           #getToken,
           [scopes],
@@ -935,7 +950,8 @@ class MockTokenStorage extends _i1.Mock implements _i12.TokenStorage {
         returnValue: _i9.Future<_i3.AccessTokenResponse?>.value(),
       ) as _i9.Future<_i3.AccessTokenResponse?>);
   @override
-  _i9.Future<void> addToken(_i3.AccessTokenResponse? tknResp) => (super.noSuchMethod(
+  _i9.Future<void> addToken(_i3.AccessTokenResponse? tknResp) =>
+      (super.noSuchMethod(
         Invocation.method(
           #addToken,
           [tknResp],
@@ -944,12 +960,15 @@ class MockTokenStorage extends _i1.Mock implements _i12.TokenStorage {
         returnValueForMissingStub: _i9.Future<void>.value(),
       ) as _i9.Future<void>);
   @override
-  _i9.Future<Map<String, Map<dynamic, dynamic>>> insertToken(_i3.AccessTokenResponse? tknResp) => (super.noSuchMethod(
+  _i9.Future<Map<String, Map<dynamic, dynamic>>> insertToken(
+          _i3.AccessTokenResponse? tknResp) =>
+      (super.noSuchMethod(
         Invocation.method(
           #insertToken,
           [tknResp],
         ),
-        returnValue: _i9.Future<Map<String, Map<dynamic, dynamic>>>.value(<String, Map<dynamic, dynamic>>{}),
+        returnValue: _i9.Future<Map<String, Map<dynamic, dynamic>>>.value(
+            <String, Map<dynamic, dynamic>>{}),
       ) as _i9.Future<Map<String, Map<dynamic, dynamic>>>);
   @override
   _i9.Future<bool> deleteToken(List<String>? scopes) => (super.noSuchMethod(

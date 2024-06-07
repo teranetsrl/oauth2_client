@@ -110,7 +110,9 @@ class OAuth2Client {
       if (enableState) {
         final checkState = fragment['state'];
         if (state != checkState) {
-          throw Exception('"state" parameter in response doesn\'t correspond to the expected value');
+          throw Exception(
+            '"state" parameter in response doesn\'t correspond to the expected value',
+          );
         }
       }
 
@@ -475,12 +477,16 @@ class OAuth2Client {
       }
     }
 
-    final response = await httpClient.post(Uri.parse(url), body: params, headers: headers);
+    final response =
+        await httpClient.post(Uri.parse(url), body: params, headers: headers);
 
     return response;
   }
 
-  Map<String, String> getAuthorizationHeader({required String clientId, String? clientSecret}) {
+  Map<String, String> getAuthorizationHeader({
+    required String clientId,
+    String? clientSecret,
+  }) {
     final headers = <String, String>{};
 
     if ((clientId.isNotEmpty) && (clientSecret != null)) {
@@ -494,13 +500,22 @@ class OAuth2Client {
 
   /// Returns the parameters needed for the refresh token request
   Map<String, String> getRefreshUrlParams({required String refreshToken}) {
-    final params = <String, String>{'grant_type': 'refresh_token', 'refresh_token': refreshToken};
+    final params = <String, String>{
+      'grant_type': 'refresh_token',
+      'refresh_token': refreshToken,
+    };
 
     return params;
   }
 
-  AccessTokenResponse http2TokenResponse(http.Response response, {List<String>? requestedScopes}) {
-    return AccessTokenResponse.fromHttpResponse(response, requestedScopes: requestedScopes);
+  AccessTokenResponse http2TokenResponse(
+    http.Response response, {
+    List<String>? requestedScopes,
+  }) {
+    return AccessTokenResponse.fromHttpResponse(
+      response,
+      requestedScopes: requestedScopes,
+    );
   }
 
   String serializeScopes(List<String> scopes) {
@@ -521,7 +536,9 @@ class OAuth2Client {
 
     httpClient ??= http.Client();
 
-    final token = tokenType == 'access_token' ? tknResp.accessToken : tknResp.refreshToken;
+    final token = tokenType == 'access_token'
+        ? tknResp.accessToken
+        : tknResp.refreshToken;
 
     if (token != null) {
       final params = {'token': token, 'token_type_hint': tokenType};
@@ -529,7 +546,8 @@ class OAuth2Client {
       if (clientId != null) params['client_id'] = clientId;
       if (clientSecret != null) params['client_secret'] = clientSecret;
 
-      final response = await httpClient.post(Uri.parse(revokeUrl!), body: params);
+      final response =
+          await httpClient.post(Uri.parse(revokeUrl!), body: params);
 
       resp = http2TokenResponse(response);
     }

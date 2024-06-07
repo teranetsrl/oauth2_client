@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 /// Represents the base response for the OAuth 2 requests.
 /// see https://tools.ietf.org/html/rfc6749#section-5.2
 class OAuth2Response {
-
   OAuth2Response();
 
   OAuth2Response.fromMap(Map<String, dynamic> map) {

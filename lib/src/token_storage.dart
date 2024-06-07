@@ -24,7 +24,8 @@ class TokenStorage {
     final serializedStoredTokens = await storage.read(key);
 
     if (serializedStoredTokens != null) {
-      final Map<String, dynamic> storedTokens = jsonDecode(serializedStoredTokens);
+      final Map<String, dynamic> storedTokens =
+          jsonDecode(serializedStoredTokens);
 
       final cleanScopes = clearScopes(scopes);
 
@@ -115,7 +116,8 @@ class TokenStorage {
     final cleanScopes = clearScopes(scopes);
 
     if (cleanScopes.isNotEmpty) {
-      sortedScopes = cleanScopes.toList()..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+      sortedScopes = cleanScopes.toList()
+        ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
     }
 
     return sortedScopes;

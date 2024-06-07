@@ -38,7 +38,9 @@ void main() {
         'scope': scopes,
         'expires_in': 1,
         'http_status_code': 200,
-        'expiration_date': DateTime.now().add(const Duration(seconds: 1)).millisecondsSinceEpoch,
+        'expiration_date': DateTime.now()
+            .add(const Duration(seconds: 1))
+            .millisecondsSinceEpoch,
       };
 
       final resp = AccessTokenResponse.fromMap(respMap);
@@ -82,13 +84,19 @@ void main() {
   test('Conversion from HTTP response', () async {
     //The OAuth 2 standard suggests that the scopes should be a space-separated list,
     //but some providers (i.e. GitHub) return a comma-separated list
-    var response = http.Response('{"access_token": "TKN12345", "token_type": "Bearer", "scope": "scope1 scope2"}', 200);
+    var response = http.Response(
+      '{"access_token": "TKN12345", "token_type": "Bearer", "scope": "scope1 scope2"}',
+      200,
+    );
 
     var resp = AccessTokenResponse.fromHttpResponse(response);
 
     expect(resp.scope, ['scope1', 'scope2']);
 
-    response = http.Response('{"access_token": "TKN12345", "token_type": "Bearer", "scope": "scope1,scope2"}', 200);
+    response = http.Response(
+      '{"access_token": "TKN12345", "token_type": "Bearer", "scope": "scope1,scope2"}',
+      200,
+    );
 
     resp = AccessTokenResponse.fromHttpResponse(response);
 
@@ -98,9 +106,15 @@ void main() {
   test('Conversion from HTTP response with no "scope" parameter', () async {
     //If no scope parameter is sent by the server in the Access Token Response
     //it means that it is identical to the one(s) requested by the client
-    final response = http.Response('{"access_token": "TKN12345", "token_type": "Bearer"}', 200);
+    final response = http.Response(
+      '{"access_token": "TKN12345", "token_type": "Bearer"}',
+      200,
+    );
 
-    var resp = AccessTokenResponse.fromHttpResponse(response, requestedScopes: ['scope1', 'scope2']);
+    var resp = AccessTokenResponse.fromHttpResponse(
+      response,
+      requestedScopes: ['scope1', 'scope2'],
+    );
 
     expect(resp.scope, ['scope1', 'scope2']);
 
@@ -156,7 +170,11 @@ void main() {
   });
 
   test('Fetch non standard response field', () async {
-    final respMap = {'token_type': tokenType, 'http_status_code': 200, 'custom_param': 'custom_val'};
+    final respMap = {
+      'token_type': tokenType,
+      'http_status_code': 200,
+      'custom_param': 'custom_val',
+    };
 
     final resp = AccessTokenResponse.fromMap(respMap);
 

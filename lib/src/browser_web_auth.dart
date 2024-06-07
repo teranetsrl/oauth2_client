@@ -21,7 +21,8 @@ class BrowserWebAuth implements BaseWebAuth {
       'menubar=no, status=no, scrollbars=no, menubar=no, width=1000, height=500',
     );
 
-    final messageEvt = await html.window.onMessage.firstWhere((evt) => evt.origin == Uri.parse(redirectUrl).origin);
+    final messageEvt = await html.window.onMessage
+        .firstWhere((evt) => evt.origin == Uri.parse(redirectUrl).origin);
 
     popupLogin.close();
 
