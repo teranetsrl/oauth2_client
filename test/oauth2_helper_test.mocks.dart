@@ -995,13 +995,13 @@ class MockTokenStorage extends _i1.Mock implements _i12.TokenStorage {
         returnValue: <String>[],
       ) as List<String>);
   @override
-  List<dynamic> getSortedScopes(List<String>? scopes) => (super.noSuchMethod(
+  List<String> getSortedScopes(List<String>? scopes) => (super.noSuchMethod(
         Invocation.method(
           #getSortedScopes,
           [scopes],
         ),
-        returnValue: <dynamic>[],
-      ) as List<dynamic>);
+        returnValue: <String>[],
+      ) as List<String>);
   @override
   String getScopeKey(List<String>? scope) => (super.noSuchMethod(
         Invocation.method(

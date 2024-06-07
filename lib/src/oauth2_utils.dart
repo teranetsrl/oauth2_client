@@ -5,9 +5,9 @@ import 'package:crypto/crypto.dart';
 class OAuth2Utils {
   /// Generates a code challenge from the [codeVerifier] used for the PKCE extension
   static String generateCodeChallenge(String codeVerifier) {
-    var bytes = utf8.encode(codeVerifier);
+    final bytes = utf8.encode(codeVerifier);
 
-    var digest = sha256.convert(bytes);
+    final digest = sha256.convert(bytes);
 
     var codeChallenge = base64UrlEncode(digest.bytes);
 
@@ -40,7 +40,7 @@ class OAuth2Utils {
   }
 
   static String addParamsToUrl(String url, Map params) {
-    var qs = params2qs(params);
+    final qs = params2qs(params);
 
     if (qs.isNotEmpty) url = '$url?$qs';
 

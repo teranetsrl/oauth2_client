@@ -5,15 +5,6 @@ import 'package:http/http.dart' as http;
 /// Represents the base response for the OAuth 2 requests.
 /// see https://tools.ietf.org/html/rfc6749#section-5.2
 class OAuth2Response {
-  // String? error;
-  // String? errorDescription;
-  // String? errorUri;
-  // late int httpStatusCode;
-
-  // DateTime ts = DateTime.now();
-
-  Map<String, dynamic> respMap = {};
-
   OAuth2Response();
 
   OAuth2Response.fromMap(Map<String, dynamic> map) {
@@ -27,7 +18,7 @@ class OAuth2Response {
   factory OAuth2Response.fromHttpResponse(http.Response response) {
     OAuth2Response resp;
 
-    var defMap = {'http_status_code': response.statusCode};
+    final defMap = {'http_status_code': response.statusCode};
 
     if (response.body != '') {
       resp = OAuth2Response.fromMap({...jsonDecode(response.body), ...defMap});
@@ -57,6 +48,14 @@ class OAuth2Response {
     return resp;
 */
   }
+  // String? error;
+  // String? errorDescription;
+  // String? errorUri;
+  // late int httpStatusCode;
+
+  // DateTime ts = DateTime.now();
+
+  Map<String, dynamic> respMap = {};
 
   Map<String, dynamic> toMap() {
     return respMap;

@@ -1,22 +1,20 @@
 import 'dart:convert';
 
 import 'package:oauth2_client/access_token_response.dart';
-
-import 'base_storage.dart';
-import 'storage.dart'
+import 'package:oauth2_client/src/base_storage.dart';
+import 'package:oauth2_client/src/storage.dart'
 // ignore: uri_does_not_exist
     if (dart.library.io) 'secure_storage.dart'
 // ignore: uri_does_not_exist
     if (dart.library.html) 'browser_storage.dart';
 
 class TokenStorage {
-  String key;
-
-  BaseStorage storage = createStorage();
-
   TokenStorage(this.key, {BaseStorage? storage}) {
     if (storage != null) this.storage = storage;
   }
+  String key;
+
+  BaseStorage storage = createStorage();
 
   /// Looks for a token in the storage that matches the required [scopes].
   /// If a token in the storage has been generated for a superset of the requested scopes, it is considered valid.
@@ -31,27 +29,30 @@ class TokenStorage {
 
       final cleanScopes = clearScopes(scopes);
 
-      var tknMap = storedTokens.values.firstWhere((tkn) {
-        var found = false;
+      final tknMap = storedTokens.values.firstWhere(
+        (tkn) {
+          var found = false;
 
-        if (cleanScopes.isEmpty) {
-          //If the scopes are empty, onlty tokens granted to empty scopes are considered valid...
-          found = (tkn['scope'] == null || tkn['scope'].isEmpty);
-        } else {
-          //...Otherwise look for a token granted to a superset of the requested scopes
-          if (tkn.containsKey('scope')) {
-            final tknCleanScopes = clearScopes(tkn['scope'].cast<String>());
+          if (cleanScopes.isEmpty) {
+            //If the scopes are empty, onlty tokens granted to empty scopes are considered valid...
+            found = tkn['scope'] == null || tkn['scope'].isEmpty;
+          } else {
+            //...Otherwise look for a token granted to a superset of the requested scopes
+            if (tkn.containsKey('scope')) {
+              final tknCleanScopes = clearScopes(tkn['scope'].cast<String>());
 
-            if (tknCleanScopes.isNotEmpty) {
-              var s1 = Set.from(tknCleanScopes);
-              var s2 = Set.from(cleanScopes);
-              found = s1.intersection(s2).length == cleanScopes.length;
+              if (tknCleanScopes.isNotEmpty) {
+                final s1 = Set.of(tknCleanScopes);
+                final s2 = Set.of(cleanScopes);
+                found = s1.intersection(s2).length == cleanScopes.length;
+              }
             }
           }
-        }
 
-        return found;
-      }, orElse: () => null);
+          return found;
+        },
+        orElse: () => null,
+      );
 
       if (tknMap != null) tknResp = AccessTokenResponse.fromMap(tknMap);
     }
@@ -60,7 +61,7 @@ class TokenStorage {
   }
 
   Future<void> addToken(AccessTokenResponse tknResp) async {
-    var tokens = await insertToken(tknResp);
+    final tokens = await insertToken(tknResp);
     await storage.write(key, jsonEncode(tokens));
   }
 
@@ -109,10 +110,10 @@ class TokenStorage {
     return scopes.where((element) => element.trim().isNotEmpty).toList();
   }
 
-  List getSortedScopes(List<String> scopes) {
-    var sortedScopes = [];
+  List<String> getSortedScopes(List<String> scopes) {
+    var sortedScopes = <String>[];
 
-    var cleanScopes = clearScopes(scopes);
+    final cleanScopes = clearScopes(scopes);
 
     if (cleanScopes.isNotEmpty) {
       sortedScopes = cleanScopes.toList()
@@ -125,7 +126,7 @@ class TokenStorage {
   String getScopeKey(List<String> scope) {
     var key = '_default_';
 
-    var sortedScopes = getSortedScopes(scope);
+    final sortedScopes = getSortedScopes(scope);
     if (sortedScopes.isNotEmpty) {
       key = sortedScopes.join('__');
     }
