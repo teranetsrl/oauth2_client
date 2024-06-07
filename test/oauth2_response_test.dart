@@ -15,7 +15,7 @@ void main() {
     final respMap = <String, dynamic>{
       'error': 'ERROR',
       'error_description': 'ERROR_DESC',
-      'http_status_code': 400
+      'http_status_code': 400,
     };
 
     final resp = OAuth2Response.fromMap(respMap);
@@ -27,17 +27,19 @@ void main() {
     final respMap = <String, dynamic>{
       'error': 'generic_error',
       'error_description': 'err_desc',
-      'http_status_code': 400
+      'http_status_code': 400,
     };
 
     final resp = OAuth2Response.fromMap(respMap);
 
     expect(
-        resp.toMap(),
-        allOf(
-            containsPair('error', 'generic_error'),
-            containsPair('error_description', 'err_desc'),
-            containsPair('http_status_code', 400)));
+      resp.toMap(),
+      allOf(
+        containsPair('error', 'generic_error'),
+        containsPair('error_description', 'err_desc'),
+        containsPair('http_status_code', 400),
+      ),
+    );
   });
 
   test('Conversion from HTTP response', () async {
@@ -60,7 +62,7 @@ void main() {
     final respMap = <String, dynamic>{
       'error': 'generic_error',
       'error_description': 'err_desc',
-      'http_status_code': 400
+      'http_status_code': 400,
     };
 
     final resp = OAuth2Response.fromMap(respMap);

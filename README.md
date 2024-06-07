@@ -31,7 +31,7 @@ AndroidManifest.xml
 		<action android:name="android.intent.action.VIEW" />
 		<category android:name="android.intent.category.DEFAULT" />
 		<category android:name="android.intent.category.BROWSABLE" />
-		<data android:scheme="my.test.app" /> <!-- This must correspond to the custom scheme used for instantiatng the client... See below -->
+		<data android:scheme="my.test.app" /> <!-- This must correspond to the custom scheme used for instantiating the client... See below -->
 	</intent-filter>
 </activity>
 ```
@@ -155,7 +155,7 @@ import 'package:http/http.dart' as http;
 //Instantiate an OAuth2Client...
 GoogleOAuth2Client client = GoogleOAuth2Client(
 	customUriScheme: 'my.test.app' //Must correspond to the AndroidManifest's "android:scheme" attribute
-	redirectUri: 'my.test.app:/oauth2redirect', //Can be any URI, but the scheme part must correspond to the customeUriScheme
+	redirectUri: 'my.test.app:/oauth2redirect', //Can be any URI, but the scheme part must correspond to the customUriScheme
 );
 
 //Then, instantiate the helper passing the previously instantiated client
@@ -217,7 +217,7 @@ if(tknResp.isExpired()) {
 }
 ```
 
-## Acessing custom/non standard response fields ##
+## Accessing custom/non standard response fields ##
 You can access non standard fields in the response by calling the ```getRespField``` method.
 
 For example:
@@ -302,7 +302,7 @@ Then you can instantiate an helper class or directly use the client methods to a
 
 ## GitHub client ##
 
-In order to use this client you need to first create a new OAuth2 App in the GittHub Developer Settings (https://github.com/settings/developers)
+In order to use this client you need to first create a new OAuth2 App in the GitHub Developer Settings (https://github.com/settings/developers)
 
 Then in your code:
 

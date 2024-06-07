@@ -14,18 +14,18 @@ class AccessTokenResponse extends OAuth2Response {
   AccessTokenResponse.fromMap(Map<String, dynamic> map) : super.fromMap(map);
 
   @override
-  factory AccessTokenResponse.fromHttpResponse(http.Response response,
-      {List<String>? requestedScopes}) {
+  factory AccessTokenResponse.fromHttpResponse(
+    http.Response response, {
+    List<String>? requestedScopes,
+  }) {
     AccessTokenResponse resp;
 
-    var defMap = {'http_status_code': response.statusCode};
+    final defMap = {'http_status_code': response.statusCode};
     if (response.body != '') {
-      Map<String, dynamic> rMap = jsonDecode(response.body);
+      final Map<String, dynamic> rMap = jsonDecode(response.body);
       //From Section 4.2.2. (Access Token Response) of OAuth2 rfc, the "scope" parameter in the Access Token Response is
       //"OPTIONAL, if identical to the scope requested by the client; otherwise, REQUIRED."
-      if ((!rMap.containsKey('scope') ||
-          rMap['scope'] == null ||
-          rMap['scope'].isEmpty)) {
+      if (!rMap.containsKey('scope') || rMap['scope'] == null || rMap['scope'].isEmpty) {
         if (requestedScopes != null) {
           rMap['scope'] = requestedScopes;
         }
@@ -35,25 +35,21 @@ class AccessTokenResponse extends OAuth2Response {
         int expiresIn;
 
         try {
-          expiresIn = rMap['expires_in'] is String
-              ? int.parse(rMap['expires_in'])
-              : rMap['expires_in'];
+          expiresIn = rMap['expires_in'] is String ? int.parse(rMap['expires_in']) : rMap['expires_in'];
         } on FormatException {
           expiresIn = 0;
         }
 
         rMap['expires_in'] = expiresIn;
 
-        rMap['expiration_date'] = DateTime.now()
-            .add(Duration(seconds: expiresIn))
-            .millisecondsSinceEpoch;
+        rMap['expiration_date'] = DateTime.now().add(Duration(seconds: expiresIn)).millisecondsSinceEpoch;
       }
 
       resp = AccessTokenResponse.fromMap({...rMap, ...defMap});
     } else {
       resp = AccessTokenResponse.fromMap({
         ...defMap,
-        ...{'scope': requestedScopes}
+        ...{'scope': requestedScopes},
       });
     }
 
@@ -64,7 +60,7 @@ class AccessTokenResponse extends OAuth2Response {
   Map<String, dynamic> toMap() {
     return {
       ...respMap,
-      ...{'scope': scope}
+      ...{'scope': scope},
     };
   }
 
@@ -73,7 +69,7 @@ class AccessTokenResponse extends OAuth2Response {
     var expired = false;
 
     if (expirationDate != null) {
-      var now = DateTime.now();
+      final now = DateTime.now();
       expired = expirationDate!.difference(now).inSeconds < 0;
     }
 
@@ -81,13 +77,12 @@ class AccessTokenResponse extends OAuth2Response {
   }
 
   ///Checks if the access token must be refreshed
-  bool refreshNeeded({secondsToExpiration = 30}) {
+  bool refreshNeeded({int secondsToExpiration = 30}) {
     var needsRefresh = false;
 
     if (expirationDate != null) {
-      var now = DateTime.now();
-      needsRefresh =
-          expirationDate!.difference(now).inSeconds < secondsToExpiration;
+      final now = DateTime.now();
+      needsRefresh = expirationDate!.difference(now).inSeconds < secondsToExpiration;
     }
 
     return needsRefresh;
@@ -141,9 +136,7 @@ class AccessTokenResponse extends OAuth2Response {
     if (isValid()) {
       if (respMap.containsKey('expires_in')) {
         try {
-          expIn = respMap['expires_in'] is String
-              ? int.parse(respMap['expires_in'])
-              : respMap['expires_in'];
+          expIn = respMap['expires_in'] is String ? int.parse(respMap['expires_in']) : respMap['expires_in'];
         } on FormatException {
           //Provide a fallback value if the expires_in parameter is not an integer...
           expIn = 60;

@@ -3,9 +3,9 @@ import 'package:oauth2_client/src/base_storage.dart';
 BaseStorage createStorage() => VolatileStorage();
 
 class VolatileStorage implements BaseStorage {
-  final Map<String, String> storage = {};
 
   VolatileStorage();
+  final Map<String, String> storage = {};
 
   @override
   Future<String?> read(String key) async {

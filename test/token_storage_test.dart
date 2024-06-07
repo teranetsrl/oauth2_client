@@ -16,20 +16,19 @@ void main() {
       final secStorage = MockSecureStorage();
       final storage = TokenStorage('my_token_url', storage: secStorage);
 
-      var tokens = <String, Map>{
+      final tokens = <String, Map<String, dynamic>>{
         'scope1': {
           'access_token': '1234567890',
           'token_type': 'Bearer',
           'expires_in': 3600,
           'refresh_token': '0987654321',
           'scope': ['scope1'],
-        }
+        },
       };
 
-      when(secStorage.read('my_token_url'))
-          .thenAnswer((_) async => jsonEncode(tokens));
+      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode(tokens));
 
-      var tknResp = await storage.getToken(['scope2']);
+      final tknResp = await storage.getToken(['scope2']);
 
       expect(tknResp, null);
     });
@@ -38,21 +37,20 @@ void main() {
       final secStorage = MockSecureStorage();
       final storage = TokenStorage('my_token_url', storage: secStorage);
 
-      var tokens = <String, Map>{
+      final tokens = <String, Map<String, dynamic>>{
         'scope1': {
           'access_token': '1234567890',
           'token_type': 'Bearer',
           'expires_in': 3600,
           'refresh_token': '0987654321',
           'scope': ['scope1'],
-          'http_status_code': 200
-        }
+          'http_status_code': 200,
+        },
       };
 
-      when(secStorage.read('my_token_url'))
-          .thenAnswer((_) async => jsonEncode(tokens));
+      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode(tokens));
 
-      var tknResp = await storage.getToken(['scope1']);
+      final tknResp = await storage.getToken(['scope1']);
 
       expect(tknResp?.isValid(), true);
     });
@@ -61,21 +59,20 @@ void main() {
       final secStorage = MockSecureStorage();
       final storage = TokenStorage('my_token_url', storage: secStorage);
 
-      var tokens = <String, Map>{
+      final tokens = <String, Map<String, dynamic>>{
         'scope1': {
           'access_token': '1234567890',
           'token_type': 'Bearer',
           'expires_in': 3600,
           'refresh_token': '0987654321',
           'scope': ['scope1', 'scope2'],
-          'http_status_code': 200
-        }
+          'http_status_code': 200,
+        },
       };
 
-      when(secStorage.read('my_token_url'))
-          .thenAnswer((_) async => jsonEncode(tokens));
+      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode(tokens));
 
-      var tknResp = await storage.getToken(['scope1']);
+      final tknResp = await storage.getToken(['scope1']);
       expect(tknResp?.isValid(), true);
     });
 
@@ -83,21 +80,20 @@ void main() {
       final secStorage = MockSecureStorage();
       final storage = TokenStorage('my_token_url', storage: secStorage);
 
-      var tokens = <String, Map>{
+      final tokens = <String, Map<String, dynamic>>{
         'scope1': {
           'access_token': '1234567890',
           'token_type': 'Bearer',
           'expires_in': 3600,
           'refresh_token': '0987654321',
           'scope': ['scope1', 'scope2'],
-          'http_status_code': 200
-        }
+          'http_status_code': 200,
+        },
       };
 
-      when(secStorage.read('my_token_url'))
-          .thenAnswer((_) async => jsonEncode(tokens));
+      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode(tokens));
 
-      var tknResp2 = await storage.getToken(['scope2']);
+      final tknResp2 = await storage.getToken(['scope2']);
       expect(tknResp2?.isValid(), true);
     });
 
@@ -105,21 +101,20 @@ void main() {
       final secStorage = MockSecureStorage();
       final storage = TokenStorage('my_token_url', storage: secStorage);
 
-      var tokens = <String, Map>{
+      final tokens = <String, Map<String, dynamic>>{
         'scope1': {
           'access_token': '1234567890',
           'token_type': 'Bearer',
           'expires_in': 3600,
           'refresh_token': '0987654321',
           'scope': ['scope1', 'scope2'],
-          'http_status_code': 200
-        }
+          'http_status_code': 200,
+        },
       };
 
-      when(secStorage.read('my_token_url'))
-          .thenAnswer((_) async => jsonEncode(tokens));
+      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode(tokens));
 
-      var tknResp3 = await storage.getToken(['scope1', 'scope2']);
+      final tknResp3 = await storage.getToken(['scope1', 'scope2']);
       expect(tknResp3?.isValid(), true);
     });
 
@@ -127,21 +122,20 @@ void main() {
       final secStorage = MockSecureStorage();
       final storage = TokenStorage('my_token_url', storage: secStorage);
 
-      var tokens = <String, Map>{
+      final tokens = <String, Map<String, dynamic>>{
         'scope1': {
           'access_token': '1234567890',
           'token_type': 'Bearer',
           'expires_in': 3600,
           'refresh_token': '0987654321',
           'scope': ['scope1', 'scope2'],
-          'http_status_code': 200
-        }
+          'http_status_code': 200,
+        },
       };
 
-      when(secStorage.read('my_token_url'))
-          .thenAnswer((_) async => jsonEncode(tokens));
+      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode(tokens));
 
-      var tknResp4 = await storage.getToken(['scope2', 'scope1']);
+      final tknResp4 = await storage.getToken(['scope2', 'scope1']);
       expect(tknResp4?.isValid(), true);
     });
 
@@ -149,21 +143,20 @@ void main() {
       final secStorage = MockSecureStorage();
       final storage = TokenStorage('my_token_url', storage: secStorage);
 
-      var tokens = <String, Map>{
+      final tokens = <String, Map<String, dynamic>>{
         'scope1': {
           'access_token': '1234567890',
           'token_type': 'Bearer',
           'expires_in': 3600,
           'refresh_token': '0987654321',
           'scope': ['scope1', 'scope2'],
-          'http_status_code': 200
-        }
+          'http_status_code': 200,
+        },
       };
 
-      when(secStorage.read('my_token_url'))
-          .thenAnswer((_) async => jsonEncode(tokens));
+      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode(tokens));
 
-      var tknResp4 = await storage.getToken(['scope2', 'scope1', 'scope3']);
+      final tknResp4 = await storage.getToken(['scope2', 'scope1', 'scope3']);
       expect(tknResp4, null);
     });
 
@@ -171,21 +164,20 @@ void main() {
       final secStorage = MockSecureStorage();
       final storage = TokenStorage('my_token_url', storage: secStorage);
 
-      var tokens = <String, Map>{
+      final tokens = <String, Map<String, dynamic>>{
         'scope1': {
           'access_token': '1234567890',
           'token_type': 'Bearer',
           'expires_in': 3600,
           'refresh_token': '0987654321',
           'scope': ['scope1', 'scope2'],
-          'http_status_code': 200
-        }
+          'http_status_code': 200,
+        },
       };
 
-      when(secStorage.read('my_token_url'))
-          .thenAnswer((_) async => jsonEncode(tokens));
+      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode(tokens));
 
-      var tknResp4 = await storage.getToken(['scope3']);
+      final tknResp4 = await storage.getToken(['scope3']);
       expect(tknResp4, null);
     });
 
@@ -193,24 +185,23 @@ void main() {
       final secStorage = MockSecureStorage();
       final storage = TokenStorage('my_token_url', storage: secStorage);
 
-      var tokens = <String, Map>{
+      final tokens = <String, Map<String, dynamic>>{
         'scope1': {
           'access_token': '1234567890',
           'token_type': 'Bearer',
           'expires_in': 3600,
           'refresh_token': '0987654321',
           'scope': ['scope1', 'scope2'],
-          'http_status_code': 200
-        }
+          'http_status_code': 200,
+        },
       };
 
-      when(secStorage.read('my_token_url'))
-          .thenAnswer((_) async => jsonEncode(tokens));
+      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode(tokens));
 
-      var tknResp = await storage.getToken([]);
+      final tknResp = await storage.getToken([]);
       expect(tknResp, null);
 
-      var tknResp2 = await storage.getToken([]);
+      final tknResp2 = await storage.getToken([]);
       expect(tknResp2, null);
     });
 
@@ -218,21 +209,20 @@ void main() {
       final secStorage = MockSecureStorage();
       final storage = TokenStorage('my_token_url', storage: secStorage);
 
-      var tokens = <String, Map>{
+      final tokens = <String, Map<String, dynamic>>{
         'scope1': {
           'access_token': '1234567890',
           'token_type': 'Bearer',
           'expires_in': 3600,
           'refresh_token': '0987654321',
           'scope': null,
-          'http_status_code': 200
-        }
+          'http_status_code': 200,
+        },
       };
 
-      when(secStorage.read('my_token_url'))
-          .thenAnswer((_) async => jsonEncode(tokens));
+      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode(tokens));
 
-      var tknResp = await storage.getToken([]);
+      final tknResp = await storage.getToken([]);
       expect(tknResp?.isValid(), true);
     });
 
@@ -240,98 +230,91 @@ void main() {
       final secStorage = MockSecureStorage();
       final storage = TokenStorage('my_token_url', storage: secStorage);
 
-      var tokens = <String, Map>{
+      final tokens = <String, Map<String, dynamic>>{
         'scope1': {
           'access_token': '1234567890',
           'token_type': 'Bearer',
           'expires_in': 3600,
           'refresh_token': '0987654321',
-          'scope': [],
-          'http_status_code': 200
-        }
+          'scope': <String>[],
+          'http_status_code': 200,
+        },
       };
 
-      when(secStorage.read('my_token_url'))
-          .thenAnswer((_) async => jsonEncode(tokens));
+      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode(tokens));
 
-      var tknResp = await storage.getToken([]);
+      final tknResp = await storage.getToken([]);
       expect(tknResp?.isValid(), true);
     });
 
     test('Insert token', () async {
-      var scope1Map = <String, dynamic>{
+      final scope1Map = <String, dynamic>{
         'access_token': '1234567890',
         'token_type': 'Bearer',
         'refresh_token': '0987654321',
         'scope': ['scope1'],
         'expires_in': 3600,
-        'http_status_code': 200
+        'http_status_code': 200,
       };
 
-      var scope2Map = <String, dynamic>{
+      final scope2Map = <String, dynamic>{
         'access_token': '1234567890',
         'token_type': 'Bearer',
         'refresh_token': '0987654321',
         'scope': ['scope2'],
         'expires_in': 3600,
-        'http_status_code': 200
+        'http_status_code': 200,
       };
 
       final secStorage = MockSecureStorage();
 
-      when(secStorage.read('my_token_url'))
-          .thenAnswer((_) async => jsonEncode({'scope1': scope1Map}));
+      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode({'scope1': scope1Map}));
 
       final storage = TokenStorage('my_token_url', storage: secStorage);
 
-      var tokens =
-          await storage.insertToken(AccessTokenResponse.fromMap(scope1Map));
+      var tokens = await storage.insertToken(AccessTokenResponse.fromMap(scope1Map));
 
       expect(tokens, contains('scope1'));
       expect(tokens.containsKey('scope2'), false);
 
-      tokens =
-          await storage.insertToken(AccessTokenResponse.fromMap(scope2Map));
+      tokens = await storage.insertToken(AccessTokenResponse.fromMap(scope2Map));
 
       expect(tokens, contains('scope2'));
     });
 
     test('Add token', () async {
-      var scope1Map = <String, dynamic>{
+      final scope1Map = <String, dynamic>{
         'access_token': '1234567890',
         'token_type': 'Bearer',
         'refresh_token': '0987654321',
         'scope': ['scope1'],
         'expires_in': 3600,
-        'http_status_code': 200
+        'http_status_code': 200,
       };
 
       final secStorage = MockSecureStorage();
 
-      when(secStorage.read('my_token_url'))
-          .thenAnswer((_) async => jsonEncode({'scope1': scope1Map}));
+      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode({'scope1': scope1Map}));
       final storage = TokenStorage('my_token_url', storage: secStorage);
 
       await storage.addToken(AccessTokenResponse.fromMap(scope1Map));
     });
 
     test('Add token without no scope', () async {
-      var noScopesMap = <String, dynamic>{
+      final noScopesMap = <String, dynamic>{
         'access_token': '1234567890',
         'token_type': 'Bearer',
         'refresh_token': '0987654321',
         'expires_in': 3600,
-        'http_status_code': 200
+        'http_status_code': 200,
       };
 
       final secStorage = MockSecureStorage();
-      when(secStorage.read('my_token_url'))
-          .thenAnswer((_) async => jsonEncode({'scope1': noScopesMap}));
+      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode({'scope1': noScopesMap}));
 
       final storage = TokenStorage('my_token_url', storage: secStorage);
 
-      var tokens =
-          await storage.insertToken(AccessTokenResponse.fromMap(noScopesMap));
+      final tokens = await storage.insertToken(AccessTokenResponse.fromMap(noScopesMap));
 
       expect(tokens, contains('_default_'));
     });
@@ -342,27 +325,24 @@ void main() {
 
       final scopes = ['scope1'];
 
-      var tknMap = <String, dynamic>{
+      final tknMap = <String, dynamic>{
         'scope1': {
           'access_token': '1234567890',
           'token_type': 'Bearer',
           'refresh_token': '0987654321',
           'scope': scopes,
           'expires_in': 3600,
-          'http_status_code': 200
-        }
+          'http_status_code': 200,
+        },
       };
 
-      when(secStorage.read('my_token_url'))
-          .thenAnswer((_) async => jsonEncode(tknMap));
+      when(secStorage.read('my_token_url')).thenAnswer((_) async => jsonEncode(tknMap));
 
-      when(secStorage.write('my_token_url', captureAny))
-          .thenAnswer((_) async => true);
+      when(secStorage.write('my_token_url', captureAny)).thenAnswer((_) async => true);
 
       await storage.deleteToken(scopes);
 
-      expect(verify(secStorage.write('my_token_url', captureAny)).captured,
-          ['{}']);
+      expect(verify(secStorage.write('my_token_url', captureAny)).captured, ['{}']);
 
       clearInteractions(secStorage);
     });
