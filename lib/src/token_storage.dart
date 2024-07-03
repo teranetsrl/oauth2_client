@@ -35,11 +35,11 @@ class TokenStorage {
         var found = false;
 
         if (cleanScopes.isEmpty) {
-          //If the scopes are empty, onlty tokens granted to empty scopes are considered valid...
+          //If the scopes are empty, only tokens granted to empty scopes are considered valid...
           found = (tkn['scope'] == null || tkn['scope'].isEmpty);
         } else {
           //...Otherwise look for a token granted to a superset of the requested scopes
-          if (tkn.containsKey('scope')) {
+          if (tkn.containsKey('scope') && tkn['scope'] != null) {
             final tknCleanScopes = clearScopes(tkn['scope'].cast<String>());
 
             if (tknCleanScopes.isNotEmpty) {
