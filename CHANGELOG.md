@@ -1,4 +1,4 @@
-## [3.3.1] - 2024/07/03
+## [3.3.0] - 2024/07/03
 * Updated dependencies
 * Fix: Check for null value before casting scope to String (thanks [xolf](https://github.com/xolf))
 * Fix: Added support for the preferEphemeral behavior on android (thanks [dlatikaynen](https://github.com/dlatikaynen))
