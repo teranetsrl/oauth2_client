@@ -1,10 +1,10 @@
-// ignore_for_file: avoid_web_libraries_in_flutter
-
+import 'base_web_auth.dart';
+import 'dart:async';
 import 'dart:html' as html;
 
-import 'base_web_auth.dart';
-
 BaseWebAuth createWebAuth() => BrowserWebAuth();
+
+const _oauthRedirect = 'oauth-redirect';
 
 class BrowserWebAuth implements BaseWebAuth {
   @override
@@ -14,16 +14,24 @@ class BrowserWebAuth implements BaseWebAuth {
       required String redirectUrl,
       Map<String, dynamic>? opts}) async {
     // ignore: unsafe_html
-    final popupLogin = html.window.open(
-        url,
-        'oauth2_client::authenticateWindow',
+    html.window.open(url, 'html.window.onMessage',
         'menubar=no, status=no, scrollbars=no, menubar=no, width=1000, height=500');
 
-    var messageEvt = await html.window.onMessage
-        .firstWhere((evt) => evt.origin == Uri.parse(redirectUrl).origin);
+    final completer = Completer<String>();
 
-    popupLogin.close();
+    html.window.onStorage.listen((event) {
+      if (event.key == _oauthRedirect && !completer.isCompleted) {
+        html.window.localStorage.remove(_oauthRedirect);
+        final newValue = event.newValue;
 
-    return messageEvt.data;
+        if (newValue == null) {
+          throw 'oauth-failed';
+        }
+
+        completer.complete(newValue);
+      }
+    });
+
+    return completer.future;
   }
 }
