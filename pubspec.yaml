@@ -14,7 +14,7 @@ dependencies:
   flutter_secure_storage_per: ^9.2.3
   flutter_web_auth_2:
     git:
-      url: 'https://github.com/ThexXTURBOXx/flutter_web_auth_2.git'
+      url: 'https://github.com/dmk-rib/flutter_web_auth_2.git'
       path: 'flutter_web_auth_2'
   http: ^1.1.0
   meta: ^1.12.0
