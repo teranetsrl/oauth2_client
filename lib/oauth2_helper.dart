@@ -297,14 +297,14 @@ class OAuth2Helper {
   /// Performs the given request, adding the authorization token.
   ///
   /// If no token already exists, or if it is expired, a new one is requested.
-  Future<http.StreamedResponse> send(http.Request request,
+  Future<http.StreamedResponse> send(http.BaseRequest request,
       {http.Client? httpClient}) async {
     return _send(request, httpClient: httpClient);
   }
 
   /// Common method for making streamed http requests
   /// Tries to use a previously fetched token, otherwise fetches a new token by means of a refresh flow or by issuing a new authorization flow
-  Future<http.StreamedResponse> _send(http.Request request,
+  Future<http.StreamedResponse> _send(http.BaseRequest request,
       {http.Client? httpClient}) async {
     httpClient ??= http.Client();
 
