@@ -152,37 +152,33 @@ class OAuth2Client {
       codeChallenge = OAuth2Utils.generateCodeChallenge(codeVerifier);
     }
 
-    try {
-      var authResp = await requestAuthorization(
-          webAuthClient: webAuthClient,
+    var authResp = await requestAuthorization(
+        webAuthClient: webAuthClient,
+        clientId: clientId,
+        scopes: scopes,
+        codeChallenge: codeChallenge,
+        enableState: enableState,
+        state: state,
+        customParams: authCodeParams,
+        webAuthOpts: webAuthOpts);
+
+    if (authResp.isAccessGranted()) {
+      if (afterAuthorizationCodeCb != null) {
+        afterAuthorizationCodeCb(authResp);
+      }
+
+      tknResp = await requestAccessToken(
+          httpClient: httpClient,
+          //If the authorization request was successful, the code must be set
+          //otherwise an exception is raised in the OAuth2Response constructor
+          code: authResp.code!,
           clientId: clientId,
           scopes: scopes,
-          codeChallenge: codeChallenge,
-          enableState: enableState,
-          state: state,
-          customParams: authCodeParams,
-          webAuthOpts: webAuthOpts);
-
-      if (authResp.isAccessGranted()) {
-        if (afterAuthorizationCodeCb != null) {
-          afterAuthorizationCodeCb(authResp);
-        }
-
-        tknResp = await requestAccessToken(
-            httpClient: httpClient,
-            //If the authorization request was successfull, the code must be set
-            //otherwise an exception is raised in the OAuth2Response constructor
-            code: authResp.code!,
-            clientId: clientId,
-            scopes: scopes,
-            clientSecret: clientSecret,
-            codeVerifier: codeVerifier,
-            customParams: accessTokenParams,
-            customHeaders: accessTokenHeaders);
-      } else {
-        tknResp = AccessTokenResponse.errorResponse();
-      }
-    } on PlatformException {
+          clientSecret: clientSecret,
+          codeVerifier: codeVerifier,
+          customParams: accessTokenParams,
+          customHeaders: accessTokenHeaders);
+    } else {
       tknResp = AccessTokenResponse.errorResponse();
     }
 
