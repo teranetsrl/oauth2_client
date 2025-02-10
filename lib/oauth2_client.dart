@@ -6,6 +6,7 @@ import 'package:oauth2_client/access_token_response.dart';
 import 'package:oauth2_client/authorization_response.dart';
 import 'package:oauth2_client/oauth2_response.dart';
 import 'package:oauth2_client/src/oauth2_utils.dart';
+import 'package:oauth2_client/tiktok_oauth2_client.dart';
 import 'package:random_string/random_string.dart';
 
 // import 'package:oauth2_client/src/web_auth.dart';
@@ -48,6 +49,7 @@ class OAuth2Client {
   String? revokeUrl;
   String authorizeUrl;
   String scopeSeparator;
+  late String clientKey;
 
   BaseWebAuth webAuthClient = createWebAuth();
   CredentialsLocation credentialsLocation;
@@ -70,7 +72,13 @@ class OAuth2Client {
       required this.redirectUri,
       required this.customUriScheme,
       this.credentialsLocation = CredentialsLocation.header,
-      this.scopeSeparator = ' '});
+      this.scopeSeparator = ' '}) {
+    clientKey = _getClientKey(this);
+  }
+
+  static String _getClientKey(OAuth2Client client) {
+    return client is TikTokOAuth2Client ? 'client_key' : 'client_id';
+  }
 
   /// Requests an Access Token to the OAuth2 endpoint using the Implicit grant flow (https://tools.ietf.org/html/rfc6749#page-31)
   Future<AccessTokenResponse> getTokenWithImplicitGrantFlow(
@@ -334,7 +342,7 @@ class OAuth2Client {
       Map<String, dynamic>? customParams}) {
     final params = <String, dynamic>{
       'response_type': responseType,
-      'client_id': clientId
+      clientKey: clientId
     };
 
     if (redirectUri != null && redirectUri.isNotEmpty) {
@@ -380,7 +388,7 @@ class OAuth2Client {
     //If a client secret has been specified, it will be sent in the "Authorization" header instead of a body parameter...
     if (clientSecret == null || clientSecret.isEmpty) {
       if (clientId != null && clientId.isNotEmpty) {
-        params['client_id'] = clientId;
+        params[clientKey] = clientId;
       }
     }
 */
@@ -413,7 +421,7 @@ class OAuth2Client {
     //If a client secret has been specified, it will be sent in the "Authorization" header instead of a body parameter...
     if (clientSecret == null) {
       if (clientId.isNotEmpty) {
-        params['client_id'] = clientId;
+        params[clientKey] = clientId;
       }
     } else {
       switch (credentialsLocation) {
@@ -424,7 +432,7 @@ class OAuth2Client {
           ));
           break;
         case CredentialsLocation.body:
-          params['client_id'] = clientId;
+          params[clientKey] = clientId;
           params['client_secret'] = clientSecret;
           break;
       }
@@ -486,7 +494,7 @@ class OAuth2Client {
     if (token != null) {
       var params = {'token': token, 'token_type_hint': tokenType};
 
-      if (clientId != null) params['client_id'] = clientId;
+      if (clientId != null) params[clientKey] = clientId;
       if (clientSecret != null) params['client_secret'] = clientSecret;
 
       http.Response response =
