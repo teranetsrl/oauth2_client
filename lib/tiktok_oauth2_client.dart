@@ -11,7 +11,7 @@ class TikTokOAuth2Client extends OAuth2Client {
       : super(
           authorizeUrl: 'https://www.tiktok.com/v2/auth/authorize',
           tokenUrl: 'https://open.tiktokapis.com/v2/oauth/token/',
-          revokeUrl: 'https://open.tiktokapis.com/v2/oauth/revoke',
+          revokeUrl: 'https://open.tiktokapis.com/v2/oauth/revoke/',
           scopeSeparator: ',',
           credentialsLocation: CredentialsLocation.body,
           redirectUri: redirectUri,
