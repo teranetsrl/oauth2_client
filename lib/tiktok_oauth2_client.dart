@@ -30,30 +30,37 @@ class TikTokOAuth2Client extends OAuth2Client {
     httpClient,
   }) async {
     final params = getTokenUrlParams(
-        code: code,
-        redirectUri: redirectUri,
-        codeVerifier: codeVerifier,
-        customParams: customParams);
+      code: code,
+      redirectUri: redirectUri,
+      codeVerifier: codeVerifier,
+      customParams: customParams,
+    );
+
+    final headers = {
+      ...?customHeaders,
+      ...{'Content-Type': 'application/x-www-form-urlencoded'}
+    };
 
     var response = await _performAuthorizedRequest(
       url: tokenUrl,
       clientId: clientId,
       clientSecret: clientSecret,
       params: params,
-      headers: customHeaders,
+      headers: headers,
       httpClient: httpClient,
     );
 
     return http2TokenResponse(response, requestedScopes: scopes);
   }
 
-  Future<http.Response> _performAuthorizedRequest(
-      {required String url,
-      required String clientId,
-      String? clientSecret,
-      Map? params,
-      Map<String, String>? headers,
-      http.Client? httpClient}) async {
+  Future<http.Response> _performAuthorizedRequest({
+    required String url,
+    required String clientId,
+    String? clientSecret,
+    Map? params,
+    Map<String, String>? headers,
+    http.Client? httpClient,
+  }) async {
     final dio = Dio();
 
     headers ??= {};
