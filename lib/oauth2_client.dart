@@ -29,8 +29,9 @@ enum CredentialsLocation { header, body }
 ///
 /// You can use directly this class, but normally you want to extend it and implement your own client.
 /// When instantiating the client, pass your custom uri scheme in the [customUriScheme] field.
-/// Normally you would use something like <customUriScheme>:/oauth for the [redirectUri] field.
+/// Normally you would use something like `<customUriScheme>://oauth` for the [redirectUri] field.
 /// For Android only you must add an intent filter in your AndroidManifest.xml file to enable the custom uri handling.
+/// ```xml
 /// <activity android:name="com.linusu.flutter_web_auth_2.CallbackActivity" >
 ///   <intent-filter android:label="flutter_web_auth_2">
 ///     <action android:name="android.intent.action.VIEW" />
@@ -39,6 +40,8 @@ enum CredentialsLocation { header, body }
 ///     <data android:scheme="com.teranet.app" />
 ///   </intent-filter>
 /// </activity>
+/// ```
+/// For detailed instructions, see also https://pub.dev/packages/flutter_web_auth_2#android
 class OAuth2Client {
   String redirectUri;
   String customUriScheme;
