@@ -309,6 +309,8 @@ class OAuth2Helper {
     httpClient ??= http.Client();
 
     sendRequest(accessToken) async {
+      // Yes, it is sub-optimal that the header is changed directly like this,
+      // but apparently there is no good way to clone the request object...
       request.headers['Authorization'] = 'Bearer $accessToken';
       return await httpClient!.send(request);
     }
