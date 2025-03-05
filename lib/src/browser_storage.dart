@@ -8,11 +8,11 @@ class WebStorage implements BaseStorage {
 
   @override
   Future<String?> read(String key) async {
-    return web.window.localStorage[key];
+    return web.window.localStorage.getItem(key);
   }
 
   @override
   Future<void> write(String key, String value) async {
-    web.window.localStorage[key] = value;
+    web.window.localStorage.setItem(key, value);
   }
 }
