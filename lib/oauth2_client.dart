@@ -52,6 +52,9 @@ class OAuth2Client {
   String authorizeUrl;
   String scopeSeparator;
 
+  String clientIdKey;
+  String clientSecretKey;
+
   BaseWebAuth webAuthClient = createWebAuth();
   CredentialsLocation credentialsLocation;
 
@@ -65,15 +68,20 @@ class OAuth2Client {
   /// * [customUriScheme]: the scheme used for the redirect uri
   /// * [credentialsLocation]: where the credentials (client ID / client secret) should be passed (header / body)
   /// * [scopeSeparator]: the separator that has to be used to serialize scopes in the token request
-  OAuth2Client(
-      {required this.authorizeUrl,
-      required this.tokenUrl,
-      this.refreshUrl,
-      this.revokeUrl,
-      required this.redirectUri,
-      required this.customUriScheme,
-      this.credentialsLocation = CredentialsLocation.header,
-      this.scopeSeparator = ' '});
+  /// * [clientIdKey]: the body field name for the client ID (RFC default: client_id)
+  /// * [clientSecretKey]: the body field name for the client secret (RFC default: client_secret)
+  OAuth2Client({
+    required this.authorizeUrl,
+    required this.tokenUrl,
+    this.refreshUrl,
+    this.revokeUrl,
+    required this.redirectUri,
+    required this.customUriScheme,
+    this.credentialsLocation = CredentialsLocation.header,
+    this.scopeSeparator = ' ',
+    this.clientIdKey = 'client_id',
+    this.clientSecretKey = 'client_secret',
+  });
 
   /// Requests an Access Token to the OAuth2 endpoint using the Implicit grant flow (https://tools.ietf.org/html/rfc6749#page-31)
   Future<AccessTokenResponse> getTokenWithImplicitGrantFlow(
@@ -173,7 +181,7 @@ class OAuth2Client {
 
         tknResp = await requestAccessToken(
             httpClient: httpClient,
-            //If the authorization request was successfull, the code must be set
+            //If the authorization request was successful, the code must be set
             //otherwise an exception is raised in the OAuth2Response constructor
             code: authResp.code!,
             clientId: clientId,
@@ -337,7 +345,7 @@ class OAuth2Client {
       Map<String, dynamic>? customParams}) {
     final params = <String, dynamic>{
       'response_type': responseType,
-      'client_id': clientId
+      clientIdKey: clientId
     };
 
     if (redirectUri != null && redirectUri.isNotEmpty) {
@@ -383,7 +391,7 @@ class OAuth2Client {
     //If a client secret has been specified, it will be sent in the "Authorization" header instead of a body parameter...
     if (clientSecret == null || clientSecret.isEmpty) {
       if (clientId != null && clientId.isNotEmpty) {
-        params['client_id'] = clientId;
+        params[clientIdKey] = clientId;
       }
     }
 */
@@ -416,7 +424,7 @@ class OAuth2Client {
     //If a client secret has been specified, it will be sent in the "Authorization" header instead of a body parameter...
     if (clientSecret == null) {
       if (clientId.isNotEmpty) {
-        params['client_id'] = clientId;
+        params[clientIdKey] = clientId;
       }
     } else {
       switch (credentialsLocation) {
@@ -427,8 +435,8 @@ class OAuth2Client {
           ));
           break;
         case CredentialsLocation.body:
-          params['client_id'] = clientId;
-          params['client_secret'] = clientSecret;
+          params[clientIdKey] = clientId;
+          params[clientSecretKey] = clientSecret;
           break;
       }
     }
@@ -489,8 +497,8 @@ class OAuth2Client {
     if (token != null) {
       var params = {'token': token, 'token_type_hint': tokenType};
 
-      if (clientId != null) params['client_id'] = clientId;
-      if (clientSecret != null) params['client_secret'] = clientSecret;
+      if (clientId != null) params[clientIdKey] = clientId;
+      if (clientSecret != null) params[clientSecretKey] = clientSecret;
 
       http.Response response =
           await httpClient.post(Uri.parse(revokeUrl!), body: params);
