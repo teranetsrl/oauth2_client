@@ -9,7 +9,7 @@ class Oauth2ClientExample {
   Future<void> fetchFiles() async {
     var hlp = OAuth2Helper(
       GoogleOAuth2Client(
-          redirectUri: 'com.teranet.app:/oauth2redirect',
+          redirectUri: 'com.teranet.app://oauth2redirect',
           customUriScheme: 'com.teranet.app'),
       grantType: OAuth2Helper.authorizationCode,
       clientId: 'XXX-XXX-XXX',
