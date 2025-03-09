@@ -1,4 +1,4 @@
-[![codecov](https://codecov.io/gh/teranetsrl/oauth2_client/branch/master/graph/badge.svg)](https://codecov.io/gh/teranetsrl/oauth2_client)
+[![codecov](https://codecov.io/gh/ThexXTURBOXx/oauth2_client/branch/master/graph/badge.svg)](https://codecov.io/gh/ThexXTURBOXx/oauth2_client)
 
 # oauth2_client
 Simple Flutter library for interacting with OAuth2 servers. It provides convenience classes for interacting with the "usual suspects" (Google, Facebook, LinkedIn, GitHub), but it's particularly suited for implementing clients for custom OAuth2 servers.
@@ -218,7 +218,7 @@ if(tknResp.isExpired()) {
 ```
 
 ## Accessing custom/non standard response fields ##
-You can access non standard fields in the response by calling the ```getRespField``` method.
+You can access non standard fields in the response by calling the `getRespField` method.
 
 For example:
 ```dart
@@ -372,9 +372,9 @@ print(tknResp.scope);
 Apart from the order, the printed scopes should correspond **exactly** to the ones you requested.
 
 ### I get an error *PlatformException(CANCELED, User canceled login, null, null)* on Android ###
-Please make sure you modified the *AndroidManifest.xml* file adding the  ```com.linusu.flutter_web_auth_2.CallbackActivity``` and the intent filter needed to open the browser window for the authorization workflow.
+Please make sure you modified the *AndroidManifest.xml* file adding the  `om.linusu.flutter_web_auth_2.CallbackActivity` and the intent filter needed to open the browser window for the authorization workflow.
 
-The AndroidManifest.xml file must contain the ```com.linusu.flutter_web_auth_2.CallbackActivity``` activity. Copy and paste the below code and CHANGE the value of `android:scheme` to match the scheme used in the redirect uri:
+The AndroidManifest.xml file must contain the `com.linusu.flutter_web_auth_2.CallbackActivity` activity. Copy and paste the below code and CHANGE the value of `android:scheme` to match the scheme used in the redirect uri:
 
 ```xml
 <activity android:name="com.linusu.flutter_web_auth_2.CallbackActivity" android:exported="true">
@@ -392,7 +392,7 @@ If you are sure your intent filter is set up correctly, maybe you have another o
 ### Can I use https instead of a custom scheme? ###
 
 If you want to use an HTTPS url as the redirect uri, you must set it up as an [App Link](https://developer.android.com/training/app-links/index.html).
-First you need to specify both the ```android:host``` and ```android:pathPrefix``` attributes, as long as the ```android:autoVerify="true"``` attribute in the intent-filter tag inside the _AndroidManifest.xml_:
+First you need to specify both the `android:host` and `android:pathPrefix` attributes, as long as the `android:autoVerify="true"` attribute in the intent-filter tag inside the _AndroidManifest.xml_:
 
 ```xml
 <activity android:name="com.linusu.flutter_web_auth_2.CallbackActivity">
