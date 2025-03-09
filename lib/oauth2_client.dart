@@ -8,13 +8,9 @@ import 'package:oauth2_client/oauth2_response.dart';
 import 'package:oauth2_client/src/oauth2_utils.dart';
 import 'package:random_string/random_string.dart';
 
-// import 'package:oauth2_client/src/web_auth.dart';
-
 import 'src/base_web_auth.dart';
 import 'src/web_auth.dart'
-// ignore: uri_does_not_exist
     if (dart.library.io) 'src/io_web_auth.dart'
-// ignore: uri_does_not_exist
     if (dart.library.js_interop) 'src/browser_web_auth.dart';
 
 enum CredentialsLocation { header, body }
