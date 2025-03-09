@@ -71,10 +71,17 @@ Add the library to your *pubspec.yaml* file:
 
 ```yaml
 dependencies:
-    oauth2_client: ^3.0.0
+    oauth2_client: ^4.0.0
 ```
 
-## Upgrading from previous versions (< 3.0.0)
+## Upgrading to 4.0.0
+Compared to 3.0.0, there are not that many breaking changes. Just be aware that:
+* This package changed maintainer (to [ThexXTURBOXx](https://github.com/ThexXTURBOXx))
+* We updated the Dart SDK requirement to `>=3.5.0` (it is the most common nowadays and basically required)
+* We updated all dependencies (some with breaking changes - in particular, you might need to also follow these migration guides: https://github.com/ThexXTURBOXx/flutter_web_auth_2?tab=readme-ov-file#migration)
+* We migrated to `web` and added WASM support
+
+## Upgrading to 3.0.0
 Version 3.0.0 introduced some breaking changes that need to be addressed if you are upgrading from previous versions.
 
 Please take note of the following:
