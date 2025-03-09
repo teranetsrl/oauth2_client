@@ -1,3 +1,8 @@
+## [4.0.1] - 2025/03/09
+* Update documentation properly
+* Fix a few typos here and there
+* Allow changing the client ID and client secret key names
+
 ## [4.0.0] - 2025/03/09
 * This package changed maintainer (to [ThexXTURBOXx](https://github.com/ThexXTURBOXx))
 * Updated Dart SDK requirement to `>=3.5.0` (it is the most common nowadays and basically required)
