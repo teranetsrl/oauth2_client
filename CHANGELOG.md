@@ -1,5 +1,6 @@
 ## [4.0.0] - 2025/03/09
 * This package changed maintainer (to [ThexXTURBOXx](https://github.com/ThexXTURBOXx))
+* Updated Dart SDK requirement to `>=3.5.0` (it is the most common nowadays and basically required)
 * Updated all dependencies (with breaking changes!)
 * Migrate to `web` and add WASM support
 * Allow `send` HTTP requests

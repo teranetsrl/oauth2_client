@@ -8,12 +8,10 @@ class MicrosoftOauth2Client extends OAuth2Client {
 
   MicrosoftOauth2Client({
     required String tenant,
-    required String redirectUri,
-    required String customUriScheme,
+    required super.redirectUri,
+    required super.customUriScheme,
   }) : super(
           authorizeUrl: '$_myAuthority$tenant/oauth2/v2.0/authorize',
           tokenUrl: '$_myAuthority$tenant/oauth2/v2.0/token',
-          redirectUri: redirectUri,
-          customUriScheme: customUriScheme,
         );
 }

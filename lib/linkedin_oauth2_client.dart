@@ -6,12 +6,10 @@ import 'package:oauth2_client/oauth2_client.dart';
 ///
 class LinkedInOAuth2Client extends OAuth2Client {
   LinkedInOAuth2Client(
-      {required String redirectUri, required String customUriScheme})
+      {required super.redirectUri, required super.customUriScheme})
       : super(
           authorizeUrl: 'https://www.linkedin.com/oauth/v2/authorization',
           tokenUrl: 'https://www.linkedin.com/oauth/v2/accessToken',
-          redirectUri: redirectUri,
-          customUriScheme: customUriScheme,
           credentialsLocation: CredentialsLocation.body,
         );
 }

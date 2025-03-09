@@ -1,14 +1,13 @@
 name: oauth2_client_example
 description: Example for the OAuth2 client library
 version: 1.0.0
-# author: TeraNet srl<info@teranet.it>
-homepage: https://github.com/teranetsrl/oauth2_client
-repository: https://github.com/teranetsrl/oauth2_client
+homepage: https://github.com/ThexXTURBOXx/oauth2_client
+repository: https://github.com/ThexXTURBOXx/oauth2_client
 
 publish_to: none
 
 environment:
-  sdk: '>=2.12.0 <3.11.0'
+  sdk: '>=3.5.0 <3.11.0'
 
 dependencies:
   flutter:
