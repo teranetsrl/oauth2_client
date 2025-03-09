@@ -1,3 +1,9 @@
+## [4.0.0] - 2025/03/09
+* This package changed maintainer (to [ThexXTURBOXx](https://github.com/ThexXTURBOXx))
+* Updated all dependencies (with breaking changes!)
+* Migrate to `web` and add WASM support
+* Allow `send` HTTP requests
+
 ## [3.3.0] - 2024/07/03
 * Updated dependencies
 * Fix: Check for null value before casting scope to String (thanks [xolf](https://github.com/xolf))
