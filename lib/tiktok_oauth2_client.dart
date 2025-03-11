@@ -44,7 +44,10 @@ class TikTokOAuth2Client extends OAuth2Client {
       accessTokenParams: accessTokenParams,
       accessTokenHeaders: {
         ...?accessTokenHeaders,
-        ...{'Content-Type': 'application/x-www-form-urlencoded'}
+        ...{
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': '*/*',
+        }
       },
       httpClient: httpClient,
       webAuthClient: webAuthClient,
