@@ -414,7 +414,10 @@ class OAuth2Client {
       httpClient}) async {
     httpClient ??= http.Client();
 
-    headers ??= {};
+    headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      ...(headers ?? {})
+    };
     params ??= {};
 
     //If a client secret has been specified, it will be sent in the "Authorization" header instead of a body parameter...
@@ -437,8 +440,14 @@ class OAuth2Client {
       }
     }
 
-    var response =
-        await httpClient.post(Uri.parse(url), body: params, headers: headers);
+    // This is a very semi-optimal way to work around the following issue:
+    // https://github.com/dart-lang/http/issues/184
+    var response = await httpClient.post(Uri.parse(url),
+        body: utf8.encode(params.entries
+            .map((e) => '${Uri.encodeQueryComponent(e.key, encoding: utf8)}'
+                '=${Uri.encodeQueryComponent(e.value, encoding: utf8)}')
+            .join('&')),
+        headers: headers);
 
     return response;
   }
