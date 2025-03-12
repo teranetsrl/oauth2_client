@@ -1,3 +1,8 @@
+## [4.1.0] - 2025/03/12
+* Add TikTok OAuth 2.0 client
+* Fix example
+* Fix issues with HTTP `Content-Type` headers using a dirty workaround
+
 ## [4.0.1] - 2025/03/09
 * Update documentation properly
 * Fix a few typos here and there
