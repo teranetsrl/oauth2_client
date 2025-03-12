@@ -12,7 +12,7 @@ On Android you must first set the *minSdkVersion* in the *build.gradle* file:
 ```
 defaultConfig {
    ...
-   minSdkVersion 18
+   minSdkVersion 23
    ...
 ```
 
@@ -73,6 +73,9 @@ Add the library to your *pubspec.yaml* file:
 dependencies:
     oauth2_client: ^4.0.0
 ```
+
+After that, please also follow the setup guides of [flutter_web_auth_2](https://pub.dev/packages/flutter_web_auth_2) as well as
+[flutter_secure_storage](https://pub.dev/packages/flutter_secure_storage).
 
 ## Upgrading to 4.0.0
 Compared to 3.0.0, there are not that many breaking changes. Just be aware that:
@@ -242,14 +245,16 @@ if(tknResp.isExpired()) {
 # Predefined clients #
 The library implements clients for the following services/organizations:
 
- - Google
- - Facebook
- - LinkedIn
- - GitHub
- - Shopify
- - Spotify
- - Twitter
- - Microsoft
+- Facebook
+- GitHub
+- Google
+- LinkedIn
+- Microsoft
+- Reddit
+- Shopify
+- Spotify
+- TikTok
+- Twitter
 
 ## Google client ##
 
@@ -258,7 +263,7 @@ In order to use this client you need to first configure OAuth2 credentials in th
 First you need to create a new Project if it doesn't already exists, then you need to create the OAuth2 credentials ("OAuth Client ID").
 
 Select **iOS** as *Application Type*, specify a name for the client and a *Bundle ID*.
-Now edit the just created Client ID and take note of the "IOS URL scheme". This should look something like ``com.googleusercontent.apps.XXX`` and is the custom scheme you'll need to use.
+Now edit the just created Client ID and take note of the "IOS URL scheme". This should look something like `com.googleusercontent.apps.XXX` and is the custom scheme you'll need to use.
 
 Then in your code:
 
@@ -324,10 +329,14 @@ OAuth2Client ghClient = GitHubOAuth2Client(
 
 Then you can instantiate an helper class or directly use the client methods to acquire access tokens.
 
+## Other clients
+
+The other pre-defined clients should follow roughly the same scheme as the ones mentioned above.
+
 # Implementing your own client #
 Implementing your own client is quite simple, and often it requires only few lines of code.
 
-In the majority of cases you only need to extend the base *OAuth2Client* class and configure the proper endpoints for the authorization and token url.
+In the majority of cases you only need to extend the base `OAuth2Client` class and configure the proper endpoints for the authorization and token url.
 
 ```dart
 import 'package:oauth2_client/oauth2_client.dart';
