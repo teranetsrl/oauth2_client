@@ -5,6 +5,11 @@ Simple Flutter library for interacting with OAuth2 servers. It provides convenie
 
 The library handles **Authorization Code**, **Client Credentials** and **Implicit Grant** flows.
 
+## Please note: this repository is discontinued! ##
+**This repository is no longer under active development. However, I'm pleased to announce that [ThexXTURBOXx](https://github.com/ThexXTURBOXx) has taken over the project and will continue to enhance and update it in the [new repository](https://github.com/ThexXTURBOXx/oauth2_client).**
+
+**Thank you for your interest and support!**
+
 # Prerequisites #
 
 ## Android ##
