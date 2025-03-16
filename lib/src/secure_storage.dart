@@ -1,4 +1,4 @@
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_secure_storage_per/flutter_secure_storage.dart';
 import 'package:oauth2_client/src/base_storage.dart';
 
 BaseStorage createStorage() => SecureStorage();
