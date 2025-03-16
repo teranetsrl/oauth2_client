@@ -7,7 +7,7 @@ import 'storage.dart'
 // ignore: uri_does_not_exist
     if (dart.library.io) 'secure_storage.dart'
 // ignore: uri_does_not_exist
-    if (dart.library.html) 'browser_storage.dart';
+    if (dart.library.js_interop) 'browser_storage.dart';
 
 class TokenStorage {
   String key;

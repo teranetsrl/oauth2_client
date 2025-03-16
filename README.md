@@ -1,4 +1,4 @@
-[![codecov](https://codecov.io/gh/teranetsrl/oauth2_client/branch/master/graph/badge.svg)](https://codecov.io/gh/teranetsrl/oauth2_client)
+[![codecov](https://codecov.io/gh/ThexXTURBOXx/oauth2_client/branch/master/graph/badge.svg)](https://codecov.io/gh/ThexXTURBOXx/oauth2_client)
 
 # oauth2_client
 Simple Flutter library for interacting with OAuth2 servers. It provides convenience classes for interacting with the "usual suspects" (Google, Facebook, LinkedIn, GitHub), but it's particularly suited for implementing clients for custom OAuth2 servers.
@@ -17,7 +17,7 @@ On Android you must first set the *minSdkVersion* in the *build.gradle* file:
 ```
 defaultConfig {
    ...
-   minSdkVersion 18
+   minSdkVersion 23
    ...
 ```
 
@@ -36,7 +36,7 @@ AndroidManifest.xml
 		<action android:name="android.intent.action.VIEW" />
 		<category android:name="android.intent.category.DEFAULT" />
 		<category android:name="android.intent.category.BROWSABLE" />
-		<data android:scheme="my.test.app" /> <!-- This must correspond to the custom scheme used for instantiatng the client... See below -->
+		<data android:scheme="my.test.app" /> <!-- This must correspond to the custom scheme used for instantiating the client... See below -->
 	</intent-filter>
 </activity>
 ```
@@ -76,10 +76,20 @@ Add the library to your *pubspec.yaml* file:
 
 ```yaml
 dependencies:
-	oauth2_client: ^3.0.0
+    oauth2_client: ^4.0.0
 ```
 
-## Upgrading from previous versions (< 3.0.0)
+After that, please also follow the setup guides of [flutter_web_auth_2](https://pub.dev/packages/flutter_web_auth_2) as well as
+[flutter_secure_storage](https://pub.dev/packages/flutter_secure_storage).
+
+## Upgrading to 4.0.0
+Compared to 3.0.0, there are not that many breaking changes. Just be aware that:
+* This package changed maintainer (to [ThexXTURBOXx](https://github.com/ThexXTURBOXx))
+* We updated the Dart SDK requirement to `>=3.5.0` (it is the most common nowadays and basically required)
+* We updated all dependencies (some with breaking changes - in particular, you might need to also follow these migration guides: https://github.com/ThexXTURBOXx/flutter_web_auth_2?tab=readme-ov-file#migration)
+* We migrated to `web` and added WASM support
+
+## Upgrading to 3.0.0
 Version 3.0.0 introduced some breaking changes that need to be addressed if you are upgrading from previous versions.
 
 Please take note of the following:
@@ -160,7 +170,7 @@ import 'package:http/http.dart' as http;
 //Instantiate an OAuth2Client...
 GoogleOAuth2Client client = GoogleOAuth2Client(
 	customUriScheme: 'my.test.app', //Must correspond to the AndroidManifest's "android:scheme" attribute
-	redirectUri: 'my.test.app:/oauth2redirect', //Can be any URI, but the scheme part must correspond to the customeUriScheme
+	redirectUri: 'my.test.app:/oauth2redirect', //Can be any URI, but the scheme part must correspond to the customUriScheme
 );
 
 //Then, instantiate the helper passing the previously instantiated client
@@ -222,8 +232,8 @@ if(tknResp.isExpired()) {
 }
 ```
 
-## Acessing custom/non standard response fields ##
-You can access non standard fields in the response by calling the ```getRespField``` method.
+## Accessing custom/non standard response fields ##
+You can access non standard fields in the response by calling the `getRespField` method.
 
 For example:
 ```dart
@@ -240,14 +250,16 @@ if(tknResp.isExpired()) {
 # Predefined clients #
 The library implements clients for the following services/organizations:
 
- - Google
- - Facebook
- - LinkedIn
- - GitHub
- - Shopify
- - Spotify
- - Twitter
- - Microsoft
+- Facebook
+- GitHub
+- Google
+- LinkedIn
+- Microsoft
+- Reddit
+- Shopify
+- Spotify
+- TikTok
+- Twitter
 
 ## Google client ##
 
@@ -256,7 +268,7 @@ In order to use this client you need to first configure OAuth2 credentials in th
 First you need to create a new Project if it doesn't already exists, then you need to create the OAuth2 credentials ("OAuth Client ID").
 
 Select **iOS** as *Application Type*, specify a name for the client and a *Bundle ID*.
-Now edit the just created Client ID and take note of the "IOS URL scheme". This should look something like ``com.googleusercontent.apps.XXX`` and is the custom scheme you'll need to use.
+Now edit the just created Client ID and take note of the "IOS URL scheme". This should look something like `com.googleusercontent.apps.XXX` and is the custom scheme you'll need to use.
 
 Then in your code:
 
@@ -307,7 +319,7 @@ Then you can instantiate an helper class or directly use the client methods to a
 
 ## GitHub client ##
 
-In order to use this client you need to first create a new OAuth2 App in the GittHub Developer Settings (https://github.com/settings/developers)
+In order to use this client you need to first create a new OAuth2 App in the GitHub Developer Settings (https://github.com/settings/developers)
 
 Then in your code:
 
@@ -322,10 +334,14 @@ OAuth2Client ghClient = GitHubOAuth2Client(
 
 Then you can instantiate an helper class or directly use the client methods to acquire access tokens.
 
+## Other clients
+
+The other pre-defined clients should follow roughly the same scheme as the ones mentioned above.
+
 # Implementing your own client #
 Implementing your own client is quite simple, and often it requires only few lines of code.
 
-In the majority of cases you only need to extend the base *OAuth2Client* class and configure the proper endpoints for the authorization and token url.
+In the majority of cases you only need to extend the base `OAuth2Client` class and configure the proper endpoints for the authorization and token url.
 
 ```dart
 import 'package:oauth2_client/oauth2_client.dart';
@@ -377,9 +393,9 @@ print(tknResp.scope);
 Apart from the order, the printed scopes should correspond **exactly** to the ones you requested.
 
 ### I get an error *PlatformException(CANCELED, User canceled login, null, null)* on Android ###
-Please make sure you modified the *AndroidManifest.xml* file adding the  ```com.linusu.flutter_web_auth_2.CallbackActivity``` and the intent filter needed to open the browser window for the authorization workflow.
+Please make sure you modified the *AndroidManifest.xml* file adding the  `om.linusu.flutter_web_auth_2.CallbackActivity` and the intent filter needed to open the browser window for the authorization workflow.
 
-The AndroidManifest.xml file must contain the ```com.linusu.flutter_web_auth_2.CallbackActivity``` activity. Copy and paste the below code and CHANGE the value of `android:scheme` to match the scheme used in the redirect uri:
+The AndroidManifest.xml file must contain the `com.linusu.flutter_web_auth_2.CallbackActivity` activity. Copy and paste the below code and CHANGE the value of `android:scheme` to match the scheme used in the redirect uri:
 
 ```xml
 <activity android:name="com.linusu.flutter_web_auth_2.CallbackActivity" android:exported="true">
@@ -397,7 +413,7 @@ If you are sure your intent filter is set up correctly, maybe you have another o
 ### Can I use https instead of a custom scheme? ###
 
 If you want to use an HTTPS url as the redirect uri, you must set it up as an [App Link](https://developer.android.com/training/app-links/index.html).
-First you need to specify both the ```android:host``` and ```android:pathPrefix``` attributes, as long as the ```android:autoVerify="true"``` attribute in the intent-filter tag inside the _AndroidManifest.xml_:
+First you need to specify both the `android:host` and `android:pathPrefix` attributes, as long as the `android:autoVerify="true"` attribute in the intent-filter tag inside the _AndroidManifest.xml_:
 
 ```xml
 <activity android:name="com.linusu.flutter_web_auth_2.CallbackActivity">

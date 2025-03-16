@@ -291,7 +291,37 @@ class OAuth2Helper {
       return resp;
     }
 
-    http.Response resp;
+    return _supplyToken(sendRequest);
+  }
+
+  /// Performs the given request, adding the authorization token.
+  ///
+  /// If no token already exists, or if it is expired, a new one is requested.
+  Future<http.StreamedResponse> send(http.BaseRequest request,
+      {http.Client? httpClient}) async {
+    return _send(request, httpClient: httpClient);
+  }
+
+  /// Common method for making streamed http requests
+  /// Tries to use a previously fetched token, otherwise fetches a new token by means of a refresh flow or by issuing a new authorization flow
+  Future<http.StreamedResponse> _send(http.BaseRequest request,
+      {http.Client? httpClient}) async {
+    httpClient ??= http.Client();
+
+    sendRequest(accessToken) async {
+      // Yes, it is sub-optimal that the header is changed directly like this,
+      // but apparently there is no good way to clone the request object...
+      request.headers['Authorization'] = 'Bearer $accessToken';
+      return await httpClient!.send(request);
+    }
+
+    return _supplyToken(sendRequest);
+  }
+
+  /// Supplies the token to the given requester function
+  Future<Response> _supplyToken<Response extends http.BaseResponse>(
+      Future<Response> Function(dynamic accessToken) sendRequest) async {
+    Response resp;
 
     //Retrieve the current token, or fetches a new one if it is expired
     var tknResp = await getToken();

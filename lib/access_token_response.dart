@@ -11,7 +11,7 @@ class AccessTokenResponse extends OAuth2Response {
 
   AccessTokenResponse.errorResponse() : super.errorResponse();
 
-  AccessTokenResponse.fromMap(Map<String, dynamic> map) : super.fromMap(map);
+  AccessTokenResponse.fromMap(super.map) : super.fromMap();
 
   @override
   factory AccessTokenResponse.fromHttpResponse(http.Response response,

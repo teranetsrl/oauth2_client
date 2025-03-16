@@ -1,3 +1,20 @@
+## [4.1.0] - 2025/03/12
+* Add TikTok OAuth 2.0 client
+* Fix example
+* Fix issues with HTTP `Content-Type` headers using a dirty workaround
+
+## [4.0.1] - 2025/03/09
+* Update documentation properly
+* Fix a few typos here and there
+* Allow changing the client ID and client secret key names
+
+## [4.0.0] - 2025/03/09
+* This package changed maintainer (to [ThexXTURBOXx](https://github.com/ThexXTURBOXx))
+* Updated Dart SDK requirement to `>=3.5.0` (it is the most common nowadays and basically required)
+* Updated all dependencies (with breaking changes!)
+* Migrate to `web` and add WASM support
+* Allow `send` HTTP requests
+
 ## [3.3.0] - 2024/07/03
 * Updated dependencies
 * Fix: Check for null value before casting scope to String (thanks [xolf](https://github.com/xolf))

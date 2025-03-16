@@ -4,9 +4,7 @@ import 'package:oauth2_client/src/base_storage.dart';
 BaseStorage createStorage() => SecureStorage();
 
 class SecureStorage implements BaseStorage {
-  static const FlutterSecureStorage storage = FlutterSecureStorage(
-    aOptions: AndroidOptions(encryptedSharedPreferences: true),
-  );
+  static const FlutterSecureStorage storage = FlutterSecureStorage();
 
   SecureStorage();
 

@@ -556,6 +556,33 @@ void main() {
           {'Authorization': 'Bearer test_token_renewed'});
     });
 
+    test('Test sending requests for StreamedResponses', () async {
+      final tokenStorage =
+          TokenStorage(oauth2Client.tokenUrl, storage: VolatileStorage());
+
+      mockGetTokenWithAuthCodeFlow(oauth2Client);
+      mockRefreshToken(oauth2Client);
+
+      clearInteractions(httpClient);
+
+      var req = http.Request('GET', Uri.parse('https://my.test.url'));
+
+      when(httpClient.send(req)).thenAnswer((_) async => http.StreamedResponse(
+          Stream.value('{"error": "invalid_token"}'.codeUnits), 401));
+
+      var hlp = OAuth2Helper(oauth2Client,
+          grantType: OAuth2Helper.authorizationCode,
+          clientId: clientId,
+          clientSecret: clientSecret,
+          scopes: scopes,
+          tokenStorage: tokenStorage);
+
+      await hlp.send(req, httpClient: httpClient);
+
+      expect(req.headers, {'Authorization': 'Bearer test_token_renewed'});
+      verify(httpClient.send(req)).called(greaterThanOrEqualTo(1));
+    });
+
     test('Token revocation', () async {
       final tknResp = AccessTokenResponse.fromMap({
         'access_token': accessToken,

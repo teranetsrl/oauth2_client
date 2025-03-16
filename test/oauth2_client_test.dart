@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mockito/annotations.dart';
@@ -79,12 +82,18 @@ void main() {
         'grant_type': 'authorization_code',
         'code': authCode,
         'redirect_uri': redirectUri,
-        'client_id': clientId,
         'code_verifier': codeVerifier,
+        'client_id': clientId,
       };
 
       when(httpClient.post(Uri.parse(tokenUrl),
               body: tokenParams, headers: captureAnyNamed('headers')))
+          .thenAnswer((_) async => http.Response(
+              '{"access_token": "$accessToken", "token_type": "Bearer", "refresh_token": "$refreshToken", "expires_in": 3600}',
+              200));
+
+      when(httpClient.post(Uri.parse(tokenUrl),
+              body: byteBody(tokenParams), headers: captureAnyNamed('headers')))
           .thenAnswer((_) async => http.Response(
               '{"access_token": "$accessToken", "token_type": "Bearer", "refresh_token": "$refreshToken", "expires_in": 3600}',
               200));
@@ -97,9 +106,10 @@ void main() {
 
       expect(
           verify(httpClient.post(Uri.parse(tokenUrl),
-                  body: tokenParams, headers: captureAnyNamed('headers')))
+                  body: byteBody(tokenParams),
+                  headers: captureAnyNamed('headers')))
               .captured[0],
-          {});
+          HeaderMatcher({}));
 
       expect(tknResponse.accessToken, accessToken);
     });
@@ -114,12 +124,18 @@ void main() {
         'grant_type': 'authorization_code',
         'code': authCode,
         'redirect_uri': redirectUri,
-        'client_id': clientId,
         'code_verifier': codeVerifier,
+        'client_id': clientId,
       };
 
       when(httpClient.post(Uri.parse(tokenUrl),
               body: tokenParams, headers: captureAnyNamed('headers')))
+          .thenAnswer((_) async => http.Response(
+              '{"access_token": "$accessToken", "token_type": "Bearer", "refresh_token": "$refreshToken", "expires_in": 3600}',
+              200));
+
+      when(httpClient.post(Uri.parse(tokenUrl),
+              body: byteBody(tokenParams), headers: captureAnyNamed('headers')))
           .thenAnswer((_) async => http.Response(
               '{"access_token": "$accessToken", "token_type": "Bearer", "refresh_token": "$refreshToken", "expires_in": 3600}',
               200));
@@ -133,9 +149,10 @@ void main() {
 
       expect(
           verify(httpClient.post(Uri.parse(tokenUrl),
-                  body: tokenParams, headers: captureAnyNamed('headers')))
+                  body: byteBody(tokenParams),
+                  headers: captureAnyNamed('headers')))
               .captured[0],
-          {'test': '42'});
+          HeaderMatcher({'test': '42'}));
 
       expect(tknResponse.accessToken, accessToken);
     });
@@ -182,13 +199,17 @@ void main() {
         'grant_type': 'authorization_code',
         'code': authCode,
         'redirect_uri': redirectUri,
-        'client_id': clientId,
         'code_verifier': codeVerifier,
+        'client_id': clientId,
         // 'client_secret': clientSecret
       };
 
       when(httpClient.post(Uri.parse(tokenUrl),
               body: tokenParams, headers: captureAnyNamed('headers')))
+          .thenAnswer((_) async => http.Response('', 404));
+
+      when(httpClient.post(Uri.parse(tokenUrl),
+              body: byteBody(tokenParams), headers: captureAnyNamed('headers')))
           .thenAnswer((_) async => http.Response('', 404));
 
       final tknResponse = await oauth2Client.requestAccessToken(
@@ -222,13 +243,19 @@ void main() {
         'grant_type': 'authorization_code',
         'code': authCode,
         'redirect_uri': redirectUri,
-        'client_id': clientId,
         'code_verifier': codeVerifier,
+        'client_id': clientId,
         // 'client_secret': clientSecret
       };
 
       when(httpClient.post(Uri.parse(tokenUrl),
               body: tokenParams, headers: captureAnyNamed('headers')))
+          .thenAnswer((_) async => http.Response(
+              '{"access_token": "$accessToken", "token_type": "Bearer", "refresh_token": "$refreshToken", "expires_in": 3600}',
+              200));
+
+      when(httpClient.post(Uri.parse(tokenUrl),
+              body: byteBody(tokenParams), headers: captureAnyNamed('headers')))
           .thenAnswer((_) async => http.Response(
               '{"access_token": "$accessToken", "token_type": "Bearer", "refresh_token": "$refreshToken", "expires_in": 3600}',
               200));
@@ -271,13 +298,19 @@ void main() {
         'grant_type': 'authorization_code',
         'code': authCode,
         'redirect_uri': redirectUri,
-        'client_id': clientId,
         'code_verifier': codeVerifier,
+        'client_id': clientId,
         // 'client_secret': clientSecret
       };
 
       when(httpClient.post(Uri.parse('https://test.token.url'),
               body: tokenParams, headers: captureAnyNamed('headers')))
+          .thenAnswer((_) async => http.Response(
+              '{"access_token": "$accessToken", "token_type": "Bearer", "refresh_token": "$refreshToken", "expires_in": 3600}',
+              200));
+
+      when(httpClient.post(Uri.parse('https://test.token.url'),
+              body: byteBody(tokenParams), headers: captureAnyNamed('headers')))
           .thenAnswer((_) async => http.Response(
               '{"access_token": "$accessToken", "token_type": "Bearer", "refresh_token": "$refreshToken", "expires_in": 3600}',
               200));
@@ -317,6 +350,16 @@ void main() {
               '{"access_token": "$accessToken", "token_type": "Bearer", "refresh_token": "$refreshToken", "expires_in": 3600}',
               200));
 
+      when(httpClient.post(Uri.parse(tokenUrl),
+              body: byteBody({
+                'grant_type': 'refresh_token',
+                'refresh_token': refreshToken,
+              }),
+              headers: captureAnyNamed('headers')))
+          .thenAnswer((_) async => http.Response(
+              '{"access_token": "$accessToken", "token_type": "Bearer", "refresh_token": "$refreshToken", "expires_in": 3600}',
+              200));
+
       var resp = await oauth2Client.refreshToken(refreshToken,
           clientId: clientId,
           clientSecret: clientSecret,
@@ -327,7 +370,8 @@ void main() {
                   body: captureAnyNamed('body'),
                   headers: captureAnyNamed('headers')))
               .captured[1],
-          {'Authorization': 'Basic bXljbGllbnRpZDp0ZXN0X3NlY3JldA=='});
+          HeaderMatcher(
+              {'Authorization': 'Basic bXljbGllbnRpZDp0ZXN0X3NlY3JldA=='}));
 
       expect(resp.isValid(), true);
       expect(resp.accessToken, accessToken);
@@ -344,6 +388,14 @@ void main() {
               headers: captureAnyNamed('headers')))
           .thenAnswer((_) async => http.Response('', 404));
 
+      when(httpClient.post(Uri.parse(tokenUrl),
+              body: byteBody({
+                'grant_type': 'refresh_token',
+                'refresh_token': refreshToken,
+              }),
+              headers: captureAnyNamed('headers')))
+          .thenAnswer((_) async => http.Response('', 404));
+
       var resp = await oauth2Client.refreshToken(refreshToken,
           clientId: clientId,
           clientSecret: clientSecret,
@@ -354,7 +406,8 @@ void main() {
                   body: captureAnyNamed('body'),
                   headers: captureAnyNamed('headers')))
               .captured[1],
-          {'Authorization': 'Basic bXljbGllbnRpZDp0ZXN0X3NlY3JldA=='});
+          HeaderMatcher(
+              {'Authorization': 'Basic bXljbGllbnRpZDp0ZXN0X3NlY3JldA=='}));
 
       expect(resp.isValid(), false);
     });
@@ -569,6 +622,12 @@ void main() {
               '{"access_token": "$accessToken", "token_type": "Bearer", "refresh_token": "$refreshToken", "expires_in": 3600}',
               200));
 
+      when(httpClient.post(Uri.parse(tokenUrl),
+              body: byteBody(authParams), headers: captureAnyNamed('headers')))
+          .thenAnswer((_) async => http.Response(
+              '{"access_token": "$accessToken", "token_type": "Bearer", "refresh_token": "$refreshToken", "expires_in": 3600}',
+              200));
+
       final tknResponse = await oauth2Client.getTokenWithClientCredentialsFlow(
           clientId: clientId,
           clientSecret: clientSecret,
@@ -580,7 +639,8 @@ void main() {
                   body: captureAnyNamed('body'),
                   headers: captureAnyNamed('headers')))
               .captured[1],
-          {'Authorization': 'Basic bXljbGllbnRpZDp0ZXN0X3NlY3JldA=='});
+          HeaderMatcher(
+              {'Authorization': 'Basic bXljbGllbnRpZDp0ZXN0X3NlY3JldA=='}));
 
       expect(tknResponse.accessToken, accessToken);
     });
@@ -597,6 +657,10 @@ void main() {
               body: authParams, headers: captureAnyNamed('headers')))
           .thenAnswer((_) async => http.Response('', 404));
 
+      when(httpClient.post(Uri.parse(tokenUrl),
+              body: byteBody(authParams), headers: captureAnyNamed('headers')))
+          .thenAnswer((_) async => http.Response('', 404));
+
       final tknResponse = await oauth2Client.getTokenWithClientCredentialsFlow(
           clientId: clientId,
           clientSecret: clientSecret,
@@ -608,7 +672,8 @@ void main() {
                   body: captureAnyNamed('body'),
                   headers: captureAnyNamed('headers')))
               .captured[1],
-          {'Authorization': 'Basic bXljbGllbnRpZDp0ZXN0X3NlY3JldA=='});
+          HeaderMatcher(
+              {'Authorization': 'Basic bXljbGllbnRpZDp0ZXN0X3NlY3JldA=='}));
 
       expect(tknResponse.isValid(), false);
     });
@@ -636,6 +701,10 @@ void main() {
               body: authParams, headers: captureAnyNamed('headers')))
           .thenAnswer((_) async => http.Response('', 404));
 
+      when(httpClient.post(Uri.parse(tokenUrl),
+              body: byteBody(authParams), headers: captureAnyNamed('headers')))
+          .thenAnswer((_) async => http.Response('', 404));
+
       await oauth2Client.getTokenWithClientCredentialsFlow(
           clientId: clientId,
           clientSecret: clientSecret,
@@ -646,11 +715,17 @@ void main() {
                   body: captureAnyNamed('body'),
                   headers: captureAnyNamed('headers')))
               .captured[0],
-          {
-            'grant_type': 'client_credentials',
-            'client_id': clientId,
-            'client_secret': clientSecret
-          });
+          anyOf(
+              {
+                'grant_type': 'client_credentials',
+                'client_id': clientId,
+                'client_secret': clientSecret
+              },
+              byteBody({
+                'grant_type': 'client_credentials',
+                'client_id': clientId,
+                'client_secret': clientSecret
+              })));
     });
 
     test('Credentials in HEADER (explicit)', () async {
@@ -670,6 +745,10 @@ void main() {
               body: authParams, headers: captureAnyNamed('headers')))
           .thenAnswer((_) async => http.Response('', 404));
 
+      when(httpClient.post(Uri.parse(tokenUrl),
+              body: byteBody(authParams), headers: captureAnyNamed('headers')))
+          .thenAnswer((_) async => http.Response('', 404));
+
       await oauth2Client.getTokenWithClientCredentialsFlow(
           clientId: clientId,
           clientSecret: clientSecret,
@@ -680,7 +759,8 @@ void main() {
                   body: captureAnyNamed('body'),
                   headers: captureAnyNamed('headers')))
               .captured[1],
-          {'Authorization': 'Basic bXljbGllbnRpZDp0ZXN0X3NlY3JldA=='});
+          HeaderMatcher(
+              {'Authorization': 'Basic bXljbGllbnRpZDp0ZXN0X3NlY3JldA=='}));
 
       await oauth2Client.getTokenWithClientCredentialsFlow(
           clientId: clientId,
@@ -692,11 +772,17 @@ void main() {
                   body: captureAnyNamed('body'),
                   headers: captureAnyNamed('headers')))
               .captured[0],
-          isNot({
-            'grant_type': 'client_credentials',
-            'client_id': clientId,
-            'client_secret': clientSecret
-          }));
+          isNot(anyOf(
+              {
+                'grant_type': 'client_credentials',
+                'client_id': clientId,
+                'client_secret': clientSecret
+              },
+              byteBody({
+                'grant_type': 'client_credentials',
+                'client_id': clientId,
+                'client_secret': clientSecret
+              }))));
     });
     test('Credentials in HEADER (default behaviour)', () async {
       //This is an exact copy of the previous method, except for the client initialization...
@@ -716,6 +802,10 @@ void main() {
               body: authParams, headers: captureAnyNamed('headers')))
           .thenAnswer((_) async => http.Response('', 404));
 
+      when(httpClient.post(Uri.parse(tokenUrl),
+              body: byteBody(authParams), headers: captureAnyNamed('headers')))
+          .thenAnswer((_) async => http.Response('', 404));
+
       await oauth2Client.getTokenWithClientCredentialsFlow(
           clientId: clientId,
           clientSecret: clientSecret,
@@ -726,7 +816,8 @@ void main() {
                   body: captureAnyNamed('body'),
                   headers: captureAnyNamed('headers')))
               .captured[1],
-          {'Authorization': 'Basic bXljbGllbnRpZDp0ZXN0X3NlY3JldA=='});
+          HeaderMatcher(
+              {'Authorization': 'Basic bXljbGllbnRpZDp0ZXN0X3NlY3JldA=='}));
 
       await oauth2Client.getTokenWithClientCredentialsFlow(
           clientId: clientId,
@@ -738,11 +829,17 @@ void main() {
                   body: captureAnyNamed('body'),
                   headers: captureAnyNamed('headers')))
               .captured[0],
-          isNot({
-            'grant_type': 'client_credentials',
-            'client_id': clientId,
-            'client_secret': clientSecret
-          }));
+          isNot(anyOf(
+              {
+                'grant_type': 'client_credentials',
+                'client_id': clientId,
+                'client_secret': clientSecret
+              },
+              byteBody({
+                'grant_type': 'client_credentials',
+                'client_id': clientId,
+                'client_secret': clientSecret
+              }))));
     });
   });
 
@@ -1028,4 +1125,21 @@ void main() {
       expect(oauth2Client.serializeScopes(scopes), 'scope1_scope2');
     });
   });
+}
+
+Uint8List byteBody(Map params) => utf8.encode(params.entries
+    .map((e) => '${Uri.encodeQueryComponent(e.key, encoding: utf8)}'
+        '=${Uri.encodeQueryComponent(e.value, encoding: utf8)}')
+    .join('&'));
+
+class HeaderMatcher extends CustomMatcher {
+  HeaderMatcher(matcher)
+      : super('Header without Content-Type is', 'header', matcher);
+
+  @override
+  Object? featureValueOf(actual) {
+    final m = Map.from(actual);
+    m.remove('Content-Type');
+    return m;
+  }
 }

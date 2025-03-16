@@ -1,8 +1,5 @@
-// ignore_for_file: avoid_web_libraries_in_flutter
-
-import 'dart:html' as html;
-
 import 'package:oauth2_client/src/base_storage.dart';
+import 'package:web/web.dart' as web;
 
 BaseStorage createStorage() => WebStorage();
 
@@ -11,11 +8,11 @@ class WebStorage implements BaseStorage {
 
   @override
   Future<String?> read(String key) async {
-    return html.window.localStorage[key];
+    return web.window.localStorage.getItem(key);
   }
 
   @override
   Future<void> write(String key, String value) async {
-    html.window.localStorage[key] = value;
+    web.window.localStorage.setItem(key, value);
   }
 }

@@ -8,14 +8,10 @@ import 'package:oauth2_client/oauth2_response.dart';
 import 'package:oauth2_client/src/oauth2_utils.dart';
 import 'package:random_string/random_string.dart';
 
-// import 'package:oauth2_client/src/web_auth.dart';
-
 import 'src/base_web_auth.dart';
 import 'src/web_auth.dart'
-// ignore: uri_does_not_exist
     if (dart.library.io) 'src/io_web_auth.dart'
-// ignore: uri_does_not_exist
-    if (dart.library.html) 'src/browser_web_auth.dart';
+    if (dart.library.js_interop) 'src/browser_web_auth.dart';
 
 enum CredentialsLocation { header, body }
 
@@ -29,8 +25,9 @@ enum CredentialsLocation { header, body }
 ///
 /// You can use directly this class, but normally you want to extend it and implement your own client.
 /// When instantiating the client, pass your custom uri scheme in the [customUriScheme] field.
-/// Normally you would use something like <customUriScheme>:/oauth for the [redirectUri] field.
+/// Normally you would use something like `<customUriScheme>://oauth` for the [redirectUri] field.
 /// For Android only you must add an intent filter in your AndroidManifest.xml file to enable the custom uri handling.
+/// ```xml
 /// <activity android:name="com.linusu.flutter_web_auth_2.CallbackActivity" >
 ///   <intent-filter android:label="flutter_web_auth_2">
 ///     <action android:name="android.intent.action.VIEW" />
@@ -39,6 +36,8 @@ enum CredentialsLocation { header, body }
 ///     <data android:scheme="com.teranet.app" />
 ///   </intent-filter>
 /// </activity>
+/// ```
+/// For detailed instructions, see also https://pub.dev/packages/flutter_web_auth_2#android
 class OAuth2Client {
   String redirectUri;
   String customUriScheme;
@@ -48,6 +47,9 @@ class OAuth2Client {
   String? revokeUrl;
   String authorizeUrl;
   String scopeSeparator;
+
+  String clientIdKey;
+  String clientSecretKey;
 
   BaseWebAuth webAuthClient = createWebAuth();
   CredentialsLocation credentialsLocation;
@@ -62,15 +64,20 @@ class OAuth2Client {
   /// * [customUriScheme]: the scheme used for the redirect uri
   /// * [credentialsLocation]: where the credentials (client ID / client secret) should be passed (header / body)
   /// * [scopeSeparator]: the separator that has to be used to serialize scopes in the token request
-  OAuth2Client(
-      {required this.authorizeUrl,
-      required this.tokenUrl,
-      this.refreshUrl,
-      this.revokeUrl,
-      required this.redirectUri,
-      required this.customUriScheme,
-      this.credentialsLocation = CredentialsLocation.header,
-      this.scopeSeparator = ' '});
+  /// * [clientIdKey]: the body field name for the client ID (RFC default: client_id)
+  /// * [clientSecretKey]: the body field name for the client secret (RFC default: client_secret)
+  OAuth2Client({
+    required this.authorizeUrl,
+    required this.tokenUrl,
+    this.refreshUrl,
+    this.revokeUrl,
+    required this.redirectUri,
+    required this.customUriScheme,
+    this.credentialsLocation = CredentialsLocation.header,
+    this.scopeSeparator = ' ',
+    this.clientIdKey = 'client_id',
+    this.clientSecretKey = 'client_secret',
+  });
 
   /// Requests an Access Token to the OAuth2 endpoint using the Implicit grant flow (https://tools.ietf.org/html/rfc6749#page-31)
   Future<AccessTokenResponse> getTokenWithImplicitGrantFlow(
@@ -170,7 +177,7 @@ class OAuth2Client {
 
         tknResp = await requestAccessToken(
             httpClient: httpClient,
-            //If the authorization request was successfull, the code must be set
+            //If the authorization request was successful, the code must be set
             //otherwise an exception is raised in the OAuth2Response constructor
             code: authResp.code!,
             clientId: clientId,
@@ -334,7 +341,7 @@ class OAuth2Client {
       Map<String, dynamic>? customParams}) {
     final params = <String, dynamic>{
       'response_type': responseType,
-      'client_id': clientId
+      clientIdKey: clientId
     };
 
     if (redirectUri != null && redirectUri.isNotEmpty) {
@@ -380,7 +387,7 @@ class OAuth2Client {
     //If a client secret has been specified, it will be sent in the "Authorization" header instead of a body parameter...
     if (clientSecret == null || clientSecret.isEmpty) {
       if (clientId != null && clientId.isNotEmpty) {
-        params['client_id'] = clientId;
+        params[clientIdKey] = clientId;
       }
     }
 */
@@ -407,13 +414,16 @@ class OAuth2Client {
       httpClient}) async {
     httpClient ??= http.Client();
 
-    headers ??= {};
+    headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      ...(headers ?? {})
+    };
     params ??= {};
 
     //If a client secret has been specified, it will be sent in the "Authorization" header instead of a body parameter...
     if (clientSecret == null) {
       if (clientId.isNotEmpty) {
-        params['client_id'] = clientId;
+        params[clientIdKey] = clientId;
       }
     } else {
       switch (credentialsLocation) {
@@ -424,14 +434,20 @@ class OAuth2Client {
           ));
           break;
         case CredentialsLocation.body:
-          params['client_id'] = clientId;
-          params['client_secret'] = clientSecret;
+          params[clientIdKey] = clientId;
+          params[clientSecretKey] = clientSecret;
           break;
       }
     }
 
-    var response =
-        await httpClient.post(Uri.parse(url), body: params, headers: headers);
+    // This is a very semi-optimal way to work around the following issue:
+    // https://github.com/dart-lang/http/issues/184
+    var response = await httpClient.post(Uri.parse(url),
+        body: utf8.encode(params.entries
+            .map((e) => '${Uri.encodeQueryComponent(e.key, encoding: utf8)}'
+                '=${Uri.encodeQueryComponent(e.value, encoding: utf8)}')
+            .join('&')),
+        headers: headers);
 
     return response;
   }
@@ -486,8 +502,8 @@ class OAuth2Client {
     if (token != null) {
       var params = {'token': token, 'token_type_hint': tokenType};
 
-      if (clientId != null) params['client_id'] = clientId;
-      if (clientSecret != null) params['client_secret'] = clientSecret;
+      if (clientId != null) params[clientIdKey] = clientId;
+      if (clientSecret != null) params[clientSecretKey] = clientSecret;
 
       http.Response response =
           await httpClient.post(Uri.parse(revokeUrl!), body: params);
